@@ -1,19 +1,56 @@
 {
     "env": {
-        "node": true,
-        "es2021": true
+      "es2021": true,
+      "node": true
     },
     "extends": [
-        "standard-with-typescript",
-        "plugin:react/recommended"
+      "eslint:recommended",
+      "plugin:react/recommended",
+      "plugin:@typescript-eslint/eslint-recommended",
+      "plugin:@typescript-eslint/recommended",
+      "plugin:@typescript-eslint/recommended-requiring-type-checking",
+      "plugin:react/jsx-runtime"
     ],
+    "settings": {
+      "import/resolver": {
+        "node": {
+          "extensions": [".js", ".ts", ".jsx", ".tsx"]
+        }
+      },
+      "react": {
+        "version": "detect"
+      }
+    },
+    "overrides": [
+      {
+        "files": ["**.test.**"],
+        "plugins": ["jest"],
+        "extends": [ "plugin:jest/recommended", "plugin:@typescript-eslint/recommended"],
+        "rules": { "jest/prefer-expect-assertions": "off", "import/extensions": "off" },
+        "env" : {
+          "jest/globals": true
+        }
+      }
+    ],
+    "parser": "@typescript-eslint/parser",
     "parserOptions": {
-        "ecmaVersion": "latest",
-        "sourceType": "module"
+      "project": ["./tsconfig.json"],
+      "ecmaVersion": "latest",
+      "sourceType": "module",
+      "ecmaFeatures": {"jsx" : true}
     },
     "plugins": [
-        "react"
+      "prettier",
+      "react",
+      "@typescript-eslint"
     ],
     "rules": {
+      "object-curly-newline": "off",
+      "prettier/prettier": ["error",{ "singleQuote": true}],
+      "linebreak-style": ["error", "unix"],
+      "quotes": ["error", "single", "avoid-escape"],
+      "semi": ["error", "always"],
+      "no-duplicate-imports": "error",
+      "eqeqeq": "error"
     }
-}
+  }

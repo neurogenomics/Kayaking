@@ -1,15 +1,23 @@
-name: Continuous Integration
+name: Frontend Continuous Integration
 on:
-  pull_request
+  pull_request:
+    paths:
+        - 'app/**'
+        - '.github/workflows/**'
 
 jobs:
   lint: 
-    name: Build and Lint
+    name: Build, Test & Lint
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./app
     steps:
     - name: Checkout code
       uses: actions/checkout@v3
     - name: Build
       run: yarn install
+    - name: Test
+      run: yarn test
     - name: Lint
       run: yarn lint
