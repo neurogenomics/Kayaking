@@ -9,8 +9,8 @@ jobs:
     steps:
     - name: Checkout code
       uses: actions/checkout@v3
-    - name: Change to /app directory
-      run: cd /app
+    - name: Change to app directory
+      run: cd app
     - name: Build
       run: yarn install
     - name: Test
