@@ -5,7 +5,7 @@ import React from 'react'
 export const App: React.FC = () => {
   return (
     <View style={styles.container}>
-      <Text>Welcome to kayak app</Text>
+      <Text>Welcome to kayak app (testing linter)</Text>
       <StatusBar style="auto" />
     </View>
   )
