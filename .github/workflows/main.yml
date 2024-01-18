@@ -4,12 +4,14 @@ on:
 
 jobs:
   lint: 
-    name: Build and Lint
+    name: Build, Test & Lint
     runs-on: ubuntu-latest
     steps:
     - name: Checkout code
       uses: actions/checkout@v3
     - name: Build
       run: yarn install
+    - name: Test
+      run: yarn test
     - name: Lint
       run: yarn lint
