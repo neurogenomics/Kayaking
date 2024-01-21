@@ -4,7 +4,7 @@ on:
     paths:
         - 'app/**'
 jobs:
-  lint:
+  build-test-lint:
     name: Build, Test & Lint
     runs-on: ubuntu-latest
     defaults:
