@@ -9,7 +9,7 @@ export const App: React.FC = () => {
       <StatusBar style="auto" />
     </View>
   );
-}; 
+};
 
 const styles = StyleSheet.create({
   container: {
