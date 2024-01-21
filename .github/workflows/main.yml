@@ -3,10 +3,8 @@ on:
   pull_request:
     paths:
         - 'app/**'
-        - '.github/workflows/**'
-
 jobs:
-  lint: 
+  build-test-lint:
     name: Build, Test & Lint
     runs-on: ubuntu-latest
     defaults:
