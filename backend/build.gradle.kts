@@ -6,6 +6,7 @@ plugins {
     kotlin("jvm") version "1.9.22"
     id("io.ktor.plugin") version "2.3.7"
     id("org.jetbrains.kotlin.plugin.serialization") version "1.9.22"
+    id("com.adarshr.test-logger") version "4.0.0"
 }
 
 group = "com.kayak_backend"
@@ -34,4 +35,6 @@ dependencies {
 }
 tasks {
     create("stage").dependsOn("installDist")
+}
+tasks.named<Test>("test") {
 }
