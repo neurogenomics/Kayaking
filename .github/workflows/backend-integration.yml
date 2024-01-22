@@ -13,7 +13,5 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
-      - name: Build
+      - name: Build and Test
         run: ./gradlew build
-      - name: Test
-        run: ./gradlew test

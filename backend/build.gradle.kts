@@ -36,5 +36,3 @@ dependencies {
 tasks {
     create("stage").dependsOn("installDist")
 }
-tasks.named<Test>("test") {
-}
