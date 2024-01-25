@@ -6,12 +6,12 @@ class Slipways{
     var slipways : List<Location>  = listOf()
     val slipwayGetter = SlipwaysGetter();
 
-    fun closestSlipway(coords : Location) : Location? {
+    fun closestSlipway(coords : Location) : Location {
         if (slipways.isEmpty()){
             slipways = slipwayGetter.getSlipways();
         }
-        return slipways.reduceOrNull { closest, current ->
-            val distanceToClosest = coords.distance(closest) ?: Double.MAX_VALUE
+        return slipways.reduce { closest, current ->
+            val distanceToClosest = coords.distance(closest)
             val distanceToCurrent = coords.distance(current)
 
             if (distanceToCurrent < distanceToClosest) {
