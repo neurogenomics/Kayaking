@@ -23,6 +23,7 @@ repositories {
 }
 
 dependencies {
+    implementation("org.apache.commons:commons-compress:1.21")
     implementation("com.squareup.okhttp3:okhttp:4.12.0")
     implementation("org.json:json:20231013")
     implementation("io.ktor:ktor-server-core-jvm")

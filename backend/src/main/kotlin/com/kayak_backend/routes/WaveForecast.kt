@@ -1,40 +1,85 @@
-package com.kayak_backend.services
-import java.nio.file.FileSystems
-import java.nio.file.Files
-import java.nio.file.attribute.BasicFileAttributes
+package com.kayak_backend.routes
 import java.time.LocalDateTime
-import java.time.ZoneId
-import java.time.temporal.ChronoUnit
-import java.time.LocalDate
-import java.time.format.DateTimeFormatter
 import okhttp3.OkHttpClient
 import okhttp3.Request
+import org.apache.commons.compress.compressors.bzip2.BZip2CompressorInputStream
+import java.io.BufferedInputStream
+import java.io.File
+import java.io.FileInputStream
 import java.io.FileOutputStream
+import java.text.SimpleDateFormat
+import java.util.*
+import java.util.concurrent.Executors
+import java.util.concurrent.TimeUnit
 
-class WaveForecast() {
+class WaveForecast {
 
-    private val filePath = "./src/main/kotlin/com/kayak_backend/routes/waveForecast.grib2"
-    private val HOURS_BEFORE_UPDATE = 6
+    private val hour = String.format("%02d", (LocalDateTime.now().hour / 6) * 6)
+    private val currentDate = SimpleDateFormat("yyMMdd").format(Date())
+
     fun checkAndRenewForecast() {
-        if (isForecastOlderThanFourHours()) {
-            this.renewForecast(getDownloadURL())
-            println("File is older than four hours. Renewing forecast...")
+        if (newForecastExists()) {
+            this.renewForecast()
+            println("New forecast exists. Renewing forecast...")
         } else {
-            println("File is not older than four hours.")
+            println("No new forecast exists.")
         }
     }
 
-    private fun getDownloadURL(): String {
-        val date = LocalDate.now().format(DateTimeFormatter.BASIC_ISO_DATE)
-        val baseUrl = "https://nomads.ncep.noaa.gov/cgi-bin/filter_gefs_wave_0p25.pl"
-        val dynamicDate = "dir=%2Fgefs.$date%2F12%2Fwave%2Fgridded"
-        val staticParams = "&file=gefs.wave.t12z.c00.global.0p25.f000.grib2&all_var=on&all_lev=on"
-
-        val finalUrl = "$baseUrl?$dynamicDate$staticParams"
-        return finalUrl
+    private fun getFilePath(isBz2: Boolean) : String {
+        // TODO decide where forecast is actually stored
+        val baseFilePath = "./src/main/kotlin/com/kayak_backend/routes/waveForecast_%s-%s.grib2"
+        val filePath = String.format(baseFilePath, currentDate, hour)
+        if (isBz2) {
+            return filePath.plus(".bz2")
+        }
+        return filePath
     }
 
-    private fun renewForecast(url: String): Boolean {
+    private fun getDownloadURL(): String {
+
+        val baseUrl = "https://openskiron.org/gribs_wrf_4km/Cherbourg_4km_WRF_WAM_%s-%s.grb.bz2"
+        val fileUrl = String.format(baseUrl, currentDate, hour)
+        println(fileUrl)
+
+        return fileUrl
+    }
+
+    private fun decompressBz2Forecast(): Boolean {
+        try {
+            val inputStream = BZip2CompressorInputStream(BufferedInputStream(FileInputStream(getFilePath(isBz2 = true))))
+            val outputStream = FileOutputStream(File(getFilePath(isBz2 = false)))
+
+            // buffer for reading from the compressed stream
+            val buffer = ByteArray(4096)
+            var bytesRead: Int
+
+            // read from the compressed stream and write to the output stream
+            while (inputStream.read(buffer).also { bytesRead = it } != -1) {
+                outputStream.write(buffer, 0, bytesRead)
+            }
+
+            // close the streams
+            inputStream.close()
+            outputStream.close()
+
+            // delete the .bz2 file
+            val originalFile = File(getFilePath(isBz2 = true))
+            if (originalFile.exists()) {
+                originalFile.delete()
+                println("Original .bz2 file deleted.")
+            }
+
+            println("File decompressed successfully.")
+            return true
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+        return false
+    }
+
+    private fun renewForecast(): Boolean {
+        val url = getDownloadURL()
         val client = OkHttpClient()
 
         try {
@@ -45,15 +90,16 @@ class WaveForecast() {
             val response = client.newCall(request).execute()
 
             if (response.isSuccessful) {
-                val downloadedFilePath = filePath
 
-                FileOutputStream(downloadedFilePath).use { output ->
+                FileOutputStream(getFilePath(isBz2 = true)).use { output ->
                     output.write(response.body!!.bytes())
                 }
                 // TODO actually do things with the forecast
 
-                println("Downloaded successfully.")
-                return true
+                if (this.decompressBz2Forecast()) {
+                    println("Downloaded successfully.")
+                    return true
+                }
             } else {
                 println("Failed to download. Status code: ${response.code}")
             }
@@ -64,30 +110,31 @@ class WaveForecast() {
         return false
     }
 
-    private fun isForecastOlderThanFourHours(): Boolean {
-        val file = FileSystems.getDefault().getPath(filePath)
-        println(file)
+    private fun newForecastExists(): Boolean {
+        // TODO find out when the forecasts refresh and change this function appropriately
+        val newForecastMayExist = !File(getFilePath(isBz2 = false)).exists()
 
-        if (Files.exists(file)) {
-            val fileAttributes = Files.readAttributes(file, BasicFileAttributes::class.java)
-            val lastModifiedTime = fileAttributes.lastModifiedTime().toInstant()
-
-            val currentDateTime = LocalDateTime.now()
-            val lastModifiedDateTime = LocalDateTime.ofInstant(lastModifiedTime, ZoneId.systemDefault())
-
-            val hoursDifference = ChronoUnit.HOURS.between(lastModifiedDateTime, currentDateTime)
-
-            return hoursDifference > HOURS_BEFORE_UPDATE
-        } else {
-            println("File not found.")
-
-            // downloads the file if it is not found
-            return true
+        if (newForecastMayExist) {
+            return renewForecast()
         }
+        return false
     }
 }
 
 fun main() {
+
+    // TODO change according to how often we need to check the forecast
     val waveForecast = WaveForecast()
-    waveForecast.checkAndRenewForecast()
+
+    // Create a scheduled executor service
+    val scheduler = Executors.newScheduledThreadPool(1)
+
+    // Schedule the task to run every hour
+    val initialDelay = 0L
+    val period = 1L // Repeat every 1 hour
+    val timeUnit = TimeUnit.HOURS
+
+    val task = Runnable { waveForecast.checkAndRenewForecast() }
+
+    scheduler.scheduleAtFixedRate(task, initialDelay, period, timeUnit)
 }
