@@ -1,6 +1,7 @@
 val ktor_version: String by project
 val kotlin_version: String by project
 val logback_version: String by project
+val mockkVersion: String by project
 
 plugins {
     kotlin("jvm") version "1.9.22"
@@ -36,6 +37,9 @@ dependencies {
     testImplementation("io.ktor:ktor-server-tests-jvm")
     testImplementation("io.ktor:ktor-server-test-host:$ktor_version")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version")
+    implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.5.0")
+    implementation("io.ktor:ktor-server-data-conversion")
+    testImplementation("io.mockk:mockk:${mockkVersion}")
 }
 tasks {
     create("stage").dependsOn("installDist")
