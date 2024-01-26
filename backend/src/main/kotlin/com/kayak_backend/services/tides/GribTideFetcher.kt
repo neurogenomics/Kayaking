@@ -2,6 +2,7 @@ package com.kayak_backend.services.tides
 
 import com.kayak_backend.gribReader.NetCDFGribReader
 import com.kayak_backend.models.Location
+import com.kayak_backend.models.TideInfo
 import java.time.LocalDateTime
 
 class GribTideFetcher: TideService {
@@ -12,8 +13,9 @@ class GribTideFetcher: TideService {
     private val lonName = "TwoD/LatLon_100X120-49p74N-1p333W/lon"
     private val timeName = "TwoD/LatLon_100X120-49p74N-1p333W/reftime"
 
-    override fun getTide(loc: Location, time: LocalDateTime): Pair<Double, Double> {
+    override fun getTide(loc: Location, time: LocalDateTime): TideInfo {
         val gribReader = NetCDFGribReader()
-        return gribReader.getVarPair(loc.lat, loc.lng, time, uVariableName, vVariableName, filePath, latName, lonName, timeName)
+        val pair =  gribReader.getVarPair(loc.lat, loc.lng, time, uVariableName, vVariableName, filePath, latName, lonName, timeName)
+        return TideInfo(u = pair.first, v = pair.second)
     }
 }
