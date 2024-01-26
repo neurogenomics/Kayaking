@@ -13,7 +13,7 @@ class SlipwayService (private val client: OkHttpClient = OkHttpClient()){
 
 
 
-    fun closestSlipway(coords : Location) : Location {
+    fun getClosestSlipway(coords : Location) : Location {
         if (slipways.isEmpty()){
             slipways = slipwayGetter.getSlipways();
         }
