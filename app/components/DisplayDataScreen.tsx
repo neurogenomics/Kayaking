@@ -2,18 +2,23 @@ import React from 'react';
 import { View, Text, StyleSheet, FlatList } from 'react-native';
 
 interface DisplayDataScreenProps {
-  longitude: string;
-  latitude: string;
   sunrise: string;
   sunset: string;
+  slipway: string;
+  tide: string;
 }
 
-const DisplayDataScreen: React.FC<DisplayDataScreenProps> = ({ longitude, latitude, sunrise, sunset }) => {
-
+const DisplayDataScreen: React.FC<DisplayDataScreenProps> = ({
+  sunrise,
+  sunset,
+  slipway,
+  tide,
+}) => {
   const data = [
     { title: 'Sunrise Time', value: sunrise },
     { title: 'Sunset Time', value: sunset },
-    { title: 'Closest Slipway', value: 'Isle of Wight' },
+    { title: 'Closest Slipway', value: slipway },
+    { title: 'Tide', value: tide },
   ];
 
   return (
