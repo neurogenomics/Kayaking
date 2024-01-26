@@ -18,7 +18,7 @@ import kotlinx.serialization.json.Json
 import java.time.LocalTime
 import kotlin.test.*
 
-class SunsetRoute {
+class SunsetRouteTest {
 
     private val sunsetApiMock = mockk<SunsetService>()
     private val sunsetInfoMock = SunsetInfo(LocalTime.of(10, 30), LocalTime.of(6,30))

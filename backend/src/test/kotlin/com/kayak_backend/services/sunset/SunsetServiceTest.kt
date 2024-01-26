@@ -12,7 +12,7 @@ import okhttp3.ResponseBody.Companion.toResponseBody
 import java.io.IOException
 import java.time.LocalTime
 import kotlin.test.*
-class SunsetService {
+class SunsetServiceTest {
 
     private val httpClientMock = mockk<OkHttpClient>()
     private val sunsetService = SunsetService(httpClientMock)
