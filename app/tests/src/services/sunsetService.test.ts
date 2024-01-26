@@ -1,8 +1,8 @@
-import { LocationModel } from '../../src/models/locationModel';
-import * as utils from '../../src/services/utils';
-import { getSunset } from '../../src/services/sunsetService';
+import { LocationModel } from '../../../src/models/locationModel';
+import * as utils from '../../../src/services/utils';
+import { getSunset } from '../../../src/services/sunsetService';
+import { SunsetInfo } from '../../../src/models/sunsetModel';
 
-// Mocking the getData function
 const getDataMock = jest.fn();
 
 jest.spyOn(utils, 'getData').mockImplementation(getDataMock);
