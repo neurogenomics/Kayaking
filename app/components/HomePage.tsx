@@ -1,13 +1,30 @@
 // HomePage.tsx
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, Image, Button, StyleSheet, TextInput } from 'react-native';
 import kayakingImage from '../assets/kayaking.png';
 import { useNavigation } from '@react-navigation/native';
+import { SunsetInfo } from '../src/models/sunsetModel';
+import { LocationModel } from '../src/models/locationModel';
+import { getSunset } from '../src/services/sunsetService';
+import DisplayDataScreen from './DisplayDataScreen';
 
 const HomePage: React.FC = () => {
   const [longitude, setLongitude] = useState('');
   const [latitude, setLatitude] = useState('');
-  const navigation = useNavigation();
+  const [sunrise, setSunrise] = useState('No sunrise data yet');
+  const [sunset, setSunset] = useState('No sunset data yet');
+  const [showData, setShowData] = useState(false);
+
+  const update = async () => {
+    const location: LocationModel = {
+      latitude: parseFloat(longitude),
+      longitude: parseFloat(latitude),
+    };
+
+    const sunset: SunsetInfo = await getSunset(location);
+    setSunset(sunset.sunset);
+    setSunrise(sunset.sunrise);
+  };
 
   const InputLocation = ({ setLongitude, setLatitude }) => {
     return (
@@ -33,12 +50,8 @@ const HomePage: React.FC = () => {
   };
 
   const handleSaveLocation = () => {
-    // Do something with the longitude and latitude values
-    console.log('Longitude:', longitude);
-    console.log('Latitude:', latitude);
-
-    // Navigate to the new screen and pass data as params
-    navigation.navigate('DisplayDataScreen', { longitude, latitude });
+    void update();
+    setShowData(true);
   };
 
   return (
@@ -48,6 +61,14 @@ const HomePage: React.FC = () => {
       <Text style={styles.title}>Enter your location below:</Text>
       <InputLocation setLongitude={setLongitude} setLatitude={setLatitude} />
       <Button title="Save Location" onPress={handleSaveLocation} />
+      {showData && (
+        <DisplayDataScreen
+          longitude={longitude}
+          latitude={latitude}
+          sunrise={sunrise}
+          sunset={sunset}
+        />
+      )}
     </View>
   );
 };

@@ -8,14 +8,7 @@ import DisplayDataScreen from './components/DisplayDataScreen';
 const Stack = createStackNavigator();
 
 export const App: React.FC = () => {
-  return (
-    <NavigationContainer>
-      <Stack.Navigator initialRouteName="HomePage">
-        <Stack.Screen name="Homepage" component={HomePage} />
-        <Stack.Screen name="DisplayDataScreen" component={DisplayDataScreen} />
-      </Stack.Navigator>
-    </NavigationContainer>
-  );
+  return <HomePage />;
 };
 
 export default App;
