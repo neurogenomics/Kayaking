@@ -15,7 +15,7 @@ class GribTideFetcher: TideService {
 
     override fun getTide(loc: Location, time: LocalDateTime): TideInfo {
         val gribReader = NetCDFGribReader()
-        val pair =  gribReader.getVarPair(loc.lat, loc.lng, time, uVariableName, vVariableName, filePath, latName, lonName, timeName)
+        val pair =  gribReader.getVarPair(loc.latitude, loc.longitude, time, uVariableName, vVariableName, filePath, latName, lonName, timeName)
         return TideInfo(u = pair.first, v = pair.second)
     }
 }
