@@ -81,7 +81,6 @@ class NetCDFGribReader : GribReader {
 
     private fun findTime(file: NetcdfFile, timeVarName: String, time: LocalDateTime): Int {
         val timeVar = file.findVariable(timeVarName)
-        val timeData = timeVar.read()
         val reftime = processDateString(timeVar.unitsString)
         val duration = Duration.between(reftime, time)
 
@@ -90,9 +89,19 @@ class NetCDFGribReader : GribReader {
 
     private fun fetchVarAtLoc(file: NetcdfFile, latIndex: Int, lonIndex: Int, timeIndex: Int, variableName: String): Double {
         val variable = file.findVariable(variableName)
+        val rank = variable.rank
+        var origin = IntArray(rank)
 
-        val origin = intArrayOf(0, timeIndex, latIndex, lonIndex)
-        val shape = intArrayOf(1, 1, 1, 1)
+        for((i, dim) in variable.dimensionsAll.withIndex()) {
+            val name = dim.dodsName
+            when (name) {
+                "lat" -> origin[i] = latIndex
+                "lon" -> origin[i] = lonIndex
+                "time" -> origin[i] = timeIndex
+            }
+        }
+
+        val shape = IntArray(rank) { 1 }
 
         return variable.read(origin, shape).reduce().getDouble(0)
     }
