@@ -1,5 +1,6 @@
 package com.kayak_backend.plugins
 
+import com.kayak_backend.routes.slipway
 import com.kayak_backend.routes.sunset
 import com.kayak_backend.routes.testRouting
 import com.kayak_backend.routes.tide
@@ -10,6 +11,7 @@ fun Application.configureRouting() {
     routing {
         testRouting()
         sunset()
+        slipway()
         tide()
     }
 }

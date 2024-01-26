@@ -23,7 +23,7 @@ class SlipwayRouteTest {
     //private val sunsetInfoMock = SunsetInfo(LocalTime.of(10, 30), LocalTime.of(6,30))
 
     init {
-        every { slipwayMock.closestSlipway(any()) } returns Location(0.0, 0.0);
+        every { slipwayMock.getClosestSlipway(any()) } returns Location(0.0, 0.0);
     }
 
     // TODO: Reuse original setup or move to separate file
@@ -54,7 +54,7 @@ class SlipwayRouteTest {
         commonSetup()
         val response = client.get("/slipway?lat=50.64&lng=60")
         assertEquals(HttpStatusCode.OK, response.status)
-        val encoded = Json.encodeToString(slipwayMock.closestSlipway(Location(0.0, 0.0)))
+        val encoded = Json.encodeToString(slipwayMock.getClosestSlipway(Location(0.0, 0.0)))
         assertEquals(encoded, response.bodyAsText())
     }
     @Test
