@@ -1,5 +1,6 @@
 package com.kayak_backend.plugins
 
+import com.kayak_backend.routes.slipway
 import com.kayak_backend.routes.sunset
 import com.kayak_backend.routes.testRouting
 import io.ktor.server.application.*
@@ -10,5 +11,6 @@ fun Application.configureRouting() {
     routing {
         testRouting()
         sunset()
+        slipway()
     }
 }
