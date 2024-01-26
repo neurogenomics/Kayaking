@@ -6,7 +6,7 @@ import okhttp3.Request
 import org.json.JSONObject
 
 private const val API_ENDPOINT = "overpass-api.de"
-class SlipwaysGetter (private val client: OkHttpClient = OkHttpClient()){
+class SlipwaysGetter (private val client: OkHttpClient = OkHttpClient(), private val loc1: Location, private val loc2: Location){
     fun getSlipways(): List<Location> {
         val request = buildRequest()
         val response = client.newCall(request).execute()
@@ -36,7 +36,7 @@ class SlipwaysGetter (private val client: OkHttpClient = OkHttpClient()){
             .addQueryParameter("data", """[out:json];
             node
             [leisure=slipway]
-            (50.564485309567644,-1.6005677025384493,50.8605772841442,-1.0457581322259493);
+            ("""+loc1.latitude+""","""+loc1.longitude+""","""+loc2.latitude+""","""+loc2.longitude+""");
             out;""")
         return Request.Builder()
             .url(urlBuilder.build())
