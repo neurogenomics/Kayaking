@@ -1,4 +1,4 @@
-type SunsetInfo = {
+export type SunsetInfo = {
   sunrise: Date;
   sunset: Date;
 };

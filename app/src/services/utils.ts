@@ -1,15 +1,14 @@
-import { LocationModel } from '../models/locationModel';
-import { getData } from './requestUtils';
-import { format } from 'date-fns';
+import axios, { AxiosRequestConfig } from 'axios';
 
-export const getSunset = async (
-  location: LocationModel,
-  date?: Date,
-): Promise<SunsetInfo> => {
-  let url = `sunset?lat=${location.latitude}&lng=${location.longitude}`;
-  if (date) {
-    url += `&date=${format(date, 'yyyy-MM-dd')}`;
-  }
-  const sunsetInfo = await getData<SunsetInfo>(url);
-  return sunsetInfo;
+const BACKEND_API_ORIGIN = process.env.EXPO_PUBLIC_BACKEND_URL;
+const generateUrl = (path: string): string =>
+  new URL(path, BACKEND_API_ORIGIN).toString();
+
+export const getData = async <T>(
+  path: string,
+  options: AxiosRequestConfig = {},
+): Promise<T> => {
+  const url = generateUrl(path);
+  const response = await axios.get<T>(url, options);
+  return response.data;
 };
