@@ -1,6 +1,6 @@
-import { LocationModel } from '../../src/models/locationModel';
-import * as utils from '../../src/services/utils';
-import { getClosestSlipway } from '../../src/services/slipwayService';
+import { LocationModel } from '../../../src/models/locationModel';
+import * as utils from '../../../src/services/utils';
+import { getClosestSlipway } from '../../../src/services/slipwayService';
 
 // Mocking the getData function
 const getDataMock = jest.fn();
