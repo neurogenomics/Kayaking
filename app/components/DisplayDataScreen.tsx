@@ -6,6 +6,7 @@ interface DisplayDataScreenProps {
   sunset: string;
   slipway: string;
   tide: string;
+  wind: string;
 }
 
 const DisplayDataScreen: React.FC<DisplayDataScreenProps> = ({
@@ -13,12 +14,16 @@ const DisplayDataScreen: React.FC<DisplayDataScreenProps> = ({
   sunset,
   slipway,
   tide,
+  wind,
 }) => {
   const data = [
     { title: 'Sunrise Time', value: sunrise },
     { title: 'Sunset Time', value: sunset },
     { title: 'Closest Slipway', value: slipway },
     { title: 'Tide', value: tide },
+    { title: 'Wind', value: wind },
+    { title: 'Low tide time', value: 'Coming soon...' },
+    { title: 'High tide time', value: 'Coming soon...' },
   ];
 
   return (
@@ -30,9 +35,8 @@ const DisplayDataScreen: React.FC<DisplayDataScreenProps> = ({
           keyExtractor={(item, index) => index.toString()}
           renderItem={({ item }) => (
             <View style={styles.dataItem}>
-              <Text>
-                {item.title}: {item.value}
-              </Text>
+              <Text style={{ fontWeight: 'bold' }}>{item.title}: </Text>
+              <Text>{item.value}</Text>
             </View>
           )}
         />
@@ -54,7 +58,7 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   dataItem: {
-    fontSize: 18,
+    fontSize: 20,
     marginBottom: 8,
   },
 });

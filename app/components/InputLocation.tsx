@@ -8,6 +8,7 @@ export const InputLocation = ({ setLongitude, setLatitude }) => {
         style={styles.locationInput}
         placeholder="Longitude"
         returnKeyType="done"
+        keyboardType="numbers-and-punctuation"
         onChangeText={setLongitude}
       />
       <TextInput
@@ -15,6 +16,7 @@ export const InputLocation = ({ setLongitude, setLatitude }) => {
         enterKeyHint="enter"
         placeholder="Latitude"
         returnKeyType="done"
+        keyboardType="numbers-and-punctuation"
         onChangeText={setLatitude}
       />
     </View>

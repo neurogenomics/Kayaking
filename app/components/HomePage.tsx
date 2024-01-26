@@ -1,8 +1,7 @@
 // HomePage.tsx
-import React, { useEffect, useState } from 'react';
-import { View, Text, Image, Button, StyleSheet, TextInput } from 'react-native';
+import React, {useState } from 'react';
+import { View, Text, Image, Button, StyleSheet} from 'react-native';
 import kayakingImage from '../assets/kayaking.png';
-import { useNavigation } from '@react-navigation/native';
 import { SunsetInfo } from '../src/models/sunsetModel';
 import { LocationModel, locationToString } from '../src/models/locationModel';
 import { getSunset } from '../src/services/sunsetService';
@@ -11,6 +10,7 @@ import { getClosestSlipway } from '../src/services/slipwayService';
 import { Vector, vectorToString } from '../src/models/vectorModel';
 import { getTideDirection } from '../src/services/tideService';
 import { InputLocation } from './InputLocation';
+import { getWindDirection } from '../src/services/windService';
 
 const HomePage: React.FC = () => {
   const [longitude, setLongitude] = useState('');
@@ -19,6 +19,7 @@ const HomePage: React.FC = () => {
   const [sunset, setSunset] = useState('No sunset data yet');
   const [slipway, setSlipway] = useState('No slipway data yet');
   const [tide, setTide] = useState('No tide data yet');
+  const [wind, setWind] = useState('No wind data yet');
   const [showData, setShowData] = useState(false);
 
   const location: LocationModel = {
@@ -57,10 +58,21 @@ const HomePage: React.FC = () => {
     }
   };
 
+  const updateWind = async () => {
+    try {
+      const windInfo: Vector = await getWindDirection(location);
+      setWind(vectorToString(windInfo));
+      console.log('Wind data updated successfully');
+    } catch (error) {
+      console.error('Error updating wind data: ', error);
+    }
+  };
+
   const handleSaveLocation = () => {
     updateSunset();
     updateSlipway();
     updateTide();
+    updateWind();
     setShowData(true);
   };
 
@@ -77,6 +89,7 @@ const HomePage: React.FC = () => {
           sunset={sunset}
           slipway={slipway}
           tide={tide}
+          wind={wind}
         />
       )}
     </View>
