@@ -2,7 +2,7 @@ package com.kayak_backend.services.slipways
 
 import com.kayak_backend.models.Location
 
-class Slipways{
+class SlipwayService {
     var slipways : List<Location>  = listOf()
     val slipwayGetter = SlipwaysGetter();
 
