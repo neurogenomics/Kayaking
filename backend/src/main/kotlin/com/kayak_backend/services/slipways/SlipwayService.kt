@@ -1,10 +1,11 @@
 package com.kayak_backend.services.slipways
 
 import com.kayak_backend.models.Location
+import okhttp3.OkHttpClient
 
-class SlipwayService {
+class SlipwayService (private val client: OkHttpClient = OkHttpClient()){
     var slipways : List<Location>  = listOf()
-    val slipwayGetter = SlipwaysGetter();
+    val slipwayGetter = SlipwaysGetter(client);
 
     fun closestSlipway(coords : Location) : Location {
         if (slipways.isEmpty()){

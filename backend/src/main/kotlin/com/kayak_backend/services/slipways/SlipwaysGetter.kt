@@ -12,17 +12,16 @@ class SlipwaysGetter (private val client: OkHttpClient = OkHttpClient()){
         val response = client.newCall(request).execute()
         val str = response.body?.string()
         val json = JSONObject(str)
-        val result = clean(json);
-        return result;
+        return parseSlipwayInfo(json)
     }
 
-    private fun clean(json: JSONObject): List<Location> {
+    private fun parseSlipwayInfo(json: JSONObject): List<Location> {
         val elements = json.getJSONArray("elements")
 
-        val slipways: List<Location> = mutableListOf();
+        val slipways: MutableList<Location> = mutableListOf();
         for (i in 0 until elements.length()) {
             val slipway = elements.getJSONObject(i)
-            slipways.addLast(Location(slipway.getDouble("lat"), slipway.getDouble("lon")))
+            slipways.add(Location(slipway.getDouble("lat"), slipway.getDouble("lon")))
         }
 
         return slipways
@@ -39,7 +38,6 @@ class SlipwaysGetter (private val client: OkHttpClient = OkHttpClient()){
             [leisure=slipway]
             (50.564485309567644,-1.6005677025384493,50.8605772841442,-1.0457581322259493);
             out;""")
-        println(urlBuilder.build());
         return Request.Builder()
             .url(urlBuilder.build())
             .build()
