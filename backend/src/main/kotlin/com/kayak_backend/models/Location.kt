@@ -1,13 +1,16 @@
 package com.kayak_backend.models
 
+import kotlinx.serialization.Serializable
 import kotlin.math.atan2
 import kotlin.math.cos
 import kotlin.math.sin
 import kotlin.math.sqrt
 
+
+private const val RADIUS: Double = 6371.0;
+@Serializable
 data class Location(val latitude: Double, val longitude: Double) {
 
-    private val RADIUS: Double = 6371.0;
     fun distance(coord2: Location): Double {
         val coord1 = this;
         val deltaLat = Math.toRadians(coord2.latitude - coord1.latitude)

@@ -54,7 +54,7 @@ class SlipwayRouteTest {
         commonSetup()
         val response = client.get("/slipway?lat=50.64&lng=60")
         assertEquals(HttpStatusCode.OK, response.status)
-        val encoded = Json.encodeToString(slipwayMock)
+        val encoded = Json.encodeToString(slipwayMock.closestSlipway(Location(0.0, 0.0)))
         assertEquals(encoded, response.bodyAsText())
     }
     @Test
