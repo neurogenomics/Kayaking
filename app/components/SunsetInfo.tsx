@@ -2,7 +2,7 @@ import { StyleSheet, Text, TextInput, View } from 'react-native';
 import React, { useState } from 'react';
 import DisplayResponse from './DisplayResponse';
 
-const BACKEND_URL = 'https://71bf-2a02-c7c-5a0a-c400-1001-ce57-d5e5-12ae.ngrok-free.app'; // TODO: use .env variables
+const BACKEND_URL = 'http://0.0.0.0:8080'; // TODO: use .env variables
 
 export const SunsetInfo: React.FC = () => {
   const [lat, setLat] = useState('38.907192');
