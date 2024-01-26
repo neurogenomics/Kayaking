@@ -33,8 +33,8 @@ class SunsetService(private val client: OkHttpClient = OkHttpClient()) {
         val sunriseStr = results.get("sunrise").toString();
         val sunsetStr = results.get("sunset").toString();
         val formatter = DateTimeFormatter.ofPattern("h:mm:ss a");
-        val sunrise = LocalTime.parse(sunriseStr.lowercase(),formatter)
-        val sunset = LocalTime.parse(sunsetStr.lowercase(),formatter)
+        val sunrise = LocalTime.parse(sunriseStr,formatter)
+        val sunset = LocalTime.parse(sunsetStr,formatter)
         return SunsetInfo(sunrise, sunset)
     }
     private fun buildRequest(location: Location, date: LocalDate): Request {
