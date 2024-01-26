@@ -5,10 +5,10 @@ import kotlin.math.cos
 import kotlin.math.sin
 import kotlin.math.sqrt
 
-data class Location(val latitude: Double, val longitude: Double){
+data class Location(val latitude: Double, val longitude: Double) {
 
     private val RADIUS: Double = 6371.0;
-    fun distance (coord2 : Location) : Double{
+    fun distance(coord2: Location): Double {
         val coord1 = this;
         val deltaLat = Math.toRadians(coord2.latitude - coord1.latitude)
         val deltaLon = Math.toRadians(coord2.longitude - coord1.longitude)
@@ -22,3 +22,4 @@ data class Location(val latitude: Double, val longitude: Double){
         return RADIUS * c
     }
 }
+
