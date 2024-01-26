@@ -1,4 +1,5 @@
 import { LocationModel } from '../../src/models/locationModel';
+import { SunsetInfo } from '../../src/models/sunsetModel';
 import * as utils from '../../src/services/utils';
 import { getSunset } from '../../src/services/sunsetService';
 
