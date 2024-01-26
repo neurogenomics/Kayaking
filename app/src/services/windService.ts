@@ -1,11 +1,11 @@
-import { LocationModel } from "../models/locationModel";
-import { Vector } from "../models/vectorModel";
-import { getData } from "./utils";
-import { format } from "date-fns";
+import { LocationModel } from '../models/locationModel';
+import { Vector } from '../models/vectorModel';
+import { getData } from './utils';
+import { format } from 'date-fns';
 
 export const getWindDirection = async (
   location: LocationModel,
-  date?: Date
+  date?: Date,
 ): Promise<Vector> => {
   let url = `wind?lat=${location.latitude}&lon=${location.longitude}`;
   if (date) {
