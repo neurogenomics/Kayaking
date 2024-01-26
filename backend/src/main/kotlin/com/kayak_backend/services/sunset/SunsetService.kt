@@ -18,8 +18,7 @@ data class SunsetInfo(
     val sunset: LocalTime
 )
 
-class SunsetService {
-    private val client: OkHttpClient = OkHttpClient()
+class SunsetService(private val client: OkHttpClient = OkHttpClient()) {
     fun getSunset(location: Location, date: LocalDate? = null): SunsetInfo {
         val today: LocalDate = LocalDate.now();
         val request = buildRequest(location, date ?: today)

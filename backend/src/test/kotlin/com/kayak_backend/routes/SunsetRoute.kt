@@ -1,30 +1,24 @@
-import com.kayak_backend.plugins.configureStatusPages
 import com.kayak_backend.routes.sunset
 import com.kayak_backend.services.sunset.SunsetInfo
 import com.kayak_backend.services.sunset.SunsetService
-import com.kayak_backend.testModule
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
-import io.ktor.server.application.*
 import io.ktor.server.config.*
 import io.ktor.server.plugins.*
 import io.ktor.server.plugins.contentnegotiation.*
-import io.ktor.server.plugins.requestvalidation.*
 import io.ktor.server.plugins.statuspages.*
 import io.ktor.server.response.*
-import io.ktor.server.routing.*
 import io.ktor.server.testing.*
 import io.mockk.every
 import io.mockk.mockk
-import kotlinx.datetime.LocalDate
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import java.time.LocalTime
 import kotlin.test.*
 
-class SunsetService {
+class SunsetRoute {
 
     private val sunsetApiMock = mockk<SunsetService>()
     private val sunsetInfoMock = SunsetInfo(LocalTime.of(10, 30), LocalTime.of(6,30))
