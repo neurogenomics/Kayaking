@@ -19,11 +19,10 @@ fun Route.tidetimes(tidetimes: TideTimeService = TideTimeService()) {
 
     route("/tidetimes") {
         get {
-//            val lat = call.parameters.getOrFail<Double>("lat");
-//            val lon = call.parameters.getOrFail<Double>("lon");
-//            val dateTime = getDateParameter(call.parameters, "datetime");
-//            val location = Location(lat, lon);
-            call.respond(tidetimes.getTideTimes());
+            val lat = call.parameters.getOrFail<Double>("lat");
+            val lon = call.parameters.getOrFail<Double>("lon");
+            val location = Location(lat, lon);
+            call.respond(tidetimes.getTideTimes(location));
         }
     }
 }
