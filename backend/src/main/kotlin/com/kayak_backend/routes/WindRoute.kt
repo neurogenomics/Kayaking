@@ -1,7 +1,6 @@
 package com.kayak_backend.routes
 
 import com.kayak_backend.models.Location
-import com.kayak_backend.services.wind.GribWindFetcher
 import com.kayak_backend.services.wind.WindService
 import io.ktor.http.*
 import io.ktor.server.application.*
@@ -12,7 +11,7 @@ import io.ktor.server.util.*
 import kotlinx.datetime.toJavaLocalDateTime
 import java.time.LocalDateTime
 
-fun Route.wind(wind: WindService = GribWindFetcher()) {
+fun Route.wind(wind: WindService) {
     // TODO: Get getOrFail to serialize so this can be done implicitly
     fun getDateParameter(parameters: Parameters, name: String): LocalDateTime {
         try {
