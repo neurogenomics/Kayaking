@@ -35,8 +35,8 @@ data class WindGribConf(
 
 @Serializable
 data class Conf (
-    val tideService : String,
-    val windService: String,
+    val tideService : String?,
+    val windService: String?,
     val tideGribConf: TideGribConf?,
     val windGribConf: WindGribConf?,
 )
