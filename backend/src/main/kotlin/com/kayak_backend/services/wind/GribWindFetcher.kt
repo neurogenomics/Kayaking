@@ -19,3 +19,11 @@ class GribWindFetcher: WindService{
         return WindInfo(u = pair.first, v = pair.second)
     }
 }
+
+fun main() {
+    val lat = 50.0
+    val lon = -2.0
+
+    val windFetcher = GribWindFetcher()
+    println(windFetcher.getWind(Location(lat, lon), LocalDateTime.now()))
+}
