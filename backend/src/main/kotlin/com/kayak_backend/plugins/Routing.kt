@@ -10,6 +10,6 @@ fun Application.configureRouting() {
         sunset()
         slipway()
         tide()
-        tidetimes()
+        tideTimes()
     }
 }

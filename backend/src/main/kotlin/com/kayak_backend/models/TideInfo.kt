@@ -22,7 +22,7 @@ data class TideStation(
 )
 
 @Serializable
-data class TideEvents(
+data class TideTimes(
     val events: List<TideEvent>,
     val source: TideStation
 )
