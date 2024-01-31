@@ -7,6 +7,10 @@ jobs:
   build-test-lint:
     name: Test
     runs-on: ubuntu-latest
+
+    env:
+      ADMIRALTY_API_KEY: ${{ secrets.TEST_ADMIRALTY_API_KEY }}
+
     defaults:
       run:
         working-directory: ./backend

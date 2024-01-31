@@ -10,6 +10,9 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    env:
+      ADMIRALTY_API_KEY: ${{ secrets.ADMIRALTY_API_KEY }}
+
     steps:
       - uses: actions/checkout@v1
       - name: Add server remote origin
