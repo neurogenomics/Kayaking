@@ -23,7 +23,7 @@ class AdmiraltyTideStationService(private val client: OkHttpClient = OkHttpClien
     private fun parseTideEvents(jsonStr: String): List<TideStation> {
         val json = JSONObject(jsonStr)
         val features = json.getJSONArray("features");
-        val stations: List<TideStation> = mutableListOf()
+        val stations: MutableList<TideStation> = mutableListOf()
         for (i in 0 until features.length()) {
             val feature = features.getJSONObject(i)
             val coordinates = feature.getJSONObject("geometry").getJSONArray("coordinates");
@@ -31,7 +31,7 @@ class AdmiraltyTideStationService(private val client: OkHttpClient = OkHttpClien
             val properties = feature.getJSONObject("properties")
             val id = properties.getString("Id")
             val name = properties.getString("Name")
-            stations.addLast(TideStation(id, name, location))
+            stations.add(TideStation(id, name, location))
         }
         return stations;
     }

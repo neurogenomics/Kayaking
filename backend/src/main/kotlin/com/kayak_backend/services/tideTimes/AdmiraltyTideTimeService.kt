@@ -32,7 +32,7 @@ class AdmiraltyTideTimeService(
 
     private fun parseTideEvents(jsonStr: String): List<TideEvent> {
         val jsonArr = JSONArray(jsonStr)
-        val events: List<TideEvent> = mutableListOf()
+        val events: MutableList<TideEvent> = mutableListOf()
         for (i in 0 until jsonArr.length()) {
             val jsonObj = jsonArr.getJSONObject(i)
             val isHighTide = jsonObj.getString("EventType").equals("HighWater");
@@ -42,7 +42,7 @@ class AdmiraltyTideTimeService(
             }
             val dateTime = LocalDateTime.parse(jsonObj.getString("DateTime"))
             val tideEvent = TideEvent(isHighTide, dateTime, height);
-            events.addLast(tideEvent)
+            events.add(tideEvent)
         }
         return events;
     }
