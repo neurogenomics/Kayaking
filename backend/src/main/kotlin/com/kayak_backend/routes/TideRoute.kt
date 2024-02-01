@@ -1,5 +1,7 @@
 package com.kayak_backend.routes
 
+import com.kayak_backend.gribReader.GribFileError
+import com.kayak_backend.gribReader.GribIndexError
 import com.kayak_backend.models.Location
 import com.kayak_backend.services.tides.TideService
 import io.ktor.http.*
@@ -28,7 +30,16 @@ fun Route.tide(tide: TideService) {
             val lon = call.parameters.getOrFail<Double>("lon");
             val dateTime = getDateParameter(call.parameters, "datetime");
             val location = Location(lat, lon);
-            call.respond(tide.getTide(location, dateTime));
+            try {
+                call.respond(tide.getTide(location, dateTime));
+            } catch (e: GribFileError) {
+                call.response.status(HttpStatusCode.InternalServerError)
+                call.respondText(e.message ?: "Unknown Grib File Error")
+            } catch (e: GribIndexError) {
+                call.response.status(HttpStatusCode.BadRequest)
+                call. respondText(e.message ?: "Grib Index Error - Request may be out of bounds")
+            }
+
         }
     }
 }

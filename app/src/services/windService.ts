@@ -11,5 +11,6 @@ export const getWindDirection = async (
   if (date) {
     url += `&date=${format(date, "yyyy-MM-dd'T'HH:mm:ss")}`;
   }
+  console.log(url);
   return await getData<Vector>(url);
 };
