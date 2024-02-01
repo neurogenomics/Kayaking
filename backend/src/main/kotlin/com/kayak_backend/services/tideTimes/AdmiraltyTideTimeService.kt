@@ -13,12 +13,10 @@ import io.github.cdimascio.dotenv.dotenv
 import java.io.IOException
 
 class AdmiraltyTideTimeService(
+    private val apiKey: String,
     private val client: OkHttpClient = OkHttpClient(),
-    private val tideStationService: TideStationService = AdmiraltyTideStationService(),
+    private val tideStationService: TideStationService = AdmiraltyTideStationService(apiKey),
 ) : TideTimeService {
-
-    private val dotenv = dotenv()
-    private val apikey = dotenv["ADMIRALTY_API_KEY"]
     private var stations: List<TideStation> = listOf()
 
     override fun getTideTimes(location: Location): TideTimes {
@@ -63,7 +61,7 @@ class AdmiraltyTideTimeService(
     }
 
     private fun buildRequest(stationID: String): Request {
-        if (apikey.isEmpty()){
+        if (apiKey.isEmpty()){
             throw IllegalStateException("Admiralty API key is missing or empty");
         }
         val urlBuilder = HttpUrl.Builder()
@@ -77,7 +75,7 @@ class AdmiraltyTideTimeService(
             .addPathSegment("tidalEvents")
         return Request.Builder()
             .url(urlBuilder.build())
-            .addHeader("Ocp-Apim-Subscription-Key", apikey)
+            .addHeader("Ocp-Apim-Subscription-Key", apiKey)
             .build()
     }
 }

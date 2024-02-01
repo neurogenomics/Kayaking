@@ -21,7 +21,7 @@ class AdmiraltyTideTimeServiceTest {
 
     private val httpClientMock = mockk<OkHttpClient>()
     private val tideStationServiceMock = mockk<TideStationService>()
-    private val tideTimeService = AdmiraltyTideTimeService(httpClientMock, tideStationServiceMock)
+    private val tideTimeService = AdmiraltyTideTimeService("TEST_KEY", httpClientMock, tideStationServiceMock)
 
     @Test
     fun parsesJSONCorrectly() = testApplication {

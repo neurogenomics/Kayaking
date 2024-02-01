@@ -9,10 +9,7 @@ import io.github.cdimascio.dotenv.dotenv
 import okio.IOException
 import org.json.JSONObject
 
-class AdmiraltyTideStationService(private val client: OkHttpClient = OkHttpClient()): TideStationService {
-
-    private val dotenv = dotenv()
-    private val apikey = dotenv["ADMIRALTY_API_KEY"]
+class AdmiraltyTideStationService(private val apiKey: String, private val client: OkHttpClient = OkHttpClient()): TideStationService {
     override fun getTideStations(): List<TideStation> {
         val request = buildRequest()
         val response = client.newCall(request).execute()
@@ -37,7 +34,7 @@ class AdmiraltyTideStationService(private val client: OkHttpClient = OkHttpClien
     }
 
     private fun buildRequest(): Request {
-        if (apikey.isEmpty()){
+        if (apiKey.isEmpty()){
             throw IllegalStateException("Admiralty API key is missing or empty");
         }
         val urlBuilder = HttpUrl.Builder()
@@ -49,7 +46,7 @@ class AdmiraltyTideStationService(private val client: OkHttpClient = OkHttpClien
             .addPathSegment("stations")
         return Request.Builder()
             .url(urlBuilder.build())
-            .addHeader("Ocp-Apim-Subscription-Key", apikey)
+            .addHeader("Ocp-Apim-Subscription-Key", apiKey)
             .build()
     }
 }

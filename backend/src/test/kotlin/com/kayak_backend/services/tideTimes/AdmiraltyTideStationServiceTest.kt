@@ -1,9 +1,6 @@
 import com.kayak_backend.models.Location
 import com.kayak_backend.models.TideStation
-import com.kayak_backend.services.sunset.SunsetInfo
-import com.kayak_backend.services.sunset.SunsetService
 import com.kayak_backend.services.tideTimes.AdmiraltyTideStationService
-import com.kayak_backend.services.tideTimes.TideStationService
 import io.ktor.network.sockets.*
 import io.ktor.server.testing.*
 import io.mockk.every
@@ -13,13 +10,12 @@ import okhttp3.Request
 import okhttp3.Response
 import okhttp3.ResponseBody.Companion.toResponseBody
 import java.io.IOException
-import java.time.LocalTime
 import kotlin.test.*
 
 class AdmiraltyTideStationServiceTest {
 
     private val httpClientMock = mockk<OkHttpClient>()
-    private val tideStationService = AdmiraltyTideStationService(httpClientMock)
+    private val tideStationService = AdmiraltyTideStationService("TEST_KEY", httpClientMock)
     @Test
     fun parsesJSONCorrectly() = testApplication {
         every { httpClientMock.newCall(any()).execute() } returns createMockResponse();
