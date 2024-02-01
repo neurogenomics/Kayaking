@@ -18,7 +18,7 @@ class SunsetServiceTest {
     private val sunsetService = SunsetService(httpClientMock)
   
     @Test
-    fun returnsSunsetInfo() = testApplication {
+    fun returnsSunsetInfo() {
         every { httpClientMock.newCall(any()).execute() } returns createMockResponse();
         val resultSunsetInfo = sunsetService.getSunset(Location(0.0,0.0))
         val sunsetInfo = SunsetInfo(LocalTime.of(10, 30), LocalTime.of(6,30))

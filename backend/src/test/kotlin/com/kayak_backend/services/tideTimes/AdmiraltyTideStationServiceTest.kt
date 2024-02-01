@@ -17,7 +17,7 @@ class AdmiraltyTideStationServiceTest {
     private val httpClientMock = mockk<OkHttpClient>()
     private val tideStationService = AdmiraltyTideStationService("TEST_KEY", httpClientMock)
     @Test
-    fun parsesJSONCorrectly() = testApplication {
+    fun parsesJSONCorrectly() {
         every { httpClientMock.newCall(any()).execute() } returns createMockResponse();
         val stations = tideStationService.getTideStations()
         val expectedStations = listOf(

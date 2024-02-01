@@ -24,7 +24,7 @@ class AdmiraltyTideTimeServiceTest {
     private val tideTimeService = AdmiraltyTideTimeService("TEST_KEY", httpClientMock, tideStationServiceMock)
 
     @Test
-    fun parsesJSONCorrectly() = testApplication {
+    fun parsesJSONCorrectly() {
         every { httpClientMock.newCall(any()).execute() } returns createMockResponse();
         val testLocation = Location(0.0, 0.0)
         val stationMock = TideStation("0", "Test name", Location(0.0, 0.0))
