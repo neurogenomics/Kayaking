@@ -37,8 +37,8 @@ data class WindGribConf(
 data class Conf (
     val tideService : String,
     val windService: String,
-    val tideGribConf: TideGribConf?,
-    val windGribConf: WindGribConf?,
+    val tideGribConf: TideGribConf? = null,
+    val windGribConf: WindGribConf? = null,
 )
 
 fun getConf(filePath : String) :  Conf {
