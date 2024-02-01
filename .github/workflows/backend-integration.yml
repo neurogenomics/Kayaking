@@ -7,7 +7,6 @@ jobs:
   build-test-lint:
     name: Test
     runs-on: ubuntu-latest
-
     defaults:
       run:
         working-directory: ./backend
