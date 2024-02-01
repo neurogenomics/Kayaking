@@ -54,19 +54,19 @@ class NetCDFGribReader : GribReader {
         lonVarName: String,
         lon: Double
     ): Pair<Int, Int> {
-        val latVar = file.findVariable(latVarName)
+        val latVar = file.findVariable(latVarName) ?: throw GribFileError("Latitude variable not found")
         val latData = latVar.read()
 
         var latIndex = 0
-        while (latData.getDouble(latIndex) < lat) {
+        while (latIndex < (latVar.shape[0] - 1) && latData.getDouble(latIndex) < lat) {
             latIndex++
         }
 
-        val lonVar = file.findVariable(lonVarName)
+        val lonVar = file.findVariable(lonVarName) ?: throw GribFileError("Longitude variable not found")
         val lonData = lonVar.read()
 
         var lonIndex = 0
-        while (lonData.getDouble(lonIndex) < lon) {
+        while (lonIndex < (lonVar.shape[0] - 1) && lonData.getDouble(lonIndex) < lon) {
             lonIndex++
         }
         return Pair(latIndex, lonIndex)
@@ -81,32 +81,37 @@ class NetCDFGribReader : GribReader {
     }
 
     private fun findTime(file: NetcdfFile, timeVarName: String, time: LocalDateTime): Int {
-        val timeVar = file.findVariable(timeVarName)
+        val timeVar = file.findVariable(timeVarName) ?: throw GribFileError("Time variable not found")
         val reftime = processDateString(timeVar.unitsString)
         val duration = Duration.between(reftime, time)
-
         return duration.toHours().toInt()
     }
 
     private fun fetchVarAtLoc(file: NetcdfFile, latIndex: Int, lonIndex: Int, timeIndex: Int, variableName: String): Double {
-        val variable = file.findVariable(variableName)
+        val variable = file.findVariable(variableName) ?: throw GribFileError("Variable $variableName not found")
         val rank = variable.rank
         val origin = IntArray(rank)
 
         var latDim = 0
         var lonDim = 0
+        var timeDim = 0
 
         for((i, dim) in variable.dimensionsAll.withIndex()) {
             val name = dim.dodsName
             when (name) {
                 "lat" -> latDim = i
                 "lon" -> lonDim = i
-                "time" -> origin[i] = timeIndex
+                "time" -> timeDim = i
             }
         }
+        val varShape = variable.shape
+        if (latIndex !in 1..<varShape[latDim] - 1) throw GribIndexError("Latitude out of bounds")
+        if (lonIndex !in 1..<varShape[lonDim] - 1) throw GribIndexError("Longitude out of bounds")
+        if (timeIndex !in 1..<varShape[timeDim] - 1) throw GribIndexError("Time is out of bounds")
 
         origin[latDim] = latIndex
         origin[lonDim] = lonIndex
+        origin[timeDim] = timeDim
 
         val shape = IntArray(rank) { 1 }
         val res = variable.read(origin, shape).reduce().getDouble(0)
