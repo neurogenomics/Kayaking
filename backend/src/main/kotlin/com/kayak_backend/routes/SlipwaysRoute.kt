@@ -7,13 +7,12 @@ import io.ktor.server.routing.*
 import io.ktor.server.util.*
 
 fun Route.slipway(slipway: SlipwayService = SlipwayService()) {
-
     route("/slipway") {
         get {
-            val lat = call.parameters.getOrFail<Double>("lat");
-            val lng = call.parameters.getOrFail<Double>("lng");
-            val location = Location(lat, lng);
-            call.respond(slipway.getClosestSlipway(location));
+            val lat = call.parameters.getOrFail<Double>("lat")
+            val lng = call.parameters.getOrFail<Double>("lng")
+            val location = Location(lat, lng)
+            call.respond(slipway.getClosestSlipway(location))
         }
     }
 }
