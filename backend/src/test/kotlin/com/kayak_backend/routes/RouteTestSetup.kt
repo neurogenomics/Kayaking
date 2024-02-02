@@ -13,7 +13,7 @@ import io.ktor.server.testing.*
 import io.mockk.every
 import io.mockk.mockk
 
-fun TestApplicationBuilder.commonSetup(configuration: io.ktor.server.routing.Routing.() -> Unit)  {
+fun TestApplicationBuilder.commonSetup(configuration: io.ktor.server.routing.Routing.() -> Unit) {
     val tideServiceMock = mockk<TideService>()
     val tideInfoMock = TideInfo(1.0, -1.0)
     every { tideServiceMock.getTide(any(), any()) } returns tideInfoMock

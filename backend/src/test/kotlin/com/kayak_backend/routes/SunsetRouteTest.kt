@@ -1,4 +1,3 @@
-
 import com.kayak_backend.routes.commonSetup
 import com.kayak_backend.routes.sunset
 import com.kayak_backend.services.sunset.SunsetInfo

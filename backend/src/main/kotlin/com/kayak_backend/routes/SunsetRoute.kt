@@ -30,10 +30,9 @@ fun Route.sunset(sunset: SunsetService = SunsetService()) {
             val lng = call.parameters.getOrFail<Double>("lng")
             val maybeDate = getDateParameter(call.parameters, "date")
             val location = Location(lat, lng)
-            if (maybeDate != null)
-                {
-                    return@get call.respond(sunset.getSunset(location, maybeDate))
-                }
+            if (maybeDate != null) {
+                return@get call.respond(sunset.getSunset(location, maybeDate))
+            }
             call.respond(sunset.getSunset(location))
         }
     }
