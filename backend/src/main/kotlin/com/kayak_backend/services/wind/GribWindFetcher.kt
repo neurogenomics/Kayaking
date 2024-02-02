@@ -17,7 +17,7 @@ class GribWindFetcher(private val conf: WindGribConf, private val gribReader: Gr
                 loc.longitude,
                 time,
                 conf.uWindVarName,
-                conf.vWindVarName,
+                conf.vTideVarName,
                 conf.filePath,
                 conf.latVarName,
                 conf.lonVarName,

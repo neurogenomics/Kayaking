@@ -30,7 +30,7 @@ data class WindGribConf(
     val lonVarName : String,
     val timeVarName : String,
     val uWindVarName : String,
-    val vWindVarName : String,
+    val vTideVarName : String,
 )
 
 @Serializable
@@ -59,7 +59,7 @@ fun getTideService(conf : Conf) : TideService {
             conf.tideGribConf ?: throw UnsupportedOperationException("Tide Grib Config not Provided")
             GribTideFetcher(conf.tideGribConf, getGribReader(conf.tideGribConf.gribReader))
         }
-        else -> throw UnsupportedOperationException("Tide service type non existent")
+        else -> throw UnsupportedOperationException("Tide Conf required")
     }
 }
 
@@ -69,6 +69,6 @@ fun getWindService(conf : Conf) : WindService {
             conf.windGribConf ?: throw UnsupportedOperationException("Wind Grib Config not Provided")
             GribWindFetcher(conf.windGribConf, getGribReader(conf.windGribConf.gribReader))
         }
-        else -> throw UnsupportedOperationException("Wind service type non existent")
+        else -> throw UnsupportedOperationException("Tide Conf required")
     }
 }
