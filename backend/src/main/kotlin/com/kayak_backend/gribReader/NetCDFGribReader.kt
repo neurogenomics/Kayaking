@@ -102,6 +102,7 @@ class NetCDFGribReader : GribReader {
                 "lat" -> latDim = i
                 "lon" -> lonDim = i
                 "time" -> timeDim = i
+                "time1" -> timeDim = i
             }
         }
         val varShape = variable.shape
