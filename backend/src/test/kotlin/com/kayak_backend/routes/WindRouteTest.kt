@@ -1,6 +1,7 @@
 package com.kayak_backend.routes
-import com.kayak_backend.models.TideInfo
-import com.kayak_backend.services.tides.TideService
+
+import com.kayak_backend.models.WindInfo
+import com.kayak_backend.services.wind.WindService
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
@@ -18,13 +19,13 @@ import kotlinx.serialization.json.Json
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
-class TideRouteTest {
+class WindRouteTest {
 
-    private val tideServiceMock = mockk<TideService>()
-    private val tideInfoMock = TideInfo(1.0, -1.0)
+    private val windApiMock = mockk<WindService>()
+    private val windInfoMock = WindInfo(1.0, -1.0)
 
     init {
-        every { tideServiceMock.getTide(any(), any()) } returns tideInfoMock;
+        every { windApiMock.getWind(any(), any()) } returns windInfoMock;
     }
 
     // TODO: Reuse original setup or move to separate file
@@ -46,22 +47,22 @@ class TideRouteTest {
         install(ContentNegotiation) {
             json()
         }
-        routing { tide(tideServiceMock) }
+        routing { wind(windApiMock) }
     }
 
     // TODO: Check error messages instead of error pages? Not sure how to
     @Test
-    fun returnsTideInfo() = testApplication {
+    fun returnswindInfo() = testApplication {
         commonSetup()
-        val response = client.get("/tide?lat=50.64&lon=60&date=2024-01-01")
+        val response = client.get("/wind?lat=50.64&lon=60&date=2024-01-01")
         assertEquals(HttpStatusCode.OK, response.status)
-        val encoded = Json.encodeToString(tideInfoMock)
+        val encoded = Json.encodeToString(windInfoMock)
         assertEquals(encoded, response.bodyAsText())
     }
     @Test
     fun requiresLatParameter() = testApplication {
         commonSetup()
-        val response = client.get("/tide?lon=20")
+        val response = client.get("/wind?lon=20")
         assertEquals(HttpStatusCode.BadRequest, response.status)
         assertEquals("Missing \"lat\" parameter.", response.bodyAsText())
     }
@@ -69,7 +70,7 @@ class TideRouteTest {
     @Test
     fun requiresLatToBeDouble() = testApplication {
         commonSetup()
-        val response = client.get("/tide?lat=dog&lon=40")
+        val response = client.get("/wind?lat=dog&lon=40")
         assertEquals(HttpStatusCode.BadRequest, response.status)
         assertEquals("Parameter \"lat\" should be Double.", response.bodyAsText())
     }
@@ -77,7 +78,7 @@ class TideRouteTest {
     @Test
     fun requireslonParameter() = testApplication {
         commonSetup()
-        val response = client.get("/tide?lat=50")
+        val response = client.get("/wind?lat=50")
         assertEquals(HttpStatusCode.BadRequest, response.status)
         assertEquals("Missing \"lon\" parameter.", response.bodyAsText())
     }
@@ -85,7 +86,7 @@ class TideRouteTest {
     @Test
     fun requireslonToBeDouble() = testApplication {
         commonSetup()
-        val response = client.get("/tide?lat=25.45&lon=yoel")
+        val response = client.get("/wind?lat=25.45&lon=yoel")
         assertEquals(HttpStatusCode.BadRequest, response.status)
         assertEquals("Parameter \"lon\" should be Double.", response.bodyAsText())
     }
@@ -93,10 +94,9 @@ class TideRouteTest {
     @Test
     fun doesNotRequireDate() = testApplication {
         commonSetup()
-        val response = client.get("/tide?lat=50.64&lon=60")
+        val response = client.get("/wind?lat=50.64&lon=60")
         assertEquals(HttpStatusCode.OK, response.status)
-        val encoded = Json.encodeToString(tideInfoMock)
+        val encoded = Json.encodeToString(windInfoMock)
         assertEquals(encoded, response.bodyAsText())
     }
-
 }
