@@ -5,5 +5,8 @@ import com.kayak_backend.models.TideInfo
 import java.time.LocalDateTime
 
 interface TideService {
-    fun getTide(loc: Location, time: LocalDateTime): TideInfo
+    fun getTide(
+        loc: Location,
+        time: LocalDateTime,
+    ): TideInfo
 }
