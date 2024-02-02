@@ -1,5 +1,6 @@
-package com.kayak_backend.services.coastline
+package com.kayak_backend.services.routeFiltering
 
+import com.kayak_backend.services.coastline.IsleOfWightCoastline
 import org.locationtech.jts.geom.Coordinate
 import kotlin.math.atan2
 import kotlin.math.cos
@@ -9,7 +10,6 @@ import java.io.File
 import java.io.FileWriter
 import java.io.IOException
 import java.io.PrintWriter
-
 
 class DirectionToSea {
 
@@ -43,7 +43,7 @@ class DirectionToSea {
 
 }
 
-//prints the bearing and 2 coordinates into out.csv so can plot file in python
+//prints the bearings and 2 coordinates into seaBearings.csv
 fun main() {
     val dir = DirectionToSea()
     val bearings = dir.bearingToSea()
@@ -52,14 +52,10 @@ fun main() {
     val coastline = coastlineService.getCoastline().coordinates
 
     try {
-        PrintWriter(FileWriter(File("src/main/resources/out.csv"))).use { writer ->
+        PrintWriter(FileWriter(File("src/main/resources/seaBearings.csv"))).use { writer ->
             for (i in 0..<coastline.size - 1) {
-                //below is for plotting
-                val bearing = bearings[i]
-                val lon = coastline[i].x
-                val lat = coastline[i].y
-
-                writer.println("$bearing,$lon,$lat")
+                // format "bearing, longitude, latitude"
+                writer.println("${bearings[i]},${coastline[i].x},${coastline[i].y}")
             }
         }
 
