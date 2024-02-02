@@ -13,48 +13,48 @@ import java.nio.file.Path
 
 @Serializable
 data class TideGribConf(
-    val gribReader : String,
-    val filePath : String,
-    val latVarName : String,
-    val lonVarName : String,
-    val timeVarName : String,
-    val uTideVarName : String,
-    val vTideVarName : String,
+    val gribReader: String,
+    val filePath: String,
+    val latVarName: String,
+    val lonVarName: String,
+    val timeVarName: String,
+    val uTideVarName: String,
+    val vTideVarName: String,
 )
 
 @Serializable
 data class WindGribConf(
     val gribReader: String,
-    val filePath : String,
-    val latVarName : String,
-    val lonVarName : String,
-    val timeVarName : String,
-    val uWindVarName : String,
-    val vWindVarName : String,
+    val filePath: String,
+    val latVarName: String,
+    val lonVarName: String,
+    val timeVarName: String,
+    val uWindVarName: String,
+    val vWindVarName: String,
 )
 
 @Serializable
-data class Conf (
-    val tideService : String,
+data class Conf(
+    val tideService: String,
     val windService: String,
     val tideGribConf: TideGribConf? = null,
     val windGribConf: WindGribConf? = null,
 )
 
-fun getConf(filePath : String) :  Conf {
+fun getConf(filePath: String): Conf {
     val yaml = Files.readString(Path.of(filePath))
     return Yaml.default.decodeFromString(Conf.serializer(), yaml)
 }
 
-fun getGribReader(implementation : String) : GribReader {
-    return when(implementation) {
+fun getGribReader(implementation: String): GribReader {
+    return when (implementation) {
         "NetCDFGribReader" -> NetCDFGribReader()
         else -> throw UnsupportedOperationException("Grib Reader Implementation Non Existent")
     }
 }
 
-fun getTideService(conf : Conf) : TideService {
-    return when(conf.tideService) {
+fun getTideService(conf: Conf): TideService {
+    return when (conf.tideService) {
         "grib" -> {
             conf.tideGribConf ?: throw UnsupportedOperationException("Tide Grib Config not Provided")
             GribTideFetcher(conf.tideGribConf, getGribReader(conf.tideGribConf.gribReader))
@@ -63,8 +63,8 @@ fun getTideService(conf : Conf) : TideService {
     }
 }
 
-fun getWindService(conf : Conf) : WindService {
-    return when(conf.windService) {
+fun getWindService(conf: Conf): WindService {
+    return when (conf.windService) {
         "grib" -> {
             conf.windGribConf ?: throw UnsupportedOperationException("Wind Grib Config not Provided")
             GribWindFetcher(conf.windGribConf, getGribReader(conf.windGribConf.gribReader))

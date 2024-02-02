@@ -16,7 +16,7 @@ class NetCDFGribReader : GribReader {
         filePath: String,
         latVarName: String,
         lonVarName: String,
-        timeVarName: String
+        timeVarName: String,
     ): Double {
         val file = NetcdfDataset.openFile(filePath, null)
 
@@ -35,7 +35,7 @@ class NetCDFGribReader : GribReader {
         filePath: String,
         latVarName: String,
         lonVarName: String,
-        timeVarName: String
+        timeVarName: String,
     ): Pair<Double, Double> {
         val file = NetcdfDataset.openFile(filePath, null)
 
@@ -52,7 +52,7 @@ class NetCDFGribReader : GribReader {
         latVarName: String,
         lat: Double,
         lonVarName: String,
-        lon: Double
+        lon: Double,
     ): Pair<Int, Int> {
         val latVar = file.findVariable(latVarName) ?: throw GribFileError("Latitude variable not found")
         val latData = latVar.read()
@@ -79,7 +79,11 @@ class NetCDFGribReader : GribReader {
         return LocalDateTime.parse(dateTimeString, formatter)
     }
 
-    private fun findTime(file: NetcdfFile, timeVarName: String, time: LocalDateTime): Int {
+    private fun findTime(
+        file: NetcdfFile,
+        timeVarName: String,
+        time: LocalDateTime,
+    ): Int {
         val timeVar = file.findVariable(timeVarName) ?: throw GribFileError("Time variable not found")
         val reftime = processDateString(timeVar.unitsString)
         val duration = Duration.between(reftime, time)
@@ -87,7 +91,13 @@ class NetCDFGribReader : GribReader {
         return duration.toHours().toInt() - firstTime
     }
 
-    private fun fetchVarAtLoc(file: NetcdfFile, latIndex: Int, lonIndex: Int, timeIndex: Int, variableName: String): Double {
+    private fun fetchVarAtLoc(
+        file: NetcdfFile,
+        latIndex: Int,
+        lonIndex: Int,
+        timeIndex: Int,
+        variableName: String,
+    ): Double {
         val variable = file.findVariable(variableName) ?: throw GribFileError("Variable $variableName not found")
         val rank = variable.rank
         val origin = IntArray(rank)
@@ -96,7 +106,7 @@ class NetCDFGribReader : GribReader {
         var lonDim = 0
         var timeDim = 0
 
-        for((i, dim) in variable.dimensionsAll.withIndex()) {
+        for ((i, dim) in variable.dimensionsAll.withIndex()) {
             val name = dim.dodsName
             when (name) {
                 "lat" -> latDim = i
@@ -119,7 +129,7 @@ class NetCDFGribReader : GribReader {
         if (res.isNaN()) {
             var i = 1
             var resList: List<Double>
-            do  {
+            do {
                 resList = trySurrounding(variable, origin, shape, latDim, lonDim, i)
                 i++
             } while (resList.isEmpty())
@@ -128,7 +138,14 @@ class NetCDFGribReader : GribReader {
         return res
     }
 
-    private fun trySurrounding(variable: Variable, origin: IntArray, shape: IntArray, latDim: Int, lonDim: Int, i: Int): List<Double> {
+    private fun trySurrounding(
+        variable: Variable,
+        origin: IntArray,
+        shape: IntArray,
+        latDim: Int,
+        lonDim: Int,
+        i: Int,
+    ): List<Double> {
         val above = origin.copyOf()
         val below = origin.copyOf()
         val right = origin.copyOf()
@@ -139,9 +156,13 @@ class NetCDFGribReader : GribReader {
         right[lonDim] += i
         left[lonDim] -= i
 
-        val surroundingValues = arrayOf(above, below, right, left).map {x ->
-            variable.read(x, shape).reduce(0).getDouble(0) }.filter {
-                x -> !x.isNaN() }
+        val surroundingValues =
+            arrayOf(above, below, right, left).map { x ->
+                variable.read(x, shape).reduce(0).getDouble(0)
+            }.filter {
+                    x ->
+                !x.isNaN()
+            }
         return surroundingValues
     }
 }

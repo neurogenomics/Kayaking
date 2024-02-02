@@ -41,7 +41,7 @@ dependencies {
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version")
     implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.5.0")
     implementation("io.ktor:ktor-server-data-conversion")
-    testImplementation("io.mockk:mockk:${mockkVersion}")
+    testImplementation("io.mockk:mockk:$mockkVersion")
 }
 tasks {
     create("stage").dependsOn("installDist")

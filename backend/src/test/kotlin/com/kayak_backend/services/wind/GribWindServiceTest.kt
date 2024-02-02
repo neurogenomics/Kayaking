@@ -14,12 +14,13 @@ class GribWindServiceTest {
     private val gribReader = mockk<GribReader>()
     private val gribWindFetcher = GribWindFetcher(testWindGribConf, gribReader)
     private val mockResponse = Pair<Double, Double>(1.0, -1.0)
+
     @Test
     fun gribWindServiceTestCallsFileReader() {
         val lat = 5.0
         val lon = 4.0
         val time = LocalDateTime.of(2024, 2, 1, 12, 0)
-        every {gribReader.getVarPair(lat, lon, time, any(), any(), any(), any(), any(), any())} returns mockResponse
+        every { gribReader.getVarPair(lat, lon, time, any(), any(), any(), any(), any(), any()) } returns mockResponse
         assertEquals(WindInfo(1.0, -1.0), gribWindFetcher.getWind(Location(lat, lon), time))
     }
 }

@@ -8,41 +8,43 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertIs
 
-val testTideGribConf = TideGribConf(
-    gribReader = "NetCDFGribReader",
-    filePath = "gribFiles/testGrib.grb",
-    latVarName = "TwoD/LatLon_100X120-49p74N-1p333W/lat",
-    lonVarName = "TwoD/LatLon_100X120-49p74N-1p333W/lon",
-    timeVarName = "TwoD/LatLon_100X120-49p74N-1p333W/time",
-    uTideVarName = "TwoD/LatLon_100X120-49p74N-1p333W/u-component_of_current_surface",
-    vTideVarName = "TwoD/LatLon_100X120-49p74N-1p333W/v-component_of_current_surface",
-)
+val testTideGribConf =
+    TideGribConf(
+        gribReader = "NetCDFGribReader",
+        filePath = "gribFiles/testGrib.grb",
+        latVarName = "TwoD/LatLon_100X120-49p74N-1p333W/lat",
+        lonVarName = "TwoD/LatLon_100X120-49p74N-1p333W/lon",
+        timeVarName = "TwoD/LatLon_100X120-49p74N-1p333W/time",
+        uTideVarName = "TwoD/LatLon_100X120-49p74N-1p333W/u-component_of_current_surface",
+        vTideVarName = "TwoD/LatLon_100X120-49p74N-1p333W/v-component_of_current_surface",
+    )
 
-val testWindGribConf = WindGribConf(
-    gribReader ="NetCDFGribReader",
-    filePath = "gribFiles/testGrib.grb",
-    latVarName = "TwoD/LatLon_76X92-49p73N-1p324W/lat",
-    lonVarName = "TwoD/LatLon_76X92-49p73N-1p324W/lon",
-    timeVarName = "TwoD/LatLon_76X92-49p73N-1p324W/time",
-    uWindVarName = "TwoD/LatLon_76X92-49p73N-1p324W/u-component_of_wind_height_above_ground",
-    vWindVarName = "TwoD/LatLon_76X92-49p73N-1p324W/v-component_of_wind_height_above_ground",
-)
+val testWindGribConf =
+    WindGribConf(
+        gribReader = "NetCDFGribReader",
+        filePath = "gribFiles/testGrib.grb",
+        latVarName = "TwoD/LatLon_76X92-49p73N-1p324W/lat",
+        lonVarName = "TwoD/LatLon_76X92-49p73N-1p324W/lon",
+        timeVarName = "TwoD/LatLon_76X92-49p73N-1p324W/time",
+        uWindVarName = "TwoD/LatLon_76X92-49p73N-1p324W/u-component_of_wind_height_above_ground",
+        vWindVarName = "TwoD/LatLon_76X92-49p73N-1p324W/v-component_of_wind_height_above_ground",
+    )
 
+val testConfig =
+    Conf(
+        tideService = "grib",
+        windService = "grib",
+        tideGribConf = testTideGribConf,
+        windGribConf = testWindGribConf,
+    )
 
-val testConfig = Conf(
-    tideService = "grib",
-    windService = "grib",
-    tideGribConf = testTideGribConf,
-    windGribConf = testWindGribConf,
-)
 class ConfTest {
-
     @Test
     fun getConfSerializesYaml() {
         assertEquals(
             getConf("./src/test/kotlin/com/kayak_backend/testConfig.yaml"),
-            testConfig
-            )
+            testConfig,
+        )
     }
 
     @Test
@@ -96,5 +98,4 @@ class ConfTest {
             getWindService(configWindNonexistent)
         }
     }
-
 }

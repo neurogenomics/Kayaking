@@ -13,8 +13,7 @@ import io.ktor.server.testing.*
 import io.mockk.every
 import io.mockk.mockk
 
-fun TestApplicationBuilder.commonSetup(configuration : io.ktor.server.routing.Routing.() -> Unit){
-
+fun TestApplicationBuilder.commonSetup(configuration: io.ktor.server.routing.Routing.() -> Unit)  {
     val tideServiceMock = mockk<TideService>()
     val tideInfoMock = TideInfo(1.0, -1.0)
     every { tideServiceMock.getTide(any(), any()) } returns tideInfoMock
@@ -29,7 +28,7 @@ fun TestApplicationBuilder.commonSetup(configuration : io.ktor.server.routing.Ro
         exception<ParameterConversionException> { call, cause ->
             call.respondText(
                 "Parameter \"${cause.parameterName}\" should be ${cause.type}.",
-                status = HttpStatusCode.BadRequest
+                status = HttpStatusCode.BadRequest,
             )
         }
     }
