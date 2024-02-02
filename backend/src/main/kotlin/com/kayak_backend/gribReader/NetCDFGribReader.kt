@@ -58,7 +58,7 @@ class NetCDFGribReader : GribReader {
         val latData = latVar.read()
 
         var latIndex = 0
-        while (latIndex < (latVar.shape[0] - 1) && latData.getDouble(latIndex) < lat) {
+        while (latIndex < (latVar.shape[0] - 1) && latData.getDouble(latIndex + 1) < lat) {
             latIndex++
         }
 
@@ -66,7 +66,7 @@ class NetCDFGribReader : GribReader {
         val lonData = lonVar.read()
 
         var lonIndex = 0
-        while (lonIndex < (lonVar.shape[0] - 1) && lonData.getDouble(lonIndex) < lon) {
+        while (lonIndex < (lonVar.shape[0] - 1) && lonData.getDouble(lonIndex + 1) < lon) {
             lonIndex++
         }
         return Pair(latIndex, lonIndex)
@@ -76,7 +76,6 @@ class NetCDFGribReader : GribReader {
         val pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'"
         val formatter = DateTimeFormatter.ofPattern(pattern)
         val dateTimeString = input.substringAfter("since ").trim()
-
         return LocalDateTime.parse(dateTimeString, formatter)
     }
 
@@ -84,7 +83,8 @@ class NetCDFGribReader : GribReader {
         val timeVar = file.findVariable(timeVarName) ?: throw GribFileError("Time variable not found")
         val reftime = processDateString(timeVar.unitsString)
         val duration = Duration.between(reftime, time)
-        return duration.toHours().toInt()
+        val firstTime = timeVar.read().getDouble(0).toInt()
+        return duration.toHours().toInt() - firstTime
     }
 
     private fun fetchVarAtLoc(file: NetcdfFile, latIndex: Int, lonIndex: Int, timeIndex: Int, variableName: String): Double {
@@ -111,7 +111,7 @@ class NetCDFGribReader : GribReader {
 
         origin[latDim] = latIndex
         origin[lonDim] = lonIndex
-        origin[timeDim] = timeDim
+        origin[timeDim] = timeIndex
 
         val shape = IntArray(rank) { 1 }
         val res = variable.read(origin, shape).reduce().getDouble(0)
