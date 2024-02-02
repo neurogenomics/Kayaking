@@ -4,12 +4,6 @@ import com.kayak_backend.services.tides.TideService
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
-import io.ktor.serialization.kotlinx.json.*
-import io.ktor.server.config.*
-import io.ktor.server.plugins.*
-import io.ktor.server.plugins.contentnegotiation.*
-import io.ktor.server.plugins.statuspages.*
-import io.ktor.server.response.*
 import io.ktor.server.testing.*
 import io.mockk.every
 import io.mockk.mockk
@@ -24,35 +18,12 @@ class TideRouteTest {
     private val tideInfoMock = TideInfo(1.0, -1.0)
 
     init {
-        every { tideServiceMock.getTide(any(), any()) } returns tideInfoMock;
+        every { tideServiceMock.getTide(any(), any()) } returns tideInfoMock
     }
-
-    // TODO: Reuse original setup or move to separate file
-    private fun TestApplicationBuilder.commonSetup() {
-        environment {
-            config = MapApplicationConfig()
-        }
-        install(StatusPages) {
-            exception<MissingRequestParameterException> { call, cause ->
-                call.respondText("Missing \"${cause.parameterName}\" parameter.", status = HttpStatusCode.BadRequest)
-            }
-            exception<ParameterConversionException> { call, cause ->
-                call.respondText(
-                    "Parameter \"${cause.parameterName}\" should be ${cause.type}.",
-                    status = HttpStatusCode.BadRequest
-                )
-            }
-        }
-        install(ContentNegotiation) {
-            json()
-        }
-        routing { tide(tideServiceMock) }
-    }
-
     // TODO: Check error messages instead of error pages? Not sure how to
     @Test
     fun returnsTideInfo() = testApplication {
-        commonSetup()
+        commonSetup {tide(tideServiceMock)}
         val response = client.get("/tide?lat=50.64&lon=60&date=2024-01-01")
         assertEquals(HttpStatusCode.OK, response.status)
         val encoded = Json.encodeToString(tideInfoMock)
@@ -60,7 +31,7 @@ class TideRouteTest {
     }
     @Test
     fun requiresLatParameter() = testApplication {
-        commonSetup()
+        commonSetup {tide(tideServiceMock)}
         val response = client.get("/tide?lon=20")
         assertEquals(HttpStatusCode.BadRequest, response.status)
         assertEquals("Missing \"lat\" parameter.", response.bodyAsText())
@@ -68,7 +39,7 @@ class TideRouteTest {
 
     @Test
     fun requiresLatToBeDouble() = testApplication {
-        commonSetup()
+        commonSetup {tide(tideServiceMock)}
         val response = client.get("/tide?lat=dog&lon=40")
         assertEquals(HttpStatusCode.BadRequest, response.status)
         assertEquals("Parameter \"lat\" should be Double.", response.bodyAsText())
@@ -76,7 +47,7 @@ class TideRouteTest {
 
     @Test
     fun requireslonParameter() = testApplication {
-        commonSetup()
+        commonSetup {tide(tideServiceMock)}
         val response = client.get("/tide?lat=50")
         assertEquals(HttpStatusCode.BadRequest, response.status)
         assertEquals("Missing \"lon\" parameter.", response.bodyAsText())
@@ -84,7 +55,7 @@ class TideRouteTest {
 
     @Test
     fun requireslonToBeDouble() = testApplication {
-        commonSetup()
+        commonSetup {tide(tideServiceMock)}
         val response = client.get("/tide?lat=25.45&lon=yoel")
         assertEquals(HttpStatusCode.BadRequest, response.status)
         assertEquals("Parameter \"lon\" should be Double.", response.bodyAsText())
@@ -92,7 +63,7 @@ class TideRouteTest {
 
     @Test
     fun doesNotRequireDate() = testApplication {
-        commonSetup()
+        commonSetup {tide(tideServiceMock)}
         val response = client.get("/tide?lat=50.64&lon=60")
         assertEquals(HttpStatusCode.OK, response.status)
         val encoded = Json.encodeToString(tideInfoMock)
