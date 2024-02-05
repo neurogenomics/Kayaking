@@ -107,15 +107,20 @@ class NetCDFGribReader : GribReader {
         var timeDim = 0
 
         for ((i, dim) in variable.dimensionsAll.withIndex()) {
+            // Since the variable is stored in a Nd array with n likely being 3 (lon lat time)
+            // this checks along which axis are these all being stored
+            // this isn't constant, as e.g. wind has another dimension which is height above surface
+            // however in the grib files we have encountered this dimension is of size one (only one measurement)
             val name = dim.dodsName
             when (name) {
                 "lat" -> latDim = i
                 "lon" -> lonDim = i
                 "time" -> timeDim = i
-                "time1" -> timeDim = i
+                "time1" -> timeDim = i // Sometimes time is stored under the time1 variable for reasons unknown
             }
         }
         val varShape = variable.shape
+        // shape contains the sizes of each of the grids, i.e longitude latitude and
         if (latIndex !in 1..<varShape[latDim] - 1) throw GribIndexError("Latitude out of bounds")
         if (lonIndex !in 1..<varShape[lonDim] - 1) throw GribIndexError("Longitude out of bounds")
         if (timeIndex !in 1..<varShape[timeDim] - 1) throw GribIndexError("Time is out of bounds")
