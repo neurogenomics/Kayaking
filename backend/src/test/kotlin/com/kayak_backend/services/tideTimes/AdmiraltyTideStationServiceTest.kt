@@ -13,17 +13,18 @@ import java.io.IOException
 import kotlin.test.*
 
 class AdmiraltyTideStationServiceTest {
-
     private val httpClientMock = mockk<OkHttpClient>()
     private val tideStationService = AdmiraltyTideStationService("TEST_KEY", httpClientMock)
+
     @Test
     fun parsesJSONCorrectly() {
-        every { httpClientMock.newCall(any()).execute() } returns createMockResponse();
+        every { httpClientMock.newCall(any()).execute() } returns createMockResponse()
         val stations = tideStationService.getTideStations()
-        val expectedStations = listOf(
-            TideStation("0322", "Hirta (Bagh A' Bhaile)", Location(57.8, -8.566666)),
-            TideStation("0324", "Rockall", Location(57.6, -13.683333))
-        )
+        val expectedStations =
+            listOf(
+                TideStation("0322", "Hirta (Bagh A' Bhaile)", Location(57.8, -8.566666)),
+                TideStation("0324", "Rockall", Location(57.6, -13.683333)),
+            )
         assertEquals(expectedStations, stations)
     }
 
@@ -75,8 +76,6 @@ class AdmiraltyTideStationServiceTest {
             .build()
     }
 
-
-
     @Test
     fun handlesNetworkError() {
         every { httpClientMock.newCall(any()).execute() } throws SocketTimeoutException()
@@ -84,5 +83,4 @@ class AdmiraltyTideStationServiceTest {
             tideStationService.getTideStations()
         }
     }
-
 }

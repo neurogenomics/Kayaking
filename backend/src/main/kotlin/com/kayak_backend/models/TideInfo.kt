@@ -6,13 +6,15 @@ import java.time.LocalDateTime
 
 @Serializable
 data class TideInfo(val u: Double, val v: Double)
+
 @Serializable
 data class TideEvent(
     val isHighTide: Boolean,
     @Serializable(with = LocalDateTimeSerializer::class)
     val datetime: LocalDateTime,
-    val height: Double?
+    val height: Double?,
 )
+
 @Serializable
 data class TideStation(
     val id: String,
@@ -23,5 +25,5 @@ data class TideStation(
 @Serializable
 data class TideTimes(
     val events: List<TideEvent>,
-    val source: TideStation
+    val source: TideStation,
 )

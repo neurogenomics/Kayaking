@@ -44,6 +44,7 @@ data class Conf(
     val tideGribConf: TideGribConf? = null,
     val windGribConf: WindGribConf? = null,
 )
+
 private val dotenv = dotenv()
 
 fun getConf(filePath: String): Conf {
@@ -78,13 +79,14 @@ fun getWindService(conf: Conf): WindService {
     }
 }
 
-fun getTideTimeService(conf: Conf): TideTimeService{
-    return when (conf.tideTimeService){
+fun getTideTimeService(conf: Conf): TideTimeService  {
+    return when (conf.tideTimeService) {
         "admiralty" -> {
             val apiKey = dotenv["ADMIRALTY_API_KEY"]
-            if (apiKey == null || apiKey.isEmpty()){
-                throw IllegalStateException("Admiralty API key is missing or empty in .env");
-            }
+            if (apiKey == null || apiKey.isEmpty())
+                {
+                    throw IllegalStateException("Admiralty API key is missing or empty in .env")
+                }
             AdmiraltyTideTimeService(apiKey)
         }
         else -> throw UnsupportedOperationException("TideTime Conf required")

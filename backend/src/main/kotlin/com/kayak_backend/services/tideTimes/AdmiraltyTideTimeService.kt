@@ -2,15 +2,14 @@ package com.kayak_backend.services.tideTimes
 
 import com.kayak_backend.models.Location
 import com.kayak_backend.models.TideEvent
-import com.kayak_backend.models.TideTimes
 import com.kayak_backend.models.TideStation
+import com.kayak_backend.models.TideTimes
 import okhttp3.HttpUrl
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import org.json.JSONArray
-import java.time.LocalDateTime
-import io.github.cdimascio.dotenv.dotenv
 import java.io.IOException
+import java.time.LocalDateTime
 
 class AdmiraltyTideTimeService(
     private val apiKey: String,
@@ -33,16 +32,17 @@ class AdmiraltyTideTimeService(
         val events: MutableList<TideEvent> = mutableListOf()
         for (i in 0 until jsonArr.length()) {
             val jsonObj = jsonArr.getJSONObject(i)
-            val isHighTide = jsonObj.getString("EventType").equals("HighWater");
-            var height: Double? = null;
-            if (jsonObj.has("Height")){
-                height = jsonObj.getDouble("Height")
-            }
+            val isHighTide = jsonObj.getString("EventType").equals("HighWater")
+            var height: Double? = null
+            if (jsonObj.has("Height"))
+                {
+                    height = jsonObj.getDouble("Height")
+                }
             val dateTime = LocalDateTime.parse(jsonObj.getString("DateTime"))
-            val tideEvent = TideEvent(isHighTide, dateTime, height);
+            val tideEvent = TideEvent(isHighTide, dateTime, height)
             events.add(tideEvent)
         }
-        return events;
+        return events
     }
 
     private fun getClosestTideStation(location: Location): TideStation {
@@ -61,24 +61,23 @@ class AdmiraltyTideTimeService(
     }
 
     private fun buildRequest(stationID: String): Request {
-        if (apiKey.isEmpty()){
-            throw IllegalStateException("Admiralty API key is missing or empty");
-        }
-        val urlBuilder = HttpUrl.Builder()
-            .scheme("https")
-            .host("admiraltyapi.azure-api.net")
-            .addPathSegment("uktidalapi")
-            .addPathSegment("api")
-            .addPathSegment("v1")
-            .addPathSegment("stations")
-            .addPathSegment(stationID)
-            .addPathSegment("tidalEvents")
+        if (apiKey.isEmpty())
+            {
+                throw IllegalStateException("Admiralty API key is missing or empty")
+            }
+        val urlBuilder =
+            HttpUrl.Builder()
+                .scheme("https")
+                .host("admiraltyapi.azure-api.net")
+                .addPathSegment("uktidalapi")
+                .addPathSegment("api")
+                .addPathSegment("v1")
+                .addPathSegment("stations")
+                .addPathSegment(stationID)
+                .addPathSegment("tidalEvents")
         return Request.Builder()
             .url(urlBuilder.build())
             .addHeader("Ocp-Apim-Subscription-Key", apiKey)
             .build()
     }
 }
-
-
-
