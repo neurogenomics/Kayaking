@@ -1,6 +1,7 @@
 tideService: "grib"
 windService: "grib"
 gribFetcher: "OpenSkiron"
+tideTimeService: "admiralty"
 tideGribConf:
   gribReader: "NetCDFGribReader"
   filePath: "src/test/gribFiles/testGrib.grb"

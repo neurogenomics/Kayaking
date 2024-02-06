@@ -1,6 +1,7 @@
 tideService: "grib"
 windService: "grib"
 gribFetcher: "OpenSkiron"
+tideTimeService: "admiralty"
 tideGribConf:
   gribReader: "NetCDFGribReader"
   filePath: "gribFiles/Cherbourg_4km_WRF_WAM.grb"
