@@ -1,19 +1,16 @@
-package com.kayak_backend.services.routeFiltering
+package com.kayak_backend.services.seaBearing
 
+import com.kayak_backend.models.Location
+import com.kayak_backend.models.SeaBearingInfo
 import com.kayak_backend.services.coastline.IsleOfWightCoastline
 import org.locationtech.jts.geom.Coordinate
 import kotlin.math.atan2
 import kotlin.math.cos
 import kotlin.math.sin
 
-import java.io.File
-import java.io.FileWriter
-import java.io.IOException
-import java.io.PrintWriter
+class SeaBearingsGetter {
 
-class DirectionToSea {
-
-    // finds the normal bearing for the two coordinates
+    // finds the bearing out to sea between two coordinates
     private fun seaDirection(coor1: Coordinate, coor2: Coordinate): Double{
         val lon1 = Math.toRadians(coor1.x)
         val lat1 = Math.toRadians(coor1.y)
@@ -27,7 +24,7 @@ class DirectionToSea {
     }
 
     // returns list of bearings between each pair of coordinates
-    fun bearingToSea(): List<Double> {
+    fun getSeaBearings(): List<SeaBearingInfo> {
         val coastlineService = IsleOfWightCoastline()
         val coastline = coastlineService.getCoastline().coordinates
 
@@ -36,30 +33,8 @@ class DirectionToSea {
         return coastline.drop(1).map{
             val brng = seaDirection(it, prev)
             prev = it
-            brng
+            SeaBearingInfo(brng, Location(prev.x, prev.y))
         }
 
-    }
-
-}
-
-//prints the bearings and 2 coordinates into seaBearings.csv
-fun main() {
-    val dir = DirectionToSea()
-    val bearings = dir.bearingToSea()
-
-    val coastlineService = IsleOfWightCoastline()
-    val coastline = coastlineService.getCoastline().coordinates
-
-    try {
-        PrintWriter(FileWriter(File("src/main/resources/seaBearings.csv"))).use { writer ->
-            for (i in 0..<coastline.size - 1) {
-                // format "bearing, longitude, latitude"
-                writer.println("${bearings[i]},${coastline[i].x},${coastline[i].y}")
-            }
-        }
-
-    } catch (e: IOException) {
-        e.printStackTrace()
     }
 }
