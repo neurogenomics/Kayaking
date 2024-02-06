@@ -58,7 +58,7 @@ class NetCDFGribReader : GribReader {
         val latData = latVar.read()
 
         var latIndex = 0
-        while (latIndex < (latVar.shape[0] - 1) && latData.getDouble(latIndex) < lat) {
+        while (latIndex < (latVar.shape[0] - 1) && latData.getDouble(latIndex + 1) < lat) {
             latIndex++
         }
 
@@ -66,7 +66,7 @@ class NetCDFGribReader : GribReader {
         val lonData = lonVar.read()
 
         var lonIndex = 0
-        while (lonIndex < (lonVar.shape[0] - 1) && lonData.getDouble(lonIndex) < lon) {
+        while (lonIndex < (lonVar.shape[0] - 1) && lonData.getDouble(lonIndex + 1) < lon) {
             lonIndex++
         }
         return Pair(latIndex, lonIndex)
@@ -76,7 +76,6 @@ class NetCDFGribReader : GribReader {
         val pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'"
         val formatter = DateTimeFormatter.ofPattern(pattern)
         val dateTimeString = input.substringAfter("since ").trim()
-
         return LocalDateTime.parse(dateTimeString, formatter)
     }
 
@@ -88,7 +87,8 @@ class NetCDFGribReader : GribReader {
         val timeVar = file.findVariable(timeVarName) ?: throw GribFileError("Time variable not found")
         val reftime = processDateString(timeVar.unitsString)
         val duration = Duration.between(reftime, time)
-        return duration.toHours().toInt()
+        val firstTime = timeVar.read().getDouble(0).toInt()
+        return duration.toHours().toInt() - firstTime
     }
 
     private fun fetchVarAtLoc(
@@ -107,21 +107,27 @@ class NetCDFGribReader : GribReader {
         var timeDim = 0
 
         for ((i, dim) in variable.dimensionsAll.withIndex()) {
+            // Since the variable is stored in a Nd array with n likely being 3 (lon lat time)
+            // this checks along which axis are these all being stored
+            // this isn't constant, as e.g. wind has another dimension which is height above surface
+            // however in the grib files we have encountered this dimension is of size one (only one measurement)
             val name = dim.dodsName
             when (name) {
                 "lat" -> latDim = i
                 "lon" -> lonDim = i
                 "time" -> timeDim = i
+                "time1" -> timeDim = i // Sometimes time is stored under the time1 variable for reasons unknown
             }
         }
         val varShape = variable.shape
+        // shape contains the sizes of each of the grids, i.e longitude latitude and
         if (latIndex !in 1..<varShape[latDim] - 1) throw GribIndexError("Latitude out of bounds")
         if (lonIndex !in 1..<varShape[lonDim] - 1) throw GribIndexError("Longitude out of bounds")
         if (timeIndex !in 1..<varShape[timeDim] - 1) throw GribIndexError("Time is out of bounds")
 
         origin[latDim] = latIndex
         origin[lonDim] = lonIndex
-        origin[timeDim] = timeDim
+        origin[timeDim] = timeIndex
 
         val shape = IntArray(rank) { 1 }
         val res = variable.read(origin, shape).reduce().getDouble(0)

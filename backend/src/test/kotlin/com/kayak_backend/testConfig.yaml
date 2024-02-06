@@ -1,9 +1,8 @@
 tideService: "grib"
 windService: "grib"
-tideTimeService: "admiralty"
 tideGribConf:
   gribReader: "NetCDFGribReader"
-  filePath: "gribFiles/Cherbourg_4km_WRF_WAM_240125-12.grb"
+  filePath: "gribFiles/testGrib.grb"
   latVarName: "TwoD/LatLon_100X120-49p74N-1p333W/lat"
   lonVarName: "TwoD/LatLon_100X120-49p74N-1p333W/lon"
   timeVarName: "TwoD/LatLon_100X120-49p74N-1p333W/time"
@@ -11,7 +10,7 @@ tideGribConf:
   vTideVarName: "TwoD/LatLon_100X120-49p74N-1p333W/v-component_of_current_surface"
 windGribConf:
   gribReader: "NetCDFGribReader"
-  filePath: "gribFiles/Cherbourg_4km_WRF_WAM_240125-12.grb"
+  filePath: "gribFiles/testGrib.grb"
   latVarName: "TwoD/LatLon_76X92-49p73N-1p324W/lat"
   lonVarName: "TwoD/LatLon_76X92-49p73N-1p324W/lon"
   timeVarName: "TwoD/LatLon_76X92-49p73N-1p324W/time"
