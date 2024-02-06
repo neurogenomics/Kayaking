@@ -1,5 +1,6 @@
 tideService: "grib"
 windService: "grib"
+tideTimeService: "admiralty"
 tideGribConf:
   gribReader: "NetCDFGribReader"
   filePath: "gribFiles/testGrib.grb"

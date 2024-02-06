@@ -9,6 +9,7 @@ import com.kayak_backend.services.tides.GribTideFetcher
 import com.kayak_backend.services.tides.TideService
 import com.kayak_backend.services.wind.GribWindFetcher
 import com.kayak_backend.services.wind.WindService
+import io.github.cdimascio.dotenv.Dotenv
 import io.github.cdimascio.dotenv.dotenv
 import kotlinx.serialization.Serializable
 import java.nio.file.Files
@@ -45,8 +46,6 @@ data class Conf(
     val windGribConf: WindGribConf? = null,
 )
 
-private val dotenv = dotenv()
-
 fun getConf(filePath: String): Conf {
     val yaml = Files.readString(Path.of(filePath))
     return Yaml.default.decodeFromString(Conf.serializer(), yaml)
@@ -79,7 +78,10 @@ fun getWindService(conf: Conf): WindService {
     }
 }
 
-fun getTideTimeService(conf: Conf): TideTimeService {
+fun getTideTimeService(
+    conf: Conf,
+    dotenv: Dotenv,
+): TideTimeService {
     return when (conf.tideTimeService) {
         "admiralty" -> {
             val apiKey = dotenv["ADMIRALTY_API_KEY"]
