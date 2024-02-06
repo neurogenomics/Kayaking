@@ -25,4 +25,15 @@ interface GribReader {
         lonVarName: String,
         timeVarName: String,
     ): Pair<Double, Double>
+
+    fun getVarGrid(
+        latRange: Pair<Double, Double>,
+        lonRange: Pair<Double, Double>,
+        time: LocalDateTime,
+        variableName: String,
+        filePath: String,
+        latVarName: String,
+        lonVarName: String,
+        timeVarName: String,
+    ): Triple<Array<Array<Double>>, Array<Double>, Array<Double>>
 }

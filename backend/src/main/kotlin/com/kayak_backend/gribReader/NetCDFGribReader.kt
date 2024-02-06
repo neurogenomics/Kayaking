@@ -47,6 +47,26 @@ class NetCDFGribReader : GribReader {
         return Pair(val1, val2)
     }
 
+    override fun getVarGrid(
+        latRange: Pair<Double, Double>,
+        lonRange: Pair<Double, Double>,
+        time: LocalDateTime,
+        variableName: String,
+        filePath: String,
+        latVarName: String,
+        lonVarName: String,
+        timeVarName: String,
+    ): Triple<Array<Array<Double>>, Array<Double>, Array<Double>> {
+        val file = NetcdfDataset.openFile(filePath, null)
+        val (latIndex1, lonIndex1) = findLatLon(file, latVarName, latRange.first, lonVarName, lonRange.first)
+        val (latIndex2, lonIndex2) = findLatLon(file, latVarName, latRange.second, lonVarName, lonRange.second)
+        val timeIndex = findTime(file, timeVarName, time)
+
+        val data = fetchVarGrid(file, latIndex1, latIndex2, lonIndex1, lonIndex2, timeIndex, variableName)
+        val (latIndex, lonIndex) = getLatLonRange(file, latVarName, Pair(latIndex1, latIndex2), lonVarName, Pair(lonIndex1, lonIndex2))
+        return Triple(data, latIndex, lonIndex)
+    }
+
     private fun findLatLon(
         file: NetcdfFile,
         latVarName: String,
@@ -70,6 +90,30 @@ class NetCDFGribReader : GribReader {
             lonIndex++
         }
         return Pair(latIndex, lonIndex)
+    }
+
+    private fun getLatLonRange(
+        file: NetcdfFile,
+        latVarName: String,
+        latIndices: Pair<Int, Int>,
+        lonVarName: String,
+        lonIndices: Pair<Int, Int>
+    ): Pair<Array<Double>, Array<Double>> {
+        val latVar = file.findVariable(latVarName) ?: throw GribFileError("Latitude variable not found")
+        val latData = latVar.read()
+
+        val lonVar = file.findVariable(lonVarName) ?: throw GribFileError("Longitude variable not found")
+        val lonData = lonVar.read()
+
+        val latIndex = (latIndices.first + 1 ..latIndices.second).map {
+            latData.getDouble(it)
+        }.toTypedArray()
+        val lonIndex = (lonIndices.first + 1..lonIndices.second).map {
+            lonData.getDouble(it)
+        }.toTypedArray()
+
+        return Pair(latIndex, lonIndex)
+
     }
 
     private fun processDateString(input: String): LocalDateTime {
@@ -102,6 +146,61 @@ class NetCDFGribReader : GribReader {
         val rank = variable.rank
         val origin = IntArray(rank)
 
+        val (latDim, lonDim, timeDim) = getDimensionsIndex(variable)
+        testRanges(variable, latIndex, lonIndex, timeIndex, latDim, lonDim, timeDim)
+        origin[latDim] = latIndex
+        origin[lonDim] = lonIndex
+        origin[timeDim] = timeIndex
+
+        val shape = IntArray(rank) { 1 }
+        val res = variable.read(origin, shape).reduce().getDouble(0)
+        if (res.isNaN()) {
+            var i = 1
+            var resList: List<Double>
+            do {
+                resList = trySurrounding(variable, origin, shape, latDim, lonDim, i)
+                i++
+            } while (resList.isEmpty())
+            return resList.average()
+        }
+        return res
+    }
+
+    private fun fetchVarGrid(
+        file: NetcdfFile,
+        latIndex1: Int,
+        latIndex2: Int,
+        lonIndex1: Int,
+        lonIndex2: Int,
+        timeIndex: Int,
+        variableName: String,
+    ): Array<Array<Double>>  {
+        val variable = file.findVariable(variableName) ?: throw GribFileError("Variable $variableName not found")
+        val rank = variable.rank
+        val origin = IntArray(rank)
+        val (latDim, lonDim, timeDim) = getDimensionsIndex(variable)
+
+        testRanges(variable, latIndex1, lonIndex1, timeIndex, latDim, lonDim, timeDim)
+        testRanges(variable, latIndex2, lonIndex2, timeIndex, latDim, lonDim, timeDim)
+
+        origin[latDim] = latIndex1 + 1
+        origin[lonDim] = lonIndex1 + 1
+        origin[timeDim] = timeIndex
+
+        val shape = IntArray(rank) { 1 }
+        shape[latDim] = latIndex2 - latIndex1
+        shape[lonDim] = lonIndex2 - lonIndex1
+
+        val res = variable.read(origin, shape)
+
+        val newShape = intArrayOf(shape[latDim], shape[lonDim])
+        val reShape = res.reshape(newShape)
+
+        // converts library arraytype to kotlin array
+        return Array(newShape[0]) { i -> Array(newShape[1]) { j -> reShape.getDouble((i * latDim) + j) } }
+    }
+
+    private fun getDimensionsIndex(variable: Variable): Triple<Int, Int, Int> {
         var latDim = 0
         var lonDim = 0
         var timeDim = 0
@@ -119,28 +218,23 @@ class NetCDFGribReader : GribReader {
                 "time1" -> timeDim = i // Sometimes time is stored under the time1 variable for reasons unknown
             }
         }
+        return Triple(latDim, lonDim, timeDim)
+    }
+
+    private fun testRanges(
+        variable: Variable,
+        latIndex: Int,
+        lonIndex: Int,
+        timeIndex: Int,
+        latDim: Int,
+        lonDim: Int,
+        timeDim: Int,
+    ) {
         val varShape = variable.shape
-        // shape contains the sizes of each of the grids, i.e longitude latitude and
+        // shape contains the sizes of each of the grids, i.e. longitude latitude and
         if (latIndex !in 1..<varShape[latDim] - 1) throw GribIndexError("Latitude out of bounds")
         if (lonIndex !in 1..<varShape[lonDim] - 1) throw GribIndexError("Longitude out of bounds")
         if (timeIndex !in 1..<varShape[timeDim] - 1) throw GribIndexError("Time is out of bounds")
-
-        origin[latDim] = latIndex
-        origin[lonDim] = lonIndex
-        origin[timeDim] = timeIndex
-
-        val shape = IntArray(rank) { 1 }
-        val res = variable.read(origin, shape).reduce().getDouble(0)
-        if (res.isNaN()) {
-            var i = 1
-            var resList: List<Double>
-            do {
-                resList = trySurrounding(variable, origin, shape, latDim, lonDim, i)
-                i++
-            } while (resList.isEmpty())
-            return resList.average()
-        }
-        return res
     }
 
     private fun trySurrounding(
