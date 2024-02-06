@@ -23,14 +23,15 @@ class SimpleInterpolator : Interpolator {
 
         var currentIndex1 = 0
 
-        val result = newIndex1.map {
-            while (currentIndex1 < index1.size - 1 && it >= index1[max(currentIndex1, 1)]) currentIndex1++
-            var currentIndex2 = 0
-            newIndex2.map { it2 ->
-                while (currentIndex2 < index2.size - 1 && it2 >= index2[max(currentIndex2, 1)]) currentIndex2++
-                data[currentIndex1][currentIndex2]
+        val result =
+            newIndex1.map {
+                while (currentIndex1 < index1.size - 1 && it >= index1[max(currentIndex1, 1)]) currentIndex1++
+                var currentIndex2 = 0
+                newIndex2.map { it2 ->
+                    while (currentIndex2 < index2.size - 1 && it2 >= index2[max(currentIndex2, 1)]) currentIndex2++
+                    data[currentIndex1][currentIndex2]
+                }.toTypedArray()
             }.toTypedArray()
-        }.toTypedArray()
 
         return Triple(result, newIndex1, newIndex2)
     }

@@ -13,13 +13,14 @@ class SimpleInterpolatorTest {
         val ranges = Pair(Pair(0.5, 2.5), Pair(0.5, 2.5))
         val resolutions = Pair(0.5, 0.25)
 
-        val expectedResult = arrayOf(
-            arrayOf(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0),
-            arrayOf(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0),
-            arrayOf(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0),
-            arrayOf(1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 2.0, 2.0, 2.0),
-            arrayOf(1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 2.0, 2.0, 2.0)
-        )
+        val expectedResult =
+            arrayOf(
+                arrayOf(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0),
+                arrayOf(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0),
+                arrayOf(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0),
+                arrayOf(1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 2.0, 2.0, 2.0),
+                arrayOf(1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 2.0, 2.0, 2.0),
+            )
         val expectedIndexes =
             Pair(listOf(0.5, 1.0, 1.5, 2.0, 2.5), listOf(0.5, 0.75, 1.0, 1.25, 1.5, 1.75, 2.0, 2.25, 2.5))
         val (res, newIndex1, newIndex2) = interpolator.interpolate(data, indices, ranges, resolutions)
