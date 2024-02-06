@@ -19,7 +19,7 @@ class WindFiltering {
 
 
     fun classifyAreas() : List<WindZonesInfo> {
-        // should the services be fields?
+        // should the seaBearing service be a field?
         val windService : WindService = getWindService(getConf("./config.yaml"))
         val seaBearings = SeaBearingService().getSeaBearings()
 
@@ -27,15 +27,12 @@ class WindFiltering {
             //TODO change the LocalDateTime
             val wind = windService.getWind(it.coor, LocalDateTime.of(2024, 1, 25, 14, 0))
 
-            if (badArea(it.bearing, wind)){
-                //TODO group somehow into zones
-                WindZonesInfo(it, false)
-            } else {
-                WindZonesInfo(it,true)
-            }
+            //TODO group into zones
+            WindZonesInfo(it, badArea(it.bearing, wind))
         }
     }
 
+    //returns true if wind direction is out to sea
     private fun badArea(bearing: Double, wind: WindInfo): Boolean {
         val displace = if (wind.v < 0) 180.0 else 0.0
         val resultWind = Math.toDegrees(atan2(wind.u, wind.v)) + displace
@@ -55,7 +52,7 @@ fun main() {
     try {
         PrintWriter(FileWriter(File("src/main/resources/windZones.csv"))).use { writer ->
             for (i in result.indices) {
-                writer.println("${result[i].bearing.bearing},${result[i].bearing.coor.latitude},${result[i].bearing.coor.longitude},${result[i].good}")
+                writer.println("${result[i].bearing.bearing},${result[i].bearing.coor.latitude},${result[i].bearing.coor.longitude},${result[i].bad}")
             }
         }
 

@@ -2,6 +2,7 @@ package com.kayak_backend.services.windFiltering
 
 import org.junit.Test
 
+//TODO once grouping into zones is done in WindFiltering
 class WindFilteringTest {
     //TODO mock the wind data?
     //TODO mock the bearings?
