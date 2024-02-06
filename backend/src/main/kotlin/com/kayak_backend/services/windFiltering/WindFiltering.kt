@@ -1,10 +1,15 @@
-package com.kayak_backend.services.routeFiltering
+package com.kayak_backend.services.windFiltering
 
 import com.kayak_backend.getConf
 import com.kayak_backend.getWindService
 import com.kayak_backend.models.WindInfo
+import com.kayak_backend.services.coastline.IsleOfWightCoastline
 import com.kayak_backend.services.seaBearing.SeaBearingService
 import com.kayak_backend.services.wind.WindService
+import java.io.File
+import java.io.FileWriter
+import java.io.IOException
+import java.io.PrintWriter
 import java.time.LocalDateTime
 import kotlin.math.abs
 import kotlin.math.atan2
@@ -13,19 +18,19 @@ private const val BAD_WIND_LIMIT = 90
 class WindFiltering {
 
 
-    fun classifyAreas(){
+    fun classifyAreas() : List<WindZonesInfo> {
         val windService : WindService = getWindService(getConf("./config.yaml"))
         val seaBearings = SeaBearingService().getSeaBearings()
 
-        seaBearings.forEach{
+        return seaBearings.map{
             val wind = windService.getWind(it.coor, LocalDateTime.of(2024,1,25,12,1))
 
             if (badArea(it.bearing, wind)){
                 //mark as bad
                 // or maybe accumulate 10 then decide if that group is good/bad
-                println("bad :(")
+                WindZonesInfo(it, false)
             } else {
-                println("good :)")
+                WindZonesInfo(it,true)
             }
         }
     }
@@ -44,7 +49,23 @@ class WindFiltering {
 
 }
 
+
+//prints the bearings, coordinates and a boolean for good/bad area into windZones.csv (for manual testing)
 fun main() {
     val filter = WindFiltering()
-    filter.classifyAreas()
+    val result = filter.classifyAreas()
+
+    val coastlineService = IsleOfWightCoastline()
+    val coastline = coastlineService.getCoastline().coordinates
+
+    try {
+        PrintWriter(FileWriter(File("src/main/resources/windZones.csv"))).use { writer ->
+            for (i in 0..<coastline.size - 1) {
+                writer.println("${result[i].bearing.bearing},${result[i].bearing.coor.latitude},${result[i].bearing.coor.longitude},${result[i].good}")
+            }
+        }
+
+    } catch (e: IOException) {
+        e.printStackTrace()
+    }
 }

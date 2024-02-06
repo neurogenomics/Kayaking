@@ -1,6 +1,5 @@
 package com.kayak_backend.services.seaBearing
 
-import com.kayak_backend.models.SeaBearingInfo
 import com.kayak_backend.services.coastline.IsleOfWightCoastline
 
 //imports for the main function and manual testing

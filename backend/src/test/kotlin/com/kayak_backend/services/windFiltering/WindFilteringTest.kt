@@ -1,4 +1,4 @@
-package com.kayak_backend.services.routeFiltering
+package com.kayak_backend.services.windFiltering
 
 import org.junit.Test
 
