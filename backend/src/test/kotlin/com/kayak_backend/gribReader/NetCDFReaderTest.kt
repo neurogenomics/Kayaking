@@ -74,9 +74,11 @@ class NetCDFReaderTest {
         assertEquals(expected.size, value.first.size)
         assertEquals(expected[0].size, value.first[0].size)
         expected.forEachIndexed {
-            i, arr -> arr.forEachIndexed {
-            j, pt -> assertEquals(pt, value.first[i][j], 1e-3)
-        }
+                i, arr ->
+            arr.forEachIndexed {
+                    j, pt ->
+                assertEquals(pt, value.first[i][j], 1e-3)
+            }
         }
         assertEquals(expected.size, value.second.size)
         assertEquals(expected[0].size, value.third.size)

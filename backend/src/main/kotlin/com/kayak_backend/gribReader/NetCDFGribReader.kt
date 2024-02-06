@@ -97,7 +97,7 @@ class NetCDFGribReader : GribReader {
         latVarName: String,
         latIndices: Pair<Int, Int>,
         lonVarName: String,
-        lonIndices: Pair<Int, Int>
+        lonIndices: Pair<Int, Int>,
     ): Pair<Array<Double>, Array<Double>> {
         val latVar = file.findVariable(latVarName) ?: throw GribFileError("Latitude variable not found")
         val latData = latVar.read()
@@ -105,15 +105,16 @@ class NetCDFGribReader : GribReader {
         val lonVar = file.findVariable(lonVarName) ?: throw GribFileError("Longitude variable not found")
         val lonData = lonVar.read()
 
-        val latIndex = (latIndices.first + 1 ..latIndices.second).map {
-            latData.getDouble(it)
-        }.toTypedArray()
-        val lonIndex = (lonIndices.first + 1..lonIndices.second).map {
-            lonData.getDouble(it)
-        }.toTypedArray()
+        val latIndex =
+            (latIndices.first + 1..latIndices.second).map {
+                latData.getDouble(it)
+            }.toTypedArray()
+        val lonIndex =
+            (lonIndices.first + 1..lonIndices.second).map {
+                lonData.getDouble(it)
+            }.toTypedArray()
 
         return Pair(latIndex, lonIndex)
-
     }
 
     private fun processDateString(input: String): LocalDateTime {
@@ -174,7 +175,7 @@ class NetCDFGribReader : GribReader {
         lonIndex2: Int,
         timeIndex: Int,
         variableName: String,
-    ): Array<Array<Double>>  {
+    ): Array<Array<Double>> {
         val variable = file.findVariable(variableName) ?: throw GribFileError("Variable $variableName not found")
         val rank = variable.rank
         val origin = IntArray(rank)
