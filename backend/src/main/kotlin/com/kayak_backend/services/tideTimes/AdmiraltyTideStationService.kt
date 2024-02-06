@@ -33,10 +33,9 @@ class AdmiraltyTideStationService(private val apiKey: String, private val client
     }
 
     private fun buildRequest(): Request {
-        if (apiKey.isEmpty())
-            {
-                throw IllegalStateException("Admiralty API key is missing or empty")
-            }
+        if (apiKey.isEmpty()) {
+            throw IllegalStateException("Admiralty API key is missing or empty")
+        }
         val urlBuilder =
             HttpUrl.Builder()
                 .scheme("https")
