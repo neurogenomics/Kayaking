@@ -28,12 +28,9 @@ fun main() {
     val service = SeaBearingService()
     val bearings = service.getSeaBearings()
 
-    val coastlineService = IsleOfWightCoastline()
-    val coastline = coastlineService.getCoastline().coordinates
-
     try {
         PrintWriter(FileWriter(File("src/main/resources/seaBearings.csv"))).use { writer ->
-            for (i in 0..<coastline.size - 1) {
+            for (i in 0..<bearings.size - 1) {
                 writer.println("${bearings[i].bearing},${bearings[i].coor.latitude},${bearings[i].coor.longitude}")
             }
         }

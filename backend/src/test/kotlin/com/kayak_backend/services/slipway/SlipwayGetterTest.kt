@@ -1,8 +1,4 @@
-<<<<<<< HEAD:backend/src/test/kotlin/com/kayak_backend/services/slipway/SlipwayGetterTest.kt
 package com.kayak_backend.services.slipway;
-=======
-package com.kayak_backend.services.sunset
->>>>>>> origin/main:backend/src/test/kotlin/com/kayak_backend/services/sunset/SlipwayGetterTest.kt
 import com.kayak_backend.models.Location
 import com.kayak_backend.services.slipways.SlipwaysGetter
 import io.ktor.network.sockets.*
@@ -13,13 +9,8 @@ import okhttp3.Request
 import okhttp3.Response
 import okhttp3.ResponseBody.Companion.toResponseBody
 import java.io.IOException
-<<<<<<< HEAD:backend/src/test/kotlin/com/kayak_backend/services/slipway/SlipwayGetterTest.kt
-import kotlin.test.*
-public class SlipwayGetterTest {
-=======
 import kotlin.test.Test
 import kotlin.test.assertFailsWith
->>>>>>> origin/main:backend/src/test/kotlin/com/kayak_backend/services/sunset/SlipwayGetterTest.kt
 
 public class SlipwayGetterTest {
     val isleOfWightLocation1 = Location(50.564485309567644, -1.6005677025384493)

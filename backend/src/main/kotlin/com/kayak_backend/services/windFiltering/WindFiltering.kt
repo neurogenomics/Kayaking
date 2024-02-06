@@ -24,7 +24,8 @@ class WindFiltering {
         val seaBearings = SeaBearingService().getSeaBearings()
 
         return seaBearings.map{
-            val wind = windService.getWind(it.coor, LocalDateTime.of(2024,1,25,12,1))
+            //TODO change the LocalDateTime
+            val wind = windService.getWind(it.coor, LocalDateTime.of(2024, 1, 25, 14, 0))
 
             if (badArea(it.bearing, wind)){
                 //TODO group somehow into zones
@@ -40,10 +41,6 @@ class WindFiltering {
         val resultWind = Math.toDegrees(atan2(wind.u, wind.v)) + displace
         val dif = abs(resultWind - bearing)
 
-        println("Bearing is $bearing")
-        println("Wind is ${wind.u},${wind.v}")
-        println(resultWind)
-
         return (dif < BAD_WIND_LIMIT || dif > (360 - BAD_WIND_LIMIT))
     }
 
@@ -55,12 +52,9 @@ fun main() {
     val filter = WindFiltering()
     val result = filter.classifyAreas()
 
-    val coastlineService = IsleOfWightCoastline()
-    val coastline = coastlineService.getCoastline().coordinates
-
     try {
         PrintWriter(FileWriter(File("src/main/resources/windZones.csv"))).use { writer ->
-            for (i in 0..<coastline.size - 1) {
+            for (i in result.indices) {
                 writer.println("${result[i].bearing.bearing},${result[i].bearing.coor.latitude},${result[i].bearing.coor.longitude},${result[i].good}")
             }
         }
