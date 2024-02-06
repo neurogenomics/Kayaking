@@ -19,6 +19,7 @@ class WindFiltering {
 
 
     fun classifyAreas() : List<WindZonesInfo> {
+        // should the services be fields?
         val windService : WindService = getWindService(getConf("./config.yaml"))
         val seaBearings = SeaBearingService().getSeaBearings()
 
@@ -26,7 +27,7 @@ class WindFiltering {
             val wind = windService.getWind(it.coor, LocalDateTime.of(2024,1,25,12,1))
 
             if (badArea(it.bearing, wind)){
-                //TODO group somehow
+                //TODO group somehow into zones
                 WindZonesInfo(it, false)
             } else {
                 WindZonesInfo(it,true)
