@@ -15,12 +15,11 @@ import io.ktor.server.application.*
 import io.ktor.server.routing.*
 
 fun Application.configureRouting(conf: Conf) {
-    val dotenv = dotenv()
     routing {
         testRouting()
         sunset()
         slipway()
-        tideTimes(getTideTimeService(conf, dotenv))
+        tideTimes(getTideTimeService(conf, dotenv()))
         tide(getTideService(conf))
         wind(getWindService(conf))
     }
