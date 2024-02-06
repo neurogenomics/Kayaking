@@ -18,13 +18,12 @@ class SunsetServiceTest {
     private val sunsetService = SunsetService(httpClientMock)
 
     @Test
-    fun returnsSunsetInfo() =
-        testApplication {
-            every { httpClientMock.newCall(any()).execute() } returns createMockResponse()
-            val resultSunsetInfo = sunsetService.getSunset(Location(0.0, 0.0))
-            val sunsetInfo = SunsetInfo(LocalTime.of(10, 30), LocalTime.of(6, 30))
-            assertEquals(sunsetInfo, resultSunsetInfo)
-        }
+    fun returnsSunsetInfo() {
+        every { httpClientMock.newCall(any()).execute() } returns createMockResponse()
+        val resultSunsetInfo = sunsetService.getSunset(Location(0.0, 0.0))
+        val sunsetInfo = SunsetInfo(LocalTime.of(10, 30), LocalTime.of(6, 30))
+        assertEquals(sunsetInfo, resultSunsetInfo)
+    }
 
     private fun createMockResponse(): Response {
         val bodyString = """{"results": {"sunrise": "10:30:00 AM", "sunset": "6:30:00 AM"}}"""
