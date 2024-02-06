@@ -12,11 +12,11 @@ import okhttp3.ResponseBody.Companion.toResponseBody
 import java.io.IOException
 import java.time.LocalTime
 import kotlin.test.*
-class SunsetServiceTest {
 
+class SunsetServiceTest {
     private val httpClientMock = mockk<OkHttpClient>()
     private val sunsetService = SunsetService(httpClientMock)
-  
+
     @Test
     fun returnsSunsetInfo() {
         every { httpClientMock.newCall(any()).execute() } returns createMockResponse();
@@ -24,6 +24,7 @@ class SunsetServiceTest {
         val sunsetInfo = SunsetInfo(LocalTime.of(10, 30), LocalTime.of(6,30))
         assertEquals(sunsetInfo, resultSunsetInfo)
     }
+
     private fun createMockResponse(): Response {
         val bodyString = """{"results": {"sunrise": "10:30:00 AM", "sunset": "6:30:00 AM"}}"""
         return Response.Builder()
@@ -34,6 +35,7 @@ class SunsetServiceTest {
             .body(bodyString.toResponseBody())
             .build()
     }
+
     @Test
     fun handlesNetworkError() {
         every { httpClientMock.newCall(any()).execute() } throws SocketTimeoutException()
@@ -42,5 +44,4 @@ class SunsetServiceTest {
             sunsetService.getSunset(location)
         }
     }
-
 }

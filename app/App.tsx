@@ -1,23 +1,14 @@
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet } from 'react-native';
 import React from 'react';
+import { createStackNavigator } from '@react-navigation/stack';
+import { NavigationContainer } from '@react-navigation/native';
+import HomePage from './components/HomePage';
+import DisplayDataScreen from './components/DisplayDataScreen';
+
+const Stack = createStackNavigator();
 
 export const App: React.FC = () => {
-  return (
-    <View style={styles.container}>
-      <Text>Welcome to the Kayak App</Text>
-      <StatusBar style="auto" />
-    </View>
-  );
+  return <HomePage />;
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
 
 export default App;

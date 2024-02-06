@@ -1,5 +1,8 @@
 package com.kayak_backend.plugins
 
+import com.kayak_backend.Conf
+import com.kayak_backend.getTideService
+import com.kayak_backend.getWindService
 import com.kayak_backend.routes.slipway
 import com.kayak_backend.routes.sunset
 import com.kayak_backend.routes.testRouting
@@ -11,15 +14,16 @@ import io.github.cdimascio.dotenv.dotenv
 import io.ktor.server.application.*
 import io.ktor.server.routing.*
 
-
-fun Application.configureRouting() {
+fun Application.configureRouting(conf: Conf) {
     val dotenv = dotenv()
+
     routing {
         testRouting()
         sunset()
         slipway()
-        tide()
         tideTimes(AdmiraltyTideTimeService(dotenv["ADMIRALTY_API_KEY"]))
-        wind()
+
+        tide(getTideService(conf))
+        wind(getWindService(conf))
     }
 }

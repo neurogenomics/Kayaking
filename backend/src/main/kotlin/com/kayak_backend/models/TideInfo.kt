@@ -6,7 +6,6 @@ import java.time.LocalDateTime
 
 @Serializable
 data class TideInfo(val u: Double, val v: Double)
-
 @Serializable
 data class TideEvent(
     val isHighTide: Boolean,

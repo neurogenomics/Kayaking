@@ -2,8 +2,8 @@ import com.kayak_backend.models.Location
 import com.kayak_backend.services.slipways.SlipwayService
 import io.ktor.server.testing.*
 import kotlin.test.*
-class SlipwayServiceTest {
 
+class SlipwayServiceTest {
     private val slipwayService = SlipwayService()
 
     @Test
