@@ -26,8 +26,7 @@ class WindFiltering {
             val wind = windService.getWind(it.coor, LocalDateTime.of(2024,1,25,12,1))
 
             if (badArea(it.bearing, wind)){
-                //mark as bad
-                // or maybe accumulate 10 then decide if that group is good/bad
+                //TODO group somehow
                 WindZonesInfo(it, false)
             } else {
                 WindZonesInfo(it,true)

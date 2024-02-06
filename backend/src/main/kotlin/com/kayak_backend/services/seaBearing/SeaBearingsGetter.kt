@@ -1,15 +1,16 @@
 package com.kayak_backend.services.seaBearing
 
 import com.kayak_backend.models.Location
-import com.kayak_backend.services.coastline.IsleOfWightCoastline
+import com.kayak_backend.services.coastline.CoastlineService
 import org.locationtech.jts.geom.Coordinate
 import kotlin.math.atan2
 import kotlin.math.cos
 import kotlin.math.sin
 
-class SeaBearingsGetter {
+class SeaBearingsGetter(private val coastlineService: CoastlineService) {
 
     // finds the bearing out to sea between two coordinates
+    // requires the coastline service to return the coordinates in a clockwise direction
     private fun seaDirection(coor1: Coordinate, coor2: Coordinate): Double{
         val lon1 = Math.toRadians(coor1.x)
         val lat1 = Math.toRadians(coor1.y)
@@ -24,7 +25,6 @@ class SeaBearingsGetter {
 
     // returns list of bearings between each pair of coordinates
     fun getSeaBearings(): List<SeaBearingInfo> {
-        val coastlineService = IsleOfWightCoastline()
         val coastline = coastlineService.getCoastline().coordinates
 
         var prev = coastline[0]

@@ -11,7 +11,8 @@ import java.io.PrintWriter
 class SeaBearingService {
 
     private var seaBearings : List<SeaBearingInfo> = listOf()
-    private val seaBearingsGetter = SeaBearingsGetter()
+    //TODO decide if coastline service should be a field in SeaBearingService/ SeaBearingGetter - surely field better to then decouple from isle of white coast
+    private val seaBearingsGetter = SeaBearingsGetter(IsleOfWightCoastline())
 
     fun getSeaBearings() : List<SeaBearingInfo> {
         if (seaBearings.isEmpty()){

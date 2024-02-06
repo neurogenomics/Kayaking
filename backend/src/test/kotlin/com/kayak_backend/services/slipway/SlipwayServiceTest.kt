@@ -1,3 +1,4 @@
+package com.kayak_backend.services.slipway
 import com.kayak_backend.models.Location
 import com.kayak_backend.services.slipways.SlipwayService
 import io.ktor.server.testing.*

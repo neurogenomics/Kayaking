@@ -1,10 +1,7 @@
-package com.kayak_backend.services.sunset;
+package com.kayak_backend.services.slipway;
 import com.kayak_backend.models.Location
 import com.kayak_backend.services.slipways.SlipwaysGetter
-import com.kayak_backend.services.sunset.SunsetInfo
-import com.kayak_backend.services.sunset.SunsetService
 import io.ktor.network.sockets.*
-import io.ktor.server.testing.*
 import io.mockk.every
 import io.mockk.mockk
 import okhttp3.OkHttpClient
@@ -12,7 +9,6 @@ import okhttp3.Request
 import okhttp3.Response
 import okhttp3.ResponseBody.Companion.toResponseBody
 import java.io.IOException
-import java.time.LocalTime
 import kotlin.test.*
 public class SlipwayGetterTest {
 
