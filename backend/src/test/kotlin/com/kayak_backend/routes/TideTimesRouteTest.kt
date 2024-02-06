@@ -4,7 +4,6 @@ import com.kayak_backend.models.TideStation
 import com.kayak_backend.models.TideTimes
 import com.kayak_backend.routes.commonSetup
 import com.kayak_backend.routes.tideTimes
-import com.kayak_backend.routes.wind
 import com.kayak_backend.services.tideTimes.AdmiraltyTideTimeService
 import io.ktor.client.request.*
 import io.ktor.client.statement.*

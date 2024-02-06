@@ -34,10 +34,9 @@ class AdmiraltyTideTimeService(
             val jsonObj = jsonArr.getJSONObject(i)
             val isHighTide = jsonObj.getString("EventType").equals("HighWater")
             var height: Double? = null
-            if (jsonObj.has("Height"))
-                {
-                    height = jsonObj.getDouble("Height")
-                }
+            if (jsonObj.has("Height")) {
+                height = jsonObj.getDouble("Height")
+            }
             val dateTime = LocalDateTime.parse(jsonObj.getString("DateTime"))
             val tideEvent = TideEvent(isHighTide, dateTime, height)
             events.add(tideEvent)
@@ -61,10 +60,9 @@ class AdmiraltyTideTimeService(
     }
 
     private fun buildRequest(stationID: String): Request {
-        if (apiKey.isEmpty())
-            {
-                throw IllegalStateException("Admiralty API key is missing or empty")
-            }
+        if (apiKey.isEmpty()) {
+            throw IllegalStateException("Admiralty API key is missing or empty")
+        }
         val urlBuilder =
             HttpUrl.Builder()
                 .scheme("https")
