@@ -2,7 +2,9 @@ import com.kayak_backend.models.Location
 import com.kayak_backend.models.TideEvent
 import com.kayak_backend.models.TideStation
 import com.kayak_backend.models.TideTimes
+import com.kayak_backend.routes.commonSetup
 import com.kayak_backend.routes.tideTimes
+import com.kayak_backend.routes.wind
 import com.kayak_backend.services.tideTimes.AdmiraltyTideTimeService
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
@@ -39,33 +41,10 @@ class TideTimesRouteTest {
             )
     }
 
-    // TODO: Reuse original setup or move to separate file
-    private fun TestApplicationBuilder.commonSetup() {
-        environment {
-            config = MapApplicationConfig()
-        }
-        install(StatusPages) {
-            exception<MissingRequestParameterException> { call, cause ->
-                call.respondText("Missing \"${cause.parameterName}\" parameter.", status = HttpStatusCode.BadRequest)
-            }
-            exception<ParameterConversionException> { call, cause ->
-                call.respondText(
-                    "Parameter \"${cause.parameterName}\" should be ${cause.type}.",
-                    status = HttpStatusCode.BadRequest,
-                )
-            }
-        }
-        install(ContentNegotiation) {
-            json()
-        }
-        routing { tideTimes(tideTimesMock) }
-    }
-
-    // TODO: Check error messages instead of error pages? Not sure how to
     @Test
     fun returnsTideTimes() =
         testApplication {
-            commonSetup()
+            commonSetup { tideTimes(tideTimesMock) }
             val response = client.get("/tidetimes?lat=50.64&lon=60")
             assertEquals(HttpStatusCode.OK, response.status)
             val encoded = Json.encodeToString(tideTimesMock.getTideTimes(Location(0.0, 0.0)))
@@ -75,7 +54,7 @@ class TideTimesRouteTest {
     @Test
     fun requiresLatParameter() =
         testApplication {
-            commonSetup()
+            commonSetup { tideTimes(tideTimesMock) }
             val response = client.get("/tidetimes?lng=20")
             assertEquals(HttpStatusCode.BadRequest, response.status)
             assertEquals("Missing \"lat\" parameter.", response.bodyAsText())
@@ -84,7 +63,7 @@ class TideTimesRouteTest {
     @Test
     fun requiresLatToBeDouble() =
         testApplication {
-            commonSetup()
+            commonSetup { tideTimes(tideTimesMock) }
             val response = client.get("/tidetimes?lat=dog&lon=40")
             assertEquals(HttpStatusCode.BadRequest, response.status)
             assertEquals("Parameter \"lat\" should be Double.", response.bodyAsText())
@@ -93,7 +72,7 @@ class TideTimesRouteTest {
     @Test
     fun requiresLonParameter() =
         testApplication {
-            commonSetup()
+            commonSetup { tideTimes(tideTimesMock) }
             val response = client.get("/tidetimes?lat=50")
             assertEquals(HttpStatusCode.BadRequest, response.status)
             assertEquals("Missing \"lon\" parameter.", response.bodyAsText())
@@ -102,7 +81,7 @@ class TideTimesRouteTest {
     @Test
     fun requiresLonToBeDouble() =
         testApplication {
-            commonSetup()
+            commonSetup { tideTimes(tideTimesMock) }
             val response = client.get("/tidetimes?lat=25.45&lon=frog")
             assertEquals(HttpStatusCode.BadRequest, response.status)
             assertEquals("Parameter \"lon\" should be Double.", response.bodyAsText())

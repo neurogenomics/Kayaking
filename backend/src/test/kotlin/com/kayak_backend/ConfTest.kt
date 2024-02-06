@@ -36,6 +36,7 @@ val testConfig =
         windService = "grib",
         tideGribConf = testTideGribConf,
         windGribConf = testWindGribConf,
+        tideTimeService = "admiralty"
     )
 
 class ConfTest {
