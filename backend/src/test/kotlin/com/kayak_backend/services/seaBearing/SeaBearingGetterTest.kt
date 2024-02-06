@@ -9,11 +9,11 @@ import kotlin.test.*
 private const val ALLOWED_ROUNDING_ERROR = 2.0
 class SeaBearingGetterTest {
 
+    private val coastlineMock = mockk<CoastlineService>()
+    private val seaBearingsGetter = SeaBearingsGetter(coastlineMock)
+
     @Test
     fun findCorrectBearingToSea(){
-        val coastlineMock = mockk<CoastlineService>()
-        val seaBearingsGetter = SeaBearingsGetter(coastlineMock)
-
         //this has not taken into account spherical factors
         val expectedBearings = listOf(45.0,135.0,225.0,315.0)
 
@@ -34,9 +34,6 @@ class SeaBearingGetterTest {
 
     @Test
     fun emptyCoastlineReturnsEmptyBearings(){
-        val coastlineMock = mockk<CoastlineService>()
-        val seaBearingsGetter = SeaBearingsGetter(coastlineMock)
-
         every { coastlineMock.getCoastline().coordinates } returns arrayOf()
 
         val result = seaBearingsGetter.getSeaBearings()
@@ -46,9 +43,6 @@ class SeaBearingGetterTest {
 
     @Test
     fun oneCoordinateCoastlineReturnsEmptyBearings(){
-        val coastlineMock = mockk<CoastlineService>()
-        val seaBearingsGetter = SeaBearingsGetter(coastlineMock)
-
         every { coastlineMock.getCoastline().coordinates } returns arrayOf(
             Coordinate(1.0,1.0)
         )
@@ -60,9 +54,6 @@ class SeaBearingGetterTest {
 
     @Test
     fun repeatedConsecutiveCoordinateInCoastlineIgnored(){
-        val coastlineMock = mockk<CoastlineService>()
-        val seaBearingsGetter = SeaBearingsGetter(coastlineMock)
-
         every { coastlineMock.getCoastline().coordinates } returns arrayOf(
             Coordinate(1.0,1.0),
             Coordinate(1.0,1.0)
