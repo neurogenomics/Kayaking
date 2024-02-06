@@ -28,6 +28,8 @@ class WindFiltering {
             val wind = windService.getWind(it.coor, LocalDateTime.of(2024, 1, 25, 14, 0))
 
             //TODO group into zones
+            //could calc all then if majority say good/bad
+            //or could group before calcg
             WindZonesInfo(it, badArea(it.bearing, wind))
         }
     }

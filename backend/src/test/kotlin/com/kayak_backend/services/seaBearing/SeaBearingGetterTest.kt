@@ -4,7 +4,7 @@ import io.mockk.every
 import io.mockk.mockk
 import org.locationtech.jts.geom.Coordinate
 import kotlin.math.abs
-import kotlin.test.*
+import kotlin.test.Test
 
 private const val ALLOWED_ROUNDING_ERROR = 2.0
 class SeaBearingGetterTest {
