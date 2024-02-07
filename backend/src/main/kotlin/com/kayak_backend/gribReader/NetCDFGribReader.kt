@@ -56,14 +56,21 @@ class NetCDFGribReader : GribReader {
         latVarName: String,
         lonVarName: String,
         timeVarName: String,
-    ): Triple<Array<Array<Double>>, Array<Double>, Array<Double>> {
+    ): Triple<List<List<Double>>, List<Double>, List<Double>> {
         val file = NetcdfDataset.openFile(filePath, null)
         val (latIndex1, lonIndex1) = findLatLon(file, latVarName, latRange.first, lonVarName, lonRange.first)
         val (latIndex2, lonIndex2) = findLatLon(file, latVarName, latRange.second, lonVarName, lonRange.second)
         val timeIndex = findTime(file, timeVarName, time)
 
         val data = fetchVarGrid(file, latIndex1, latIndex2, lonIndex1, lonIndex2, timeIndex, variableName)
-        val (latIndex, lonIndex) = getLatLonRange(file, latVarName, Pair(latIndex1, latIndex2), lonVarName, Pair(lonIndex1, lonIndex2))
+        val (latIndex, lonIndex) =
+            getLatLonRange(
+                file,
+                latVarName,
+                Pair(latIndex1, latIndex2),
+                lonVarName,
+                Pair(lonIndex1, lonIndex2),
+            )
         return Triple(data, latIndex, lonIndex)
     }
 
@@ -98,7 +105,7 @@ class NetCDFGribReader : GribReader {
         latIndices: Pair<Int, Int>,
         lonVarName: String,
         lonIndices: Pair<Int, Int>,
-    ): Pair<Array<Double>, Array<Double>> {
+    ): Pair<List<Double>, List<Double>> {
         val latVar = file.findVariable(latVarName) ?: throw GribFileError("Latitude variable not found")
         val latData = latVar.read()
 
@@ -108,11 +115,11 @@ class NetCDFGribReader : GribReader {
         val latIndex =
             (latIndices.first + 1..latIndices.second).map {
                 latData.getDouble(it)
-            }.toTypedArray()
+            }
         val lonIndex =
             (lonIndices.first + 1..lonIndices.second).map {
                 lonData.getDouble(it)
-            }.toTypedArray()
+            }
 
         return Pair(latIndex, lonIndex)
     }
@@ -175,7 +182,7 @@ class NetCDFGribReader : GribReader {
         lonIndex2: Int,
         timeIndex: Int,
         variableName: String,
-    ): Array<Array<Double>> {
+    ): List<List<Double>> {
         val variable = file.findVariable(variableName) ?: throw GribFileError("Variable $variableName not found")
         val rank = variable.rank
         val origin = IntArray(rank)
@@ -197,8 +204,8 @@ class NetCDFGribReader : GribReader {
         val newShape = intArrayOf(shape[latDim], shape[lonDim])
         val reShape = res.reshape(newShape)
 
-        // converts library arraytype to kotlin array
-        return Array(newShape[0]) { i -> Array(newShape[1]) { j -> reShape.getDouble((i * latDim) + j) } }
+        // converts library arraytype to kotlin list
+        return List(newShape[0]) { List(newShape[1]) { it2 -> reShape.getDouble((it * latDim) + it2) } }
     }
 
     private fun getDimensionsIndex(variable: Variable): Triple<Int, Int, Int> {
@@ -259,8 +266,7 @@ class NetCDFGribReader : GribReader {
         val surroundingValues =
             arrayOf(above, below, right, left).map { x ->
                 variable.read(x, shape).reduce(0).getDouble(0)
-            }.filter {
-                    x ->
+            }.filter { x ->
                 !x.isNaN()
             }
         return surroundingValues

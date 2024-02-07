@@ -4,11 +4,11 @@ import kotlin.math.max
 
 class SimpleInterpolator : Interpolator {
     override fun interpolate(
-        data: Array<Array<Double>>,
-        indices: Pair<Array<Double>, Array<Double>>,
+        data: List<List<Double>>,
+        indices: Pair<List<Double>, List<Double>>,
         ranges: Pair<Pair<Double, Double>, Pair<Double, Double>>,
         resolutions: Pair<Double, Double>,
-    ): Triple<Array<Array<Double>>, List<Double>, List<Double>> {
+    ): Triple<List<List<Double>>, List<Double>, List<Double>> {
         val (range1, range2) = ranges
         val (resolution1, resolution2) = resolutions
         val (index1, index2) = indices
@@ -30,8 +30,8 @@ class SimpleInterpolator : Interpolator {
                 newIndex2.map { it2 ->
                     while (currentIndex2 < index2.size - 1 && it2 >= index2[max(currentIndex2, 1)]) currentIndex2++
                     data[currentIndex1][currentIndex2]
-                }.toTypedArray()
-            }.toTypedArray()
+                }
+            }
 
         return Triple(result, newIndex1, newIndex2)
     }

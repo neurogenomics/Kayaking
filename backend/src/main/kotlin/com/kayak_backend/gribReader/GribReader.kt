@@ -35,5 +35,5 @@ interface GribReader {
         latVarName: String,
         lonVarName: String,
         timeVarName: String,
-    ): Triple<Array<Array<Double>>, Array<Double>, Array<Double>>
+    ): Triple<List<List<Double>>, List<Double>, List<Double>>
 }

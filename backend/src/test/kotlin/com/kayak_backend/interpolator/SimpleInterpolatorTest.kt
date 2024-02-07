@@ -7,19 +7,19 @@ class SimpleInterpolatorTest {
     private val interpolator = SimpleInterpolator()
 
     @Test
-    fun interpolatesSimpleArrayCorrectly() {
-        val data = arrayOf(arrayOf(0.0, 1.0), arrayOf(1.0, 2.0))
-        val indices = Pair(arrayOf(1.0, 2.0), arrayOf(1.0, 2.0))
+    fun interpolatesSimpleListCorrectly() {
+        val data = listOf(listOf(0.0, 1.0), listOf(1.0, 2.0))
+        val indices = Pair(listOf(1.0, 2.0), listOf(1.0, 2.0))
         val ranges = Pair(Pair(0.5, 2.5), Pair(0.5, 2.5))
         val resolutions = Pair(0.5, 0.25)
 
         val expectedResult =
-            arrayOf(
-                arrayOf(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0),
-                arrayOf(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0),
-                arrayOf(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0),
-                arrayOf(1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 2.0, 2.0, 2.0),
-                arrayOf(1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 2.0, 2.0, 2.0),
+            listOf(
+                listOf(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0),
+                listOf(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0),
+                listOf(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0),
+                listOf(1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 2.0, 2.0, 2.0),
+                listOf(1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 2.0, 2.0, 2.0),
             )
         val expectedIndexes =
             Pair(listOf(0.5, 1.0, 1.5, 2.0, 2.5), listOf(0.5, 0.75, 1.0, 1.25, 1.5, 1.75, 2.0, 2.25, 2.5))
@@ -30,8 +30,8 @@ class SimpleInterpolatorTest {
         assertEquals(expectedResult[0].size, res[0].size)
         assertEquals(expectedIndexes.first, newIndex1)
 
-        expectedResult.forEachIndexed { i, arr ->
-            assert(arr contentEquals res[i])
+        expectedResult.forEachIndexed { i, list ->
+            assertEquals(list, res[i])
         }
     }
 }
