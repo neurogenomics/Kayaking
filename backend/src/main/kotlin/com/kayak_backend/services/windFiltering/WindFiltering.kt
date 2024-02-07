@@ -3,7 +3,6 @@ package com.kayak_backend.services.windFiltering
 import com.kayak_backend.getConf
 import com.kayak_backend.getWindService
 import com.kayak_backend.models.WindInfo
-import com.kayak_backend.services.coastline.IsleOfWightCoastline
 import com.kayak_backend.services.seaBearing.SeaBearingService
 import com.kayak_backend.services.wind.WindService
 import java.io.File
@@ -15,29 +14,24 @@ import kotlin.math.abs
 import kotlin.math.atan2
 
 private const val BAD_WIND_LIMIT = 90
-class WindFiltering {
+class WindFiltering(private val windService : WindService = getWindService(getConf("./config.yaml")), private val seaBearingService: SeaBearingService = SeaBearingService()) {
 
 
+    //returns list of SeaBearingInfo and bool for if the wind is out to sea
     fun classifyAreas() : List<WindZonesInfo> {
-        // should the seaBearing service be a field?
-        val windService : WindService = getWindService(getConf("./config.yaml"))
-        val seaBearings = SeaBearingService().getSeaBearings()
+        val seaBearings = seaBearingService.getSeaBearings()
 
         return seaBearings.map{
-            //TODO change the LocalDateTime
+            //TODO change the LocalDateTime after grib updater included
             val wind = windService.getWind(it.coor, LocalDateTime.of(2024, 1, 25, 14, 0))
 
-            //TODO group into zones
-            //could calc all then if majority say good/bad
-            //or could group before calcg
             WindZonesInfo(it, badArea(it.bearing, wind))
         }
     }
 
-    //returns true if wind direction is out to sea
+    //returns true if wind direction is out to sea (meaning bad zone)
     private fun badArea(bearing: Double, wind: WindInfo): Boolean {
-        val displace = if (wind.v < 0) 180.0 else 0.0
-        val resultWind = Math.toDegrees(atan2(wind.u, wind.v)) + displace
+        val resultWind = Math.toDegrees(atan2(wind.u, wind.v))
         val dif = abs(resultWind - bearing)
 
         return (dif < BAD_WIND_LIMIT || dif > (360 - BAD_WIND_LIMIT))
