@@ -59,7 +59,7 @@ class NetCDFReaderTest {
         val lonRange = Pair(-1.16709, -1.1337)
         val timeTest: LocalDateTime = LocalDateTime.of(2024, 1, 25, 14, 0)
 
-        val expected = arrayOf(arrayOf(-0.533999, -0.82), arrayOf(-0.21, -0.467999))
+        val expected = listOf(listOf(-0.533999, -0.82), listOf(-0.21, -0.467999))
         val value =
             netCDFGribReader.getVarGrid(
                 latRange,
@@ -73,10 +73,8 @@ class NetCDFReaderTest {
             )
         assertEquals(expected.size, value.first.size)
         assertEquals(expected[0].size, value.first[0].size)
-        expected.forEachIndexed {
-                i, arr ->
-            arr.forEachIndexed {
-                    j, pt ->
+        expected.forEachIndexed { i, arr ->
+            arr.forEachIndexed { j, pt ->
                 assertEquals(pt, value.first[i][j], 1e-3)
             }
         }
@@ -86,7 +84,7 @@ class NetCDFReaderTest {
 
     @Test
     fun varInterpolatesCorrectly() {
-        val neighbors = arrayOf(-0.697, -0.742)
+        val neighbors = listOf(-0.697, -0.742)
         val latTest = 50.7499
         val lonTest = -1.3053
         val timeTest: LocalDateTime = LocalDateTime.of(2024, 1, 25, 14, 0)
