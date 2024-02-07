@@ -8,158 +8,41 @@ import java.io.File
 import java.io.FileWriter
 import java.io.IOException
 import java.io.PrintWriter
+import java.time.LocalDateTime
 
-class Arc(val start: Location, val end: Location, var nextArc: Arc?, var prevArc: Arc?) {
-    val length: Double by lazy { start.distance(end) }
-}
-
-class Section(val arcs: List<Arc>, var nextSec: Section?, var prevSec: Section?) {
-    val length: Double by lazy { arcs.sumOf { it.length } }
-    val locations: List<Location> by lazy { arcs.map { it.start } + arcs.last().end }
-}
-
-class RoutePlanner(val baseRoutePolygon: Polygon, val startPositions: List<Location>) {
-    private val sections = mutableListOf<Section>()
-    private val routeToStarts = mutableMapOf<Location, Location>()
+class RoutePlanner2(
+    private val baseRoutePolygon: Polygon,
+    private val startPositions: List<Location>,
+) {
+    private val sections = mutableListOf<Leg>()
 
     init {
         val baseRoute = polygonToCoords(baseRoutePolygon)
-
-        val arcs = createArcs(baseRoute)
-
-        outputArcs(arcs)
-
+        val routeToStarts = mutableMapOf<Location, Location>()
         for (startPos in startPositions) {
             val closestPoint = closestLocation(startPos, baseRoute)
-            // To exclude start locations too far from route
             if (closestPoint.distance(startPos) < 1) {
                 routeToStarts[closestPoint] = startPos
             }
         }
-
-        val outputs = mutableListOf<Location>()
-        outputs.addAll(routeToStarts.keys)
-        outputs.addAll(routeToStarts.values)
-        output(outputs)
-
-        var maybeStartArc: Arc? = null
-        for (arc in arcs) {
-            if (arc.start in routeToStarts.keys) {
-                maybeStartArc = arc
-                break
-            }
-        }
-        val startArc: Arc = maybeStartArc!!
-
-        var currArc = startArc
-        var currSection = mutableListOf(startArc)
-
-        while (currArc.end != startArc.start) {
-            if (currArc.end in routeToStarts.keys) {
-                sections.add(Section(currSection, null, null))
-                currSection = mutableListOf(currArc)
-            }
-            currArc = currArc.nextArc!!
-            currSection.add(currArc)
-        }
-        currSection.add(currArc)
-        sections.add(Section(currSection, null, null))
-
-        for (i in 0 until sections.size - 1) {
-            sections[i].nextSec = sections[i + 1]
-            sections[i + 1].prevSec = sections[i]
-        }
-        // Connect last section to the first one
-        sections.last().nextSec = sections.first()
-        sections.first().prevSec = sections.last()
-        outputSections(sections)
-    }
-
-    private fun connectRouteToStart(section: Section): List<Location> {
-        val startPos = routeToStarts[section.arcs.first().start]
-        val endPos = routeToStarts[section.arcs.last().end]
-        val locations = mutableListOf<Location>()
-
-        if (startPos != null) {
-            locations.add(startPos)
-        }
-        locations.addAll(section.locations)
-        if (endPos != null) {
-            locations.add(endPos)
-        }
-        // locations.add(endPos)
-        return locations
-    }
-
-    fun getRoutes(): List<List<Location>> {
-        val maxLength = 60
-        var num = 0
-
-        val routes = mutableListOf<List<Section>>()
-
-        for (startSection in sections) {
-            var curr = startSection
-            var length = curr.length
-            val currRoute = mutableListOf<Section>()
-            while (length < maxLength) {
-                currRoute.add(curr)
-                routes.add(currRoute.toList())
-                curr = curr.nextSec!!
-                length += curr.length
-                num += 1
-            }
-        }
-        return routes.map { sections -> connectRouteToStart(Section(sections.flatMap { section -> section.arcs }, null, null)) }
-    }
-
-    private fun output(locations: List<Location>) {
-        try {
-            PrintWriter(FileWriter(File("/home/jamie/thirdyear/tests/coast/out.csv"))).use { writer ->
-                writer.println("latitude,longitude")
-                for (location in locations) {
-                    writer.println("${location.latitude},${location.longitude}")
+        var firstSection: List<Location>? = null
+        var currentLegLocations = mutableListOf<Location>()
+        for (location in baseRoute) {
+            currentLegLocations.add(location)
+            if (location in routeToStarts.keys) {
+                if (firstSection == null) {
+                    firstSection = currentLegLocations
+                } else {
+                    sections.add(Leg.create(currentLegLocations))
                 }
+                currentLegLocations = mutableListOf(location)
             }
-        } catch (e: IOException) {
-            e.printStackTrace()
         }
-    }
-
-    private fun outputArcs(sections: List<Arc>) {
-        try {
-            PrintWriter(FileWriter(File("/home/jamie/thirdyear/tests/coast/arcs.csv"))).use { writer ->
-                writer.println("latitude,longitude,line_id")
-                for ((i, section) in sections.withIndex()) {
-                    writer.println("${section.start.latitude},${section.start.longitude},$i")
-                    writer.println("${section.end.latitude},${section.end.longitude},$i")
-                }
-            }
-        } catch (e: IOException) {
-            e.printStackTrace()
+        if (firstSection != null) {
+            currentLegLocations.addAll(firstSection)
         }
-    }
-
-    fun createArcs(locations: List<Location>): List<Arc> {
-        val arcs = mutableListOf<Arc>()
-
-        for (i in locations.indices) {
-            val startLocation = locations[i]
-            val endLocation = locations[(i + 1) % locations.size]
-
-            val arc = Arc(startLocation, endLocation, null, null)
-            arcs.add(arc)
-        }
-
-        // Connect sections
-        for (i in 0 until arcs.size - 1) {
-            arcs[i].nextArc = arcs[i + 1]
-            arcs[i + 1].prevArc = arcs[i]
-        }
-        // Connect last section to the first one
-        arcs.last().nextArc = arcs.first()
-        arcs.first().prevArc = arcs.last()
-
-        return arcs
+        sections.add(Leg.create(currentLegLocations))
+        assert(sections.size == startPositions.size)
     }
 
     private fun polygonToCoords(polygon: Polygon): List<Location> {
@@ -186,15 +69,66 @@ class RoutePlanner(val baseRoutePolygon: Polygon, val startPositions: List<Locat
         }
         return closest
     }
+
+    inner class SectionIterator(private var currentIndex: Int = 0) : Iterator<Leg> {
+        override fun hasNext(): Boolean = true
+
+        override fun next(): Leg {
+            val leg = sections[currentIndex]
+            currentIndex = (currentIndex + 1) % sections.size
+            return leg
+        }
+    }
+
+    inner class OneRouteGenerator(private val condition: (Leg) -> Boolean, private var startIndex: Int = 0) :
+        Iterator<Leg> {
+        private val sectionIterator = SectionIterator(startIndex)
+        private var current: Leg? = null
+
+        override fun hasNext(): Boolean {
+            val temp = current
+            return temp == null || condition(temp)
+        }
+
+        override fun next(): Leg {
+            var temp = current
+            val newLeg = sectionIterator.next()
+            if (temp == null) {
+                current = newLeg
+                return newLeg
+            }
+            temp = Leg.MultipleLegs(listOf(temp, newLeg))
+            current = temp
+            return temp
+        }
+    }
+
+    private fun routeGenerator(condition: (Leg) -> Boolean): Iterator<Leg> {
+        val x = sections.indices.map { index -> OneRouteGenerator(condition, index) }
+        return AlternatingGenerator(x)
+    }
+
+    fun generateRoutes(condition: (Leg) -> Boolean): List<Leg> {
+        return routeGenerator(condition).asSequence().filter(condition).take(10).toList()
+    }
 }
 
-private fun outputSections(sections: List<Section>) {
+private fun outputLegs(
+    legs: List<Leg>,
+    timer: LegTimer,
+    dateTime: LocalDateTime,
+) {
     try {
         PrintWriter(FileWriter(File("/home/jamie/thirdyear/tests/coast/sections.csv"))).use { writer ->
             writer.println("latitude,longitude,line_id,length")
-            for ((i, section) in sections.withIndex()) {
+            for ((i, section) in legs.withIndex()) {
+                var curr = dateTime
+                var duration = 0L
+                duration = timer.getDuration(section, curr)
+                writer.println("${section.start},$i,$duration")
                 for (location in section.locations) {
-                    writer.println("${location.latitude},${location.longitude},$i,${section.length}")
+                    // curr = curr.plusSeconds(duration)
+                    writer.println("${location.latitude},${location.longitude},$i,$duration")
                 }
             }
         }
@@ -211,21 +145,13 @@ fun main() {
 
     val startPos = slipways // mutableListOf(Location(50.668004, -1.494413), Location(50.631615, -1.400700), Location(50.662056, -1.569421))
 
-    val planner = RoutePlanner(route, startPos)
-    val routes = planner.getRoutes()
-
-    try {
-        PrintWriter(FileWriter(File("/home/jamie/thirdyear/tests/coast/sections.csv"))).use { writer ->
-            writer.println("latitude,longitude,line_id")
-            var id = 0
-            for (r in routes) {
-                for (location in r) {
-                    writer.println("${location.latitude},${location.longitude},$id")
-                }
-                id += 1
-            }
+    val planner = RoutePlanner2(route, startPos)
+    val timer = LegTimer(BasicKayak())
+    val now = LocalDateTime.now()
+    val routes =
+        planner.generateRoutes {
+            it.length < 90 * 10000
         }
-    } catch (e: IOException) {
-        e.printStackTrace()
-    }
+
+    outputLegs(routes, timer, now)
 }
