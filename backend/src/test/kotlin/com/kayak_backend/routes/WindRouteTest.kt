@@ -1,5 +1,6 @@
 package com.kayak_backend.routes
 
+import com.kayak_backend.models.WindGrid
 import com.kayak_backend.models.WindInfo
 import com.kayak_backend.services.wind.WindService
 import io.ktor.client.request.*
@@ -17,8 +18,19 @@ class WindRouteTest {
     private val windServiceMock = mockk<WindService>()
     private val windInfoMock = WindInfo(1.0, -1.0)
 
+    private val windGridMock =
+        WindGrid(
+            listOf(
+                listOf(WindInfo(0.5, -0.5), WindInfo(1.0, -1.0)),
+                listOf(WindInfo(1.5, -1.5), WindInfo(2.0, -2.0)),
+            ),
+            listOf(50.0, 51.0),
+            listOf(-1.2, -1.1),
+        )
+
     init {
         every { windServiceMock.getWind(any(), any()) } returns windInfoMock
+        every { windServiceMock.getWindGrid(any(), any(), any(), any()) } returns windGridMock
     }
 
     // TODO: Check error messages instead of error pages? Not sure how to
@@ -75,6 +87,16 @@ class WindRouteTest {
             val response = client.get("/wind?lat=50.64&lon=60")
             assertEquals(HttpStatusCode.OK, response.status)
             val encoded = Json.encodeToString(windInfoMock)
+            assertEquals(encoded, response.bodyAsText())
+        }
+
+    @Test
+    fun returnsWindGrid() =
+        testApplication {
+            commonSetup { wind(windServiceMock) }
+            val response = client.get("/windGrid?latFrom=50.0&latTo=51.0&lonFrom=-1.2&lonTo=-1.1&latRes=1.0&lonRes=0.1")
+            assertEquals(HttpStatusCode.OK, response.status)
+            val encoded = Json.encodeToString(windGridMock)
             assertEquals(encoded, response.bodyAsText())
         }
 }

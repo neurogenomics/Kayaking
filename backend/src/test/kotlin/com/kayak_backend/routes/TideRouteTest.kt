@@ -17,14 +17,15 @@ import kotlin.test.assertEquals
 class TideRouteTest {
     private val tideServiceMock = mockk<TideService>()
     private val tideInfoMock = TideInfo(1.0, -1.0)
-    private val tideGridMock = TideGrid(
-        listOf(
-            listOf(TideInfo(0.5, -0.5), TideInfo(1.0, -1.0)),
-            listOf(TideInfo(1.5, -1.5), TideInfo(2.0, -2.0)),
-        ),
-        listOf(50.0, 51.0),
-        listOf(-1.2, -1.1),
-    )
+    private val tideGridMock =
+        TideGrid(
+            listOf(
+                listOf(TideInfo(0.5, -0.5), TideInfo(1.0, -1.0)),
+                listOf(TideInfo(1.5, -1.5), TideInfo(2.0, -2.0)),
+            ),
+            listOf(50.0, 51.0),
+            listOf(-1.2, -1.1),
+        )
 
     init {
         every { tideServiceMock.getTide(any(), any()) } returns tideInfoMock

@@ -69,7 +69,7 @@ fun getWindService(conf: Conf): WindService {
     return when (conf.windService) {
         "grib" -> {
             conf.windGribConf ?: throw UnsupportedOperationException("Wind Grib Config not Provided")
-            GribWindFetcher(conf.windGribConf, getGribReader(conf.windGribConf.gribReader))
+            GribWindFetcher(conf.windGribConf, getGribReader(conf.windGribConf.gribReader), SimpleInterpolator())
         }
 
         else -> throw UnsupportedOperationException("Wind service type non existent")
