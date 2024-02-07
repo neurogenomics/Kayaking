@@ -9,7 +9,10 @@ import kotlin.math.sin
 
 class SeaBearingsGetter(private val coastlineService: CoastlineService) {
 
-    // returns list of bearings between each pair of coordinates in the coastline
+    /*
+    * Returns list of bearings between each pair of coordinates in the coastline
+    * Requires the coastline service to return the coordinates in a clockwise order.
+    * */
     fun getSeaBearings(): List<SeaBearingInfo> {
         val coastline = coastlineService.getCoastline().coordinates
 
@@ -28,7 +31,6 @@ class SeaBearingsGetter(private val coastlineService: CoastlineService) {
 
     /*
     * Finds the bearing out to sea between two coordinates.
-    * Requires the coastline service to return the coordinates in a clockwise order.
     * */
     private fun seaDirection(coor1: Coordinate, coor2: Coordinate): Double{
         val lon1 = Math.toRadians(coor1.x)
