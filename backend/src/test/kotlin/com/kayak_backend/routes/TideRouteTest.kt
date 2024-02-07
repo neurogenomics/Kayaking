@@ -1,4 +1,6 @@
 package com.kayak_backend.routes
+
+import com.kayak_backend.models.TideGrid
 import com.kayak_backend.models.TideInfo
 import com.kayak_backend.services.tides.TideService
 import io.ktor.client.request.*
@@ -15,9 +17,18 @@ import kotlin.test.assertEquals
 class TideRouteTest {
     private val tideServiceMock = mockk<TideService>()
     private val tideInfoMock = TideInfo(1.0, -1.0)
+    private val tideGridMock = TideGrid(
+        listOf(
+            listOf(TideInfo(0.5, -0.5), TideInfo(1.0, -1.0)),
+            listOf(TideInfo(1.5, -1.5), TideInfo(2.0, -2.0)),
+        ),
+        listOf(50.0, 51.0),
+        listOf(-1.2, -1.1),
+    )
 
     init {
         every { tideServiceMock.getTide(any(), any()) } returns tideInfoMock
+        every { tideServiceMock.getTideGrid(any(), any(), any(), any()) } returns tideGridMock
     }
 
     // TODO: Check error messages instead of error pages? Not sure how to
@@ -74,6 +85,16 @@ class TideRouteTest {
             val response = client.get("/tide?lat=50.64&lon=60")
             assertEquals(HttpStatusCode.OK, response.status)
             val encoded = Json.encodeToString(tideInfoMock)
+            assertEquals(encoded, response.bodyAsText())
+        }
+
+    @Test
+    fun returnsTideGrid() =
+        testApplication {
+            commonSetup { tide(tideServiceMock) }
+            val response = client.get("/tideGrid?latFrom=50.0&latTo=51.0&lonFrom=-1.2&lonTo=-1.1&latRes=1.0&lonRes=0.1")
+            assertEquals(HttpStatusCode.OK, response.status)
+            val encoded = Json.encodeToString(tideGridMock)
             assertEquals(encoded, response.bodyAsText())
         }
 }

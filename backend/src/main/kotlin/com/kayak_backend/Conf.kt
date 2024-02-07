@@ -3,6 +3,7 @@ package com.kayak_backend
 import com.charleskorn.kaml.Yaml
 import com.kayak_backend.gribReader.GribReader
 import com.kayak_backend.gribReader.NetCDFGribReader
+import com.kayak_backend.interpolator.SimpleInterpolator
 import com.kayak_backend.services.tides.GribTideFetcher
 import com.kayak_backend.services.tides.TideService
 import com.kayak_backend.services.wind.GribWindFetcher
@@ -57,8 +58,9 @@ fun getTideService(conf: Conf): TideService {
     return when (conf.tideService) {
         "grib" -> {
             conf.tideGribConf ?: throw UnsupportedOperationException("Tide Grib Config not Provided")
-            GribTideFetcher(conf.tideGribConf, getGribReader(conf.tideGribConf.gribReader))
+            GribTideFetcher(conf.tideGribConf, getGribReader(conf.tideGribConf.gribReader), SimpleInterpolator())
         }
+
         else -> throw UnsupportedOperationException("Tide service type non existent")
     }
 }
@@ -69,6 +71,7 @@ fun getWindService(conf: Conf): WindService {
             conf.windGribConf ?: throw UnsupportedOperationException("Wind Grib Config not Provided")
             GribWindFetcher(conf.windGribConf, getGribReader(conf.windGribConf.gribReader))
         }
+
         else -> throw UnsupportedOperationException("Wind service type non existent")
     }
 }
