@@ -5,13 +5,15 @@ import com.kayak_backend.getWindService
 import com.kayak_backend.models.WindInfo
 import com.kayak_backend.services.seaBearing.SeaBearingService
 import com.kayak_backend.services.wind.WindService
+import kotlin.math.abs
+import kotlin.math.atan2
+import java.time.LocalDateTime
+
+// imports for the main function and manual testing
 import java.io.File
 import java.io.FileWriter
 import java.io.IOException
 import java.io.PrintWriter
-import java.time.LocalDateTime
-import kotlin.math.abs
-import kotlin.math.atan2
 
 private const val BAD_WIND_LIMIT = 90
 class WindFiltering(private val windService : WindService = getWindService(getConf("./config.yaml")), private val seaBearingService: SeaBearingService = SeaBearingService()) {
