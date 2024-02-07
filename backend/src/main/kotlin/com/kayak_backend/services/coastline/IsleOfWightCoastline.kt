@@ -9,7 +9,6 @@ import java.io.FileWriter
 import java.io.IOException
 import java.io.PrintWriter
 
-
 class IsleOfWightCoastline(private val client: OkHttpClient = OkHttpClient()) : CoastlineService {
     override fun getCoastline(): Polygon {
         val json = File("./src/main/kotlin/com/kayak_backend/gribReader/wight.geojson").readText()
@@ -17,18 +16,18 @@ class IsleOfWightCoastline(private val client: OkHttpClient = OkHttpClient()) : 
     }
 
     private fun parseCoastline(json: JSONObject): Polygon {
-        val coordinates : MutableList<Coordinate> = mutableListOf()
+        val coordinates: MutableList<Coordinate> = mutableListOf()
 
-        val jsonCoordinates = json.getJSONArray("features").getJSONObject(0).getJSONObject("geometry").getJSONArray("coordinates").getJSONArray(0)
+        val jsonCoordinates =
+            json.getJSONArray(
+                "features",
+            ).getJSONObject(0).getJSONObject("geometry").getJSONArray("coordinates").getJSONArray(0)
 
-
-
-            for (i in 0 until jsonCoordinates.length()) {
-                val jsonCoordinate = jsonCoordinates.getJSONArray(i)
-                coordinates.add(Coordinate(jsonCoordinate.getDouble(1), jsonCoordinate.getDouble(0)))
-            }
-            // Close the polygon by adding the first point to the end
-
+        for (i in 0 until jsonCoordinates.length()) {
+            val jsonCoordinate = jsonCoordinates.getJSONArray(i)
+            coordinates.add(Coordinate(jsonCoordinate.getDouble(1), jsonCoordinate.getDouble(0)))
+        }
+        // Close the polygon by adding the first point to the end
 
         coordinates.add(coordinates.first())
 
@@ -37,32 +36,18 @@ class IsleOfWightCoastline(private val client: OkHttpClient = OkHttpClient()) : 
     }
 }
 
-
 fun main() {
     val test = IsleOfWightCoastline()
     val coast = test.getCoastline()
 
-    val y =  Route.create(coast, 5.0)//Route.extractLargestPart(b)
+    val y = Route.create(coast, 0.05) // Route.extractLargestPart(b)
 
     try {
-        PrintWriter(FileWriter(File("/home/jamie/thirdyear/tests/coast/out.csv"))).use { writer ->
+        PrintWriter(FileWriter(File("/home/jamie/thirdyear/tests/coast/coast.csv"))).use { writer ->
             writer.println("latitude,longitude")
-            //writer.println("Polygon: $polygon")
+            // writer.println("Polygon: $polygon")
             for (i in 0 until y.numPoints) {
-        val p0 = y.coordinates[i]
-                writer.println("${p0.x},${p0.y}")
-    }
-        }
-    } catch (e: IOException) {
-        e.printStackTrace()
-    }
-
-    try {
-        PrintWriter(FileWriter(File("/home/jamie/thirdyear/tests/coast/out2.csv"))).use { writer ->
-            writer.println("latitude,longitude")
-            //writer.println("Polygon: $polygon")
-            for (i in 0 until coast.numPoints) {
-                val p0 = coast.coordinates[i]
+                val p0 = y.coordinates[i]
                 writer.println("${p0.x},${p0.y}")
             }
         }
@@ -70,4 +55,16 @@ fun main() {
         e.printStackTrace()
     }
 
+//    try {
+//        PrintWriter(FileWriter(File("/home/jamie/thirdyear/tests/coast/out2.csv"))).use { writer ->
+//            writer.println("latitude,longitude")
+//            // writer.println("Polygon: $polygon")
+//            for (i in 0 until coast.numPoints) {
+//                val p0 = coast.coordinates[i]
+//                writer.println("${p0.x},${p0.y}")
+//            }
+//        }
+//    } catch (e: IOException) {
+//        e.printStackTrace()
+//    }
 }
