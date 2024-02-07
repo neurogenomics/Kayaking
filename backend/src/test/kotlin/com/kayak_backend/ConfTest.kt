@@ -1,8 +1,12 @@
 package com.kayak_backend
 
 import com.kayak_backend.gribReader.NetCDFGribReader
+import com.kayak_backend.services.tideTimes.TideTimeService
 import com.kayak_backend.services.tides.GribTideFetcher
 import com.kayak_backend.services.wind.GribWindFetcher
+import io.github.cdimascio.dotenv.Dotenv
+import io.mockk.every
+import io.mockk.mockk
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
@@ -36,9 +40,12 @@ val testConfig =
         windService = "grib",
         tideGribConf = testTideGribConf,
         windGribConf = testWindGribConf,
+        tideTimeService = "admiralty",
     )
 
 class ConfTest {
+    private val dotEnvMock = mockk<Dotenv>()
+
     @Test
     fun getConfSerializesYaml() {
         assertEquals(
@@ -97,5 +104,17 @@ class ConfTest {
         assertFailsWith<UnsupportedOperationException> {
             getWindService(configWindNonexistent)
         }
+    }
+
+    @Test
+    fun getTideTimeServiceReturnsCorrectType() {
+        every { dotEnvMock[any()] }.returns("apiKey")
+        assertIs<TideTimeService>(getTideTimeService(testConfig, dotEnvMock))
+    }
+
+    @Test
+    fun getTideTimeServiceThrowIllegalArgumentWhenNoApiKeyProvided() {
+        every { dotEnvMock[any()] }.returns("")
+        assertFailsWith<IllegalStateException> { getTideTimeService(testConfig, dotEnvMock) }
     }
 }
