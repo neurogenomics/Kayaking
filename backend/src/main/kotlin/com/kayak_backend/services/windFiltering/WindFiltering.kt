@@ -9,15 +9,10 @@ import kotlin.math.abs
 import kotlin.math.atan2
 import java.time.LocalDateTime
 
-// imports for the main function and manual testing
-import java.io.File
-import java.io.FileWriter
-import java.io.IOException
-import java.io.PrintWriter
 
 private const val BAD_WIND_LIMIT = 90
-class WindFiltering(private val windService : WindService = getWindService(getConf("./config.yaml")), private val seaBearingService: SeaBearingService = SeaBearingService()) {
-
+class WindFiltering(private val windService : WindService = getWindService(getConf("./config.yaml")),
+                    private val seaBearingService: SeaBearingService = SeaBearingService()) {
 
     //returns list of SeaBearingInfo and bool for if the wind is out to sea
     fun classifyAreas() : List<WindZonesInfo> {
@@ -39,22 +34,4 @@ class WindFiltering(private val windService : WindService = getWindService(getCo
         return (dif < BAD_WIND_LIMIT || dif > (360 - BAD_WIND_LIMIT))
     }
 
-}
-
-
-//prints the bearings, coordinates and a boolean for good/bad area into windZones.csv (for manual testing)
-fun main() {
-    val filter = WindFiltering()
-    val result = filter.classifyAreas()
-
-    try {
-        PrintWriter(FileWriter(File("src/main/resources/windZones.csv"))).use { writer ->
-            for (i in result.indices) {
-                writer.println("${result[i].bearing.bearing},${result[i].bearing.coor.latitude},${result[i].bearing.coor.longitude},${result[i].bad}")
-            }
-        }
-
-    } catch (e: IOException) {
-        e.printStackTrace()
-    }
 }

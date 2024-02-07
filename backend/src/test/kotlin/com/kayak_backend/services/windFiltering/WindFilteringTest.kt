@@ -16,7 +16,7 @@ class WindFilteringTest {
     private val seaBearingMock = mockk<SeaBearingService>()
     private val windFiltering = WindFiltering(windServiceMock, seaBearingMock)
 
-    //TODO will need to update when sorted out in WindFiltering
+    //TODO will need to update when sorted out in WindFiltering and grib updates
     private val dateTime = LocalDateTime.of(2024,1,25,14,0)
 
     @Test
