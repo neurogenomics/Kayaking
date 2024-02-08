@@ -44,7 +44,6 @@ dependencies {
     implementation("io.ktor:ktor-server-data-conversion")
     implementation("org.locationtech.jts:jts-core:1.19.0")
     testImplementation("io.mockk:mockk:${mockkVersion}")
-    implementation("io.github.cdimascio:dotenv-kotlin:6.4.1")
 }
 tasks {
     create("stage").dependsOn("installDist")
