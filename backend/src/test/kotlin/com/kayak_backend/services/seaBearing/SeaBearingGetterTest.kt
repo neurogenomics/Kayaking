@@ -9,6 +9,7 @@ import kotlin.test.Test
 private const val ALLOWED_ROUNDING_ERROR = 2.0
 
 class SeaBearingGetterTest {
+    // TODO fix tests when Route vs coastline service is sorted
     private val coastlineMock = mockk<CoastlineService>()
     private val seaBearingsGetter = SeaBearingsGetter(coastlineMock)
 
