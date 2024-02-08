@@ -1,6 +1,6 @@
 // HomePage.tsx
-import React, {useState } from 'react';
-import { View, Text, Image, Button, StyleSheet} from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, Image, Button, StyleSheet } from 'react-native';
 import kayakingImage from '../assets/kayaking.png';
 import { SunsetInfo } from '../src/models/sunsetModel';
 import { LocationModel, locationToString } from '../src/models/locationModel';
