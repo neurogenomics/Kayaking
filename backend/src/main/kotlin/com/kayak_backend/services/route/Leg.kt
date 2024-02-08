@@ -28,6 +28,6 @@ sealed class Leg {
         override val length: Double by lazy { legs.sumOf { it.length } }
         override val start: Location by lazy { legs.first().start }
         override val end: Location by lazy { legs.last().end }
-        override val locations by lazy { legs.flatMap { leg -> leg.locations } }
+        override val locations by lazy { legs.flatMap { leg -> leg.locations } } // Need to fix
     }
 }
