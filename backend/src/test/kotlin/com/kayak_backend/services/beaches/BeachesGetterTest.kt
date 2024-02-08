@@ -69,12 +69,12 @@ public class BeachesGetterTest {
     }
 
     @Test
-    fun returnsBeachesInfo() =
-        testApplication {
-            every { httpClientMock.newCall(any()).execute() } returns createMockResponse()
-            val resultBeachesInfo = beachesGetter.getBeaches()
-            println(resultBeachesInfo)
-            val beachInfo = listOf(BeachInfo(null, listOf(Location(50.5760726, -1.2901178), Location(50.5761325, -1.2900108))))
-            assertEquals(beachInfo, resultBeachesInfo)
-        }
+    fun returnsBeachesInfo() {
+        every { httpClientMock.newCall(any()).execute() } returns createMockResponse()
+        val resultBeachesInfo = beachesGetter.getBeaches()
+        println(resultBeachesInfo)
+        val beachInfo =
+            listOf(BeachInfo(null, listOf(Location(50.5760726, -1.2901178), Location(50.5761325, -1.2900108))))
+        assertEquals(beachInfo, resultBeachesInfo)
+    }
 }

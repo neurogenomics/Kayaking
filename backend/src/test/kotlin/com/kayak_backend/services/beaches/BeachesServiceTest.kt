@@ -6,10 +6,9 @@ class BeachesServiceTest {
     private val beachesService = BeachesService()
 
     @Test
-    fun returnsAllBeaches() =
-        testApplication {
-            val beaches = beachesService.getAllBeaches()
-            val numberOfBeaches = 211
-            assertEquals(numberOfBeaches, beaches.size)
-        }
+    fun returnsAllBeaches() {
+        val beaches = beachesService.getAllBeaches()
+        val numberOfBeaches = 211
+        assertEquals(numberOfBeaches, beaches.size)
+    }
 }
