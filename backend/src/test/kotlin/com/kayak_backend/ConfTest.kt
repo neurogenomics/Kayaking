@@ -4,8 +4,6 @@ import com.kayak_backend.gribReader.NetCDFGribReader
 import com.kayak_backend.services.tideTimes.TideTimeService
 import com.kayak_backend.services.tides.GribTideFetcher
 import com.kayak_backend.services.wind.GribWindFetcher
-import io.mockk.every
-import io.mockk.mockk
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
@@ -43,7 +41,6 @@ val testConfig =
     )
 
 class ConfTest {
-
     @Test
     fun getConfSerializesYaml() {
         assertEquals(
