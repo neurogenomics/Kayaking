@@ -43,6 +43,7 @@ dependencies {
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version")
     implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.5.0")
     implementation("io.ktor:ktor-server-data-conversion")
+    implementation("org.locationtech.jts:jts-core:1.19.0")
     testImplementation("io.mockk:mockk:$mockkVersion")
 }
 tasks {
