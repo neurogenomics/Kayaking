@@ -12,6 +12,8 @@ import io.ktor.server.routing.*
 import io.ktor.server.util.*
 import kotlinx.datetime.toJavaLocalDateTime
 import java.time.LocalDateTime
+import kotlin.math.max
+import kotlin.math.min
 
 fun Route.tide(tide: TideService) {
     // TODO: Get getOrFail to serialize so this can be done implicitly
@@ -35,6 +37,31 @@ fun Route.tide(tide: TideService) {
             val location = Location(lat, lon)
             try {
                 call.respond(tide.getTide(location, dateTime))
+            } catch (e: GribFileError) {
+                call.response.status(HttpStatusCode.InternalServerError)
+                call.respondText(e.message ?: "Unknown Grib File Error")
+            } catch (e: GribIndexError) {
+                call.response.status(HttpStatusCode.BadRequest)
+                call.respondText(e.message ?: "Grib Index Error - Request may be out of bounds")
+            }
+        }
+    }
+
+    route("/tideGrid") {
+        get {
+            val lat1 = call.parameters.getOrFail<Double>("latFrom")
+            val lon1 = call.parameters.getOrFail<Double>("lonFrom")
+            val lat2 = call.parameters.getOrFail<Double>("latTo")
+            val lon2 = call.parameters.getOrFail<Double>("lonTo")
+            val latRes = call.parameters.getOrFail<Double>("latRes")
+            val lonRes = call.parameters.getOrFail<Double>("lonRes")
+
+            val dateTime = getDateParameter(call.parameters, "datetime")
+
+            val corner1 = Location(min(lat1, lat2), min(lon1, lon2))
+            val corner2 = Location(max(lat2, lat2), max(lon1, lon2))
+            try {
+                call.respond(tide.getTideGrid(corner1, corner2, dateTime, Pair(latRes, lonRes)))
             } catch (e: GribFileError) {
                 call.response.status(HttpStatusCode.InternalServerError)
                 call.respondText(e.message ?: "Unknown Grib File Error")

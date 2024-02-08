@@ -1,10 +1,12 @@
 package com.kayak_backend.gribReader
 
+import com.kayak_backend.models.Range
 import com.kayak_backend.testTideGribConf
 import com.kayak_backend.testWindGribConf
 import org.junit.Assert
 import java.time.LocalDateTime
 import kotlin.test.Test
+import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 
 class NetCDFReaderTest {
@@ -27,7 +29,7 @@ class NetCDFReaderTest {
                 testWindGribConf.lonVarName,
                 testWindGribConf.timeVarName,
             )
-        Assert.assertEquals(value, expectedAnswer, 1e3)
+        assertEquals(expectedAnswer, value, 1e-3)
     }
 
     @Test
@@ -48,13 +50,42 @@ class NetCDFReaderTest {
                 testWindGribConf.lonVarName,
                 testWindGribConf.timeVarName,
             )
-        Assert.assertEquals(value.first, expectedAnswer.first, 1e3)
-        Assert.assertEquals(value.second, expectedAnswer.second, 1e3)
+        assertEquals(expectedAnswer.first, value.first, 1e-3)
+        assertEquals(expectedAnswer.second, value.second, 1e-3)
+    }
+
+    @Test
+    fun varGridReadsValuesCorrectly() {
+        val latRange = Range(50.60582, 50.64034)
+        val lonRange = Range(-1.16709, -1.1337)
+        val timeTest: LocalDateTime = LocalDateTime.of(2024, 1, 25, 14, 0)
+
+        val expected = listOf(listOf(-0.533999, -0.82), listOf(-0.21, -0.467999))
+        val value =
+            netCDFGribReader.getVarGrid(
+                latRange,
+                lonRange,
+                timeTest,
+                testTideGribConf.uTideVarName,
+                testTideGribConf.filePath,
+                testTideGribConf.latVarName,
+                testTideGribConf.lonVarName,
+                testTideGribConf.timeVarName,
+            )
+        assertEquals(expected.size, value.first.size)
+        assertEquals(expected[0].size, value.first[0].size)
+        expected.forEachIndexed { i, arr ->
+            arr.forEachIndexed { j, pt ->
+                assertEquals(pt, value.first[i][j], 1e-3)
+            }
+        }
+        assertEquals(expected.size, value.second.size)
+        assertEquals(expected[0].size, value.third.size)
     }
 
     @Test
     fun varInterpolatesCorrectly() {
-        val neighbors = arrayOf(-0.697, -0.742)
+        val neighbors = listOf(-0.697, -0.742)
         val latTest = 50.7499
         val lonTest = -1.3053
         val timeTest: LocalDateTime = LocalDateTime.of(2024, 1, 25, 14, 0)
@@ -66,10 +97,10 @@ class NetCDFReaderTest {
                 testTideGribConf.uTideVarName,
                 testTideGribConf.filePath,
                 testTideGribConf.latVarName,
-                testWindGribConf.lonVarName,
-                testWindGribConf.timeVarName,
+                testTideGribConf.lonVarName,
+                testTideGribConf.timeVarName,
             )
-        Assert.assertEquals(value, neighbors.average(), 1e3)
+        Assert.assertEquals(value, neighbors.average(), 1e-3)
     }
 
     @Test
