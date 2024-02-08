@@ -2,10 +2,14 @@ package com.kayak_backend.services.seaBearing
 
 import com.kayak_backend.models.Location
 import com.kayak_backend.services.coastline.CoastlineService
+import com.kayak_backend.services.route.createBaseRoute
 import org.locationtech.jts.geom.Coordinate
 import kotlin.math.atan2
 import kotlin.math.cos
 import kotlin.math.sin
+
+// idk about this
+private const val ROUTE_BUFFER = 100.0
 
 class SeaBearingsGetter(private val coastlineService: CoastlineService) {
     /*
@@ -13,7 +17,8 @@ class SeaBearingsGetter(private val coastlineService: CoastlineService) {
      * Requires the coastline service to return the coordinates in a clockwise order.
      * */
     fun getSeaBearings(): List<SeaBearingInfo> {
-        val coastline = coastlineService.getCoastline().coordinates
+        // TODO change the route/coastline service design maybe so seaBearings isn't using both?
+        val coastline = createBaseRoute(coastlineService.getCoastline(), ROUTE_BUFFER).coordinates
 
         if (coastline.isEmpty()) return emptyList()
 
