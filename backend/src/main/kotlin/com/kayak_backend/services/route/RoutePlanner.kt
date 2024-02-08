@@ -146,7 +146,7 @@ private fun outputLegs(
 
 fun main() {
     val coast = IsleOfWightCoastline().getCoastline()
-    val route = Route.create(coast, 0.05)
+    val route = createBaseRoute(coast, 0.05)
 
     val slipways = SlipwayService().getAllSlipways()
 
