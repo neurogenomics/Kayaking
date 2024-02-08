@@ -21,6 +21,7 @@ class RoutePlanner(
         val baseRoute = polygonToCoords(baseRoutePolygon)
         for (startPos in startPositions) {
             val closestPoint = closestLocation(startPos, baseRoute)
+            val x = closestPoint.distance(startPos)
             if (closestPoint.distance(startPos) < 1000) {
                 routeToStarts[closestPoint] = startPos
             }
@@ -146,7 +147,7 @@ private fun outputLegs(
 
 fun main() {
     val coast = IsleOfWightCoastline().getCoastline()
-    val route = createBaseRoute(coast, 0.05)
+    val route = createBaseRoute(coast, 500.0)
 
     val slipways = SlipwayService().getAllSlipways()
 

@@ -10,6 +10,9 @@ class SlipwayService(private val client: OkHttpClient = OkHttpClient()) {
     val slipwayGetter = SlipwaysGetter(client, isleOfWightLocation1, isleOfWightLocation2)
 
     fun getAllSlipways(): List<Location> {
+        if (slipways.isEmpty()) {
+            slipways = slipwayGetter.getSlipways()
+        }
         return slipways
     }
 
