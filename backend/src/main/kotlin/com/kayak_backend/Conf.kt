@@ -9,8 +9,6 @@ import com.kayak_backend.services.tides.GribTideFetcher
 import com.kayak_backend.services.tides.TideService
 import com.kayak_backend.services.wind.GribWindFetcher
 import com.kayak_backend.services.wind.WindService
-import io.github.cdimascio.dotenv.Dotenv
-import io.github.cdimascio.dotenv.dotenv
 import kotlinx.serialization.Serializable
 import java.nio.file.Files
 import java.nio.file.Path
@@ -80,12 +78,12 @@ fun getWindService(conf: Conf): WindService {
 
 fun getTideTimeService(
     conf: Conf,
-    dotenv: Dotenv,
+    sysEnv: Map<String, String>,
 ): TideTimeService {
     return when (conf.tideTimeService) {
         "admiralty" -> {
-            val apiKey = dotenv["ADMIRALTY_API_KEY"]
-            if (apiKey == null || apiKey.isEmpty()) {
+            val apiKey = sysEnv["ADMIRALTY_API_KEY"]
+            if (apiKey.isNullOrEmpty()) {
                 throw IllegalStateException("Admiralty API key is missing or empty in .env")
             }
             AdmiraltyTideTimeService(apiKey)
