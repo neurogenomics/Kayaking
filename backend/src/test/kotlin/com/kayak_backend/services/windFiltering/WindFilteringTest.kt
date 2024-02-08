@@ -11,78 +11,85 @@ import org.junit.Test
 import java.time.LocalDateTime
 
 class WindFilteringTest {
-
     private val windServiceMock = mockk<WindService>()
     private val seaBearingMock = mockk<SeaBearingService>()
     private val windFiltering = WindFiltering(windServiceMock, seaBearingMock)
 
-    //TODO will need to update when sorted out in WindFiltering and grib updates
-    private val dateTime = LocalDateTime.of(2024,1,25,14,0)
+    // TODO will need to update when sorted out in WindFiltering and grib updates
+    private val dateTime = LocalDateTime.of(2024, 1, 25, 14, 0)
 
     @Test
-    fun perpendicularBearingAndWindMarkedGood () {
-
-        every { seaBearingMock.getSeaBearings() } returns listOf(
-            SeaBearingInfo(0.0, Location(0.0,0.0))
-        )
-        every { windServiceMock.getWind(Location(0.0,0.0), dateTime)
-        } returns WindInfo(1.0,0.0)
+    fun perpendicularBearingAndWindMarkedGood() {
+        every { seaBearingMock.getSeaBearings() } returns
+            listOf(
+                SeaBearingInfo(0.0, Location(0.0, 0.0)),
+            )
+        every {
+            windServiceMock.getWind(Location(0.0, 0.0), dateTime)
+        } returns WindInfo(1.0, 0.0)
 
         val result = windFiltering.classifyAreas()
         assert(!result[0].bad)
     }
 
     @Test
-    fun obtuseBearingAndWindMarkedGood () {
-
-        every { seaBearingMock.getSeaBearings() } returns listOf(
-            SeaBearingInfo(0.0, Location(0.0,0.0))
-        )
-        every { windServiceMock.getWind(Location(0.0,0.0), dateTime)
-        } returns WindInfo(1.0,-1.0)
+    fun obtuseBearingAndWindMarkedGood() {
+        every { seaBearingMock.getSeaBearings() } returns
+            listOf(
+                SeaBearingInfo(0.0, Location(0.0, 0.0)),
+            )
+        every {
+            windServiceMock.getWind(Location(0.0, 0.0), dateTime)
+        } returns WindInfo(1.0, -1.0)
 
         val result = windFiltering.classifyAreas()
         assert(!result[0].bad)
     }
 
     @Test
-    fun equalBearingAndWindMarkedBad () {
-        every { seaBearingMock.getSeaBearings() } returns listOf(
-            SeaBearingInfo(0.0, Location(0.0,0.0))
-        )
-        every { windServiceMock.getWind(Location(0.0,0.0), dateTime)
-        } returns WindInfo(0.0,1.0)
+    fun equalBearingAndWindMarkedBad() {
+        every { seaBearingMock.getSeaBearings() } returns
+            listOf(
+                SeaBearingInfo(0.0, Location(0.0, 0.0)),
+            )
+        every {
+            windServiceMock.getWind(Location(0.0, 0.0), dateTime)
+        } returns WindInfo(0.0, 1.0)
 
         val result = windFiltering.classifyAreas()
         assert(result[0].bad)
     }
 
     @Test
-    fun acuteBearingAndWindMarkedBad () {
-        every { seaBearingMock.getSeaBearings() } returns listOf(
-            SeaBearingInfo(0.0, Location(0.0,0.0))
-        )
-        every { windServiceMock.getWind(Location(0.0,0.0), dateTime)
-        } returns WindInfo(1.0,1.0)
+    fun acuteBearingAndWindMarkedBad() {
+        every { seaBearingMock.getSeaBearings() } returns
+            listOf(
+                SeaBearingInfo(0.0, Location(0.0, 0.0)),
+            )
+        every {
+            windServiceMock.getWind(Location(0.0, 0.0), dateTime)
+        } returns WindInfo(1.0, 1.0)
 
         val result = windFiltering.classifyAreas()
         assert(result[0].bad)
     }
 
     @Test
-    fun markingGoodAndBadZonesWrapsAroundAt360 () {
-        every { seaBearingMock.getSeaBearings() } returns listOf(
-            SeaBearingInfo(350.0, Location(0.0,0.0))
-        )
-        every { windServiceMock.getWind(Location(0.0,0.0), dateTime)
-        } returns WindInfo(1.0,1.0)
+    fun markingGoodAndBadZonesWrapsAroundAt360() {
+        every { seaBearingMock.getSeaBearings() } returns
+            listOf(
+                SeaBearingInfo(350.0, Location(0.0, 0.0)),
+            )
+        every {
+            windServiceMock.getWind(Location(0.0, 0.0), dateTime)
+        } returns WindInfo(1.0, 1.0)
 
         val result = windFiltering.classifyAreas()
         assert(result[0].bad)
     }
 
     @Test
-    fun ifSeaBearingServiceReturnsNoInfoReturnEmptyList () {
+    fun ifSeaBearingServiceReturnsNoInfoReturnEmptyList() {
         every { seaBearingMock.getSeaBearings() } returns listOf()
 
         val result = windFiltering.classifyAreas()
