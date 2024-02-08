@@ -1,8 +1,13 @@
 import React from 'react';
-import HomePage from './components/HomePage';
+import AppNavigator from './components/AppNavigator';
+import { NavigationContainer } from '@react-navigation/native';
 
 export const App: React.FC = () => {
-  return <HomePage />;
+  return (
+    <NavigationContainer>
+      <AppNavigator />
+    </NavigationContainer>
+  );
 };
 
 export default App;
