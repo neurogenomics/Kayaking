@@ -78,7 +78,7 @@ fun getWindService(conf: Conf): WindService {
 
 fun getTideTimeService(
     conf: Conf,
-    sysEnv: Map<String, String> = System.getenv(),
+    sysEnv: Map<String, String>,
 ): TideTimeService {
     return when (conf.tideTimeService) {
         "admiralty" -> {
