@@ -59,8 +59,8 @@ class NetCDFGribReader : GribReader {
         timeVarName: String,
     ): Triple<List<List<Double>>, List<Double>, List<Double>> {
         val file = NetcdfDataset.openFile(filePath, null)
-        val (latIndex1, lonIndex1) = findLatLon(file, latVarName, latRange.start, lonVarName, lonRange.end)
-        val (latIndex2, lonIndex2) = findLatLon(file, latVarName, latRange.start, lonVarName, lonRange.end)
+        val (latIndex1, lonIndex1) = findLatLon(file, latVarName, latRange.start, lonVarName, lonRange.start)
+        val (latIndex2, lonIndex2) = findLatLon(file, latVarName, latRange.end, lonVarName, lonRange.end)
         val timeIndex = findTime(file, timeVarName, time)
 
         val data = fetchVarGrid(file, latIndex1, latIndex2, lonIndex1, lonIndex2, timeIndex, variableName)
