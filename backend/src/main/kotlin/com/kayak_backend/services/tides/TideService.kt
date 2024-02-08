@@ -12,8 +12,8 @@ interface TideService {
     ): TideInfo
 
     fun getTideGrid(
-        corner1: Location,
-        corner2: Location,
+        cornerSW: Location,
+        cornerNE: Location,
         time: LocalDateTime,
         resolutions: Pair<Double, Double>,
     ): TideGrid

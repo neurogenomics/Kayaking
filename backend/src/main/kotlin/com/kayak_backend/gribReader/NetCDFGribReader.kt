@@ -1,5 +1,6 @@
 package com.kayak_backend.gribReader
 
+import com.kayak_backend.models.Range
 import ucar.nc2.NetcdfFile
 import ucar.nc2.Variable
 import ucar.nc2.dataset.NetcdfDataset
@@ -48,8 +49,8 @@ class NetCDFGribReader : GribReader {
     }
 
     override fun getVarGrid(
-        latRange: Pair<Double, Double>,
-        lonRange: Pair<Double, Double>,
+        latRange: Range,
+        lonRange: Range,
         time: LocalDateTime,
         variableName: String,
         filePath: String,
@@ -58,8 +59,8 @@ class NetCDFGribReader : GribReader {
         timeVarName: String,
     ): Triple<List<List<Double>>, List<Double>, List<Double>> {
         val file = NetcdfDataset.openFile(filePath, null)
-        val (latIndex1, lonIndex1) = findLatLon(file, latVarName, latRange.first, lonVarName, lonRange.first)
-        val (latIndex2, lonIndex2) = findLatLon(file, latVarName, latRange.second, lonVarName, lonRange.second)
+        val (latIndex1, lonIndex1) = findLatLon(file, latVarName, latRange.start, lonVarName, lonRange.end)
+        val (latIndex2, lonIndex2) = findLatLon(file, latVarName, latRange.start, lonVarName, lonRange.end)
         val timeIndex = findTime(file, timeVarName, time)
 
         val data = fetchVarGrid(file, latIndex1, latIndex2, lonIndex1, lonIndex2, timeIndex, variableName)

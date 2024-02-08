@@ -1,5 +1,6 @@
 package com.kayak_backend.interpolator
 
+import com.kayak_backend.models.Range
 import org.junit.Test
 import kotlin.test.assertEquals
 
@@ -10,7 +11,7 @@ class SimpleInterpolatorTest {
     fun interpolatesSimpleListCorrectly() {
         val data = listOf(listOf(0.0, 1.0), listOf(1.0, 2.0))
         val indices = Pair(listOf(1.0, 2.0), listOf(1.0, 2.0))
-        val ranges = Pair(Pair(0.5, 2.5), Pair(0.5, 2.5))
+        val ranges = Pair(Range(0.5, 2.5), Range(0.5, 2.5))
         val resolutions = Pair(0.5, 0.25)
 
         val expectedResult =

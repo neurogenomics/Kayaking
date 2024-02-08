@@ -3,6 +3,7 @@ package com.kayak_backend.services.tides
 import com.kayak_backend.gribReader.GribReader
 import com.kayak_backend.interpolator.Interpolator
 import com.kayak_backend.models.Location
+import com.kayak_backend.models.Range
 import com.kayak_backend.models.TideGrid
 import com.kayak_backend.models.TideInfo
 import com.kayak_backend.testTideGribConf
@@ -45,7 +46,7 @@ class GribTideServiceTest {
         val corner2 = Location(51.0, -1.1)
         val time = LocalDateTime.of(2024, 2, 1, 12, 0)
         val indices = Pair(listOf(50.0, 51.0), listOf(-1.2, -1.1))
-        val ranges = Pair(Pair(50.0, 51.0), Pair(-1.2, -1.1))
+        val ranges = Pair(Range(50.0, 51.0), Range(-1.2, -1.1))
         val resolutions = Pair(1.0, 0.1)
         every {
             gribReader.getVarGrid(

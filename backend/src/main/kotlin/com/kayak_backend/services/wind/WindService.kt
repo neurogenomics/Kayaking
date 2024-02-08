@@ -12,8 +12,8 @@ interface WindService {
     ): WindInfo
 
     fun getWindGrid(
-        corner1: Location,
-        corner2: Location,
+        cornerSW: Location,
+        cornerNE: Location,
         time: LocalDateTime,
         resolutions: Pair<Double, Double>,
     ): WindGrid

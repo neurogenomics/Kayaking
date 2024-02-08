@@ -5,6 +5,7 @@ import com.kayak_backend.gribReader.GribFileError
 import com.kayak_backend.gribReader.GribReader
 import com.kayak_backend.interpolator.Interpolator
 import com.kayak_backend.models.Location
+import com.kayak_backend.models.Range
 import com.kayak_backend.models.WindGrid
 import com.kayak_backend.models.WindInfo
 import java.time.LocalDateTime
@@ -34,13 +35,13 @@ class GribWindFetcher(
     }
 
     override fun getWindGrid(
-        corner1: Location,
-        corner2: Location,
+        cornerSW: Location,
+        cornerNE: Location,
         time: LocalDateTime,
         resolutions: Pair<Double, Double>,
     ): WindGrid {
-        val latRange = Pair(corner1.latitude, corner2.latitude)
-        val lonRange = Pair(corner1.longitude, corner2.longitude)
+        val latRange = Range(cornerSW.latitude, cornerNE.latitude)
+        val lonRange = Range(cornerSW.longitude, cornerNE.longitude)
         val (uData, latIndexU, lonIndexU) =
             gribReader.getVarGrid(
                 latRange,
@@ -70,8 +71,8 @@ class GribWindFetcher(
             interpolator.interpolate(vData, Pair(latIndexV, lonIndexV), Pair(latRange, lonRange), resolutions)
         if (newLatIndexU != newLatIndexV || newLonIndexU != newLonIndexV) throw GribFileError("Something went wrong with interpolation")
         val grid =
-            interpolatedUData.zip(interpolatedVData) { a, b ->
-                a.zip(b) { u, v ->
+            interpolatedUData.zip(interpolatedVData) { us, vs ->
+                us.zip(vs) { u, v ->
                     WindInfo(u, v)
                 }
             }

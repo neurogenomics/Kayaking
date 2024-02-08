@@ -1,12 +1,13 @@
 package com.kayak_backend.interpolator
 
+import com.kayak_backend.models.Range
 import kotlin.math.max
 
 class SimpleInterpolator : Interpolator {
     override fun interpolate(
         data: List<List<Double>>,
         indices: Pair<List<Double>, List<Double>>,
-        ranges: Pair<Pair<Double, Double>, Pair<Double, Double>>,
+        ranges: Pair<Range, Range>,
         resolutions: Pair<Double, Double>,
     ): Triple<List<List<Double>>, List<Double>, List<Double>> {
         val (range1, range2) = ranges
@@ -14,11 +15,11 @@ class SimpleInterpolator : Interpolator {
         val (index1, index2) = indices
 
         val newIndex1 =
-            generateSequence(seed = range1.first) { it + resolution1 }.takeWhile { it <= range1.second }
+            generateSequence(seed = range1.start) { it + resolution1 }.takeWhile { it <= range1.end }
                 .toList()
 
         val newIndex2 =
-            generateSequence(seed = range2.first) { it + resolution2 }.takeWhile { it <= range2.second }
+            generateSequence(seed = range2.start) { it + resolution2 }.takeWhile { it <= range2.end }
                 .toList()
 
         var currentIndex1 = 0

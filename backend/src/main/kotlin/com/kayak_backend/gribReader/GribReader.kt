@@ -1,5 +1,6 @@
 package com.kayak_backend.gribReader
 
+import com.kayak_backend.models.Range
 import java.time.LocalDateTime
 
 interface GribReader {
@@ -27,8 +28,8 @@ interface GribReader {
     ): Pair<Double, Double>
 
     fun getVarGrid(
-        latRange: Pair<Double, Double>,
-        lonRange: Pair<Double, Double>,
+        latRange: Range,
+        lonRange: Range,
         time: LocalDateTime,
         variableName: String,
         filePath: String,

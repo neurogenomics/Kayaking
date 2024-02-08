@@ -1,5 +1,6 @@
 package com.kayak_backend.gribReader
 
+import com.kayak_backend.models.Range
 import com.kayak_backend.testTideGribConf
 import com.kayak_backend.testWindGribConf
 import org.junit.Assert
@@ -55,8 +56,8 @@ class NetCDFReaderTest {
 
     @Test
     fun varGridReadsValuesCorrectly() {
-        val latRange = Pair(50.60582, 50.64034)
-        val lonRange = Pair(-1.16709, -1.1337)
+        val latRange = Range(50.60582, 50.64034)
+        val lonRange = Range(-1.16709, -1.1337)
         val timeTest: LocalDateTime = LocalDateTime.of(2024, 1, 25, 14, 0)
 
         val expected = listOf(listOf(-0.533999, -0.82), listOf(-0.21, -0.467999))
