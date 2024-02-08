@@ -1,6 +1,8 @@
 package com.kayak_backend
 
 import com.charleskorn.kaml.Yaml
+import com.kayak_backend.gribFetcher.GribFetcher
+import com.kayak_backend.gribFetcher.OpenSkironGribFetcher
 import com.kayak_backend.gribReader.GribReader
 import com.kayak_backend.gribReader.NetCDFGribReader
 import com.kayak_backend.services.tideTimes.AdmiraltyTideTimeService
@@ -42,6 +44,7 @@ data class Conf(
     val tideTimeService: String,
     val tideGribConf: TideGribConf? = null,
     val windGribConf: WindGribConf? = null,
+    val gribFetcher: String,
 )
 
 fun getConf(filePath: String): Conf {
@@ -73,6 +76,15 @@ fun getWindService(conf: Conf): WindService {
             GribWindFetcher(conf.windGribConf, getGribReader(conf.windGribConf.gribReader))
         }
         else -> throw UnsupportedOperationException("Wind service type non existent")
+    }
+}
+
+fun getGribFetcher(conf: Conf): GribFetcher {
+    return when (conf.gribFetcher) {
+        "OpenSkiron" -> {
+            OpenSkironGribFetcher()
+        }
+        else -> throw UnsupportedOperationException("Grib Fetcher Conf not Provided")
     }
 }
 

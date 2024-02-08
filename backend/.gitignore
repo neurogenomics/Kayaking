@@ -36,4 +36,8 @@ out/
 ### VS Code ###
 .vscode/
 .DS_Store
-gribFiles/
+/gribFiles/*
+/src/test/gribFiles/*
+!/src/test/gribFiles/testGrib.grb
+.env
+
