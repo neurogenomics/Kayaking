@@ -11,7 +11,6 @@ import com.kayak_backend.routes.testRouting
 import com.kayak_backend.routes.tide
 import com.kayak_backend.routes.tideTimes
 import com.kayak_backend.routes.wind
-import io.github.cdimascio.dotenv.dotenv
 import io.ktor.server.application.*
 import io.ktor.server.routing.*
 
@@ -21,7 +20,7 @@ fun Application.configureRouting(conf: Conf) {
         sunset()
         slipway()
         beaches()
-        tideTimes(getTideTimeService(conf, dotenv()))
+        tideTimes(getTideTimeService(conf, System.getenv()))
         tide(getTideService(conf))
         wind(getWindService(conf))
     }
