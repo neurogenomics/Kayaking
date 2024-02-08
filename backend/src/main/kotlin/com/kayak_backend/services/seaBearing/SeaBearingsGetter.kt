@@ -11,6 +11,7 @@ import kotlin.math.sin
 // idk about this
 private const val ROUTE_BUFFER = 100.0
 
+// TODO maybe change to instead pass in a polygon not the coastline service
 class SeaBearingsGetter(private val coastlineService: CoastlineService) {
     /*
      * Returns list of bearings between each pair of coordinates in the coastline
