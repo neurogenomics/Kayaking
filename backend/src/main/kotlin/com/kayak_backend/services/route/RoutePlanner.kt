@@ -10,18 +10,18 @@ import java.io.IOException
 import java.io.PrintWriter
 import java.time.LocalDateTime
 
-class RoutePlanner2(
+class RoutePlanner(
     private val baseRoutePolygon: Polygon,
     private val startPositions: List<Location>,
 ) {
     private val sections = mutableListOf<Leg>()
+    private val routeToStarts = mutableMapOf<Location, Location>()
 
     init {
         val baseRoute = polygonToCoords(baseRoutePolygon)
-        val routeToStarts = mutableMapOf<Location, Location>()
         for (startPos in startPositions) {
             val closestPoint = closestLocation(startPos, baseRoute)
-            if (closestPoint.distance(startPos) < 1) {
+            if (closestPoint.distance(startPos) < 1000) {
                 routeToStarts[closestPoint] = startPos
             }
         }
@@ -29,7 +29,7 @@ class RoutePlanner2(
         var currentLegLocations = mutableListOf<Location>()
         for (location in baseRoute) {
             currentLegLocations.add(location)
-            if (location in routeToStarts.keys) {
+            if (routeToStarts.contains(location)) {
                 if (firstSection == null) {
                     firstSection = currentLegLocations
                 } else {
@@ -94,13 +94,22 @@ class RoutePlanner2(
             var temp = current
             val newLeg = sectionIterator.next()
             if (temp == null) {
-                current = newLeg
-                return newLeg
+                temp = connectToStart(newLeg)
+                current = temp
+                return connectToEnd(temp)
             }
             temp = Leg.MultipleLegs(listOf(temp, newLeg))
             current = temp
-            return temp
+            return connectToEnd(temp)
         }
+    }
+
+    private fun connectToStart(leg: Leg): Leg {
+        return Leg.MultipleLegs(listOf(Leg.SingleLeg(leg.start, routeToStarts[leg.start]!!), leg))
+    }
+
+    private fun connectToEnd(leg: Leg): Leg {
+        return Leg.MultipleLegs(listOf(leg, Leg.SingleLeg(leg.end, routeToStarts[leg.end]!!)))
     }
 
     private fun routeGenerator(condition: (Leg) -> Boolean): Iterator<Leg> {
@@ -109,7 +118,7 @@ class RoutePlanner2(
     }
 
     fun generateRoutes(condition: (Leg) -> Boolean): List<Leg> {
-        return routeGenerator(condition).asSequence().filter(condition).take(10).toList()
+        return routeGenerator(condition).asSequence().filter(condition).take(40).toList()
     }
 }
 
@@ -125,9 +134,7 @@ private fun outputLegs(
                 var curr = dateTime
                 var duration = 0L
                 duration = timer.getDuration(section, curr)
-                writer.println("${section.start},$i,$duration")
                 for (location in section.locations) {
-                    // curr = curr.plusSeconds(duration)
                     writer.println("${location.latitude},${location.longitude},$i,$duration")
                 }
             }
@@ -145,12 +152,12 @@ fun main() {
 
     val startPos = slipways // mutableListOf(Location(50.668004, -1.494413), Location(50.631615, -1.400700), Location(50.662056, -1.569421))
 
-    val planner = RoutePlanner2(route, startPos)
+    val planner = RoutePlanner(route, startPos)
     val timer = LegTimer(BasicKayak())
     val now = LocalDateTime.now()
     val routes =
         planner.generateRoutes {
-            it.length < 90 * 10000
+            timer.getDuration(it, now) < 45 * 60
         }
 
     outputLegs(routes, timer, now)
