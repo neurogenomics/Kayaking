@@ -4,9 +4,6 @@ import com.kayak_backend.gribReader.NetCDFGribReader
 import com.kayak_backend.services.tideTimes.TideTimeService
 import com.kayak_backend.services.tides.GribTideFetcher
 import com.kayak_backend.services.wind.GribWindFetcher
-import io.github.cdimascio.dotenv.Dotenv
-import io.mockk.every
-import io.mockk.mockk
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
@@ -15,7 +12,7 @@ import kotlin.test.assertIs
 val testTideGribConf =
     TideGribConf(
         gribReader = "NetCDFGribReader",
-        filePath = "gribFiles/testGrib.grb",
+        filePath = "src/test/gribFiles/testGrib.grb",
         latVarName = "TwoD/LatLon_100X120-49p74N-1p333W/lat",
         lonVarName = "TwoD/LatLon_100X120-49p74N-1p333W/lon",
         timeVarName = "TwoD/LatLon_100X120-49p74N-1p333W/time",
@@ -26,7 +23,7 @@ val testTideGribConf =
 val testWindGribConf =
     WindGribConf(
         gribReader = "NetCDFGribReader",
-        filePath = "gribFiles/testGrib.grb",
+        filePath = "src/test/gribFiles/testGrib.grb",
         latVarName = "TwoD/LatLon_76X92-49p73N-1p324W/lat",
         lonVarName = "TwoD/LatLon_76X92-49p73N-1p324W/lon",
         timeVarName = "TwoD/LatLon_76X92-49p73N-1p324W/time",
@@ -38,14 +35,13 @@ val testConfig =
     Conf(
         tideService = "grib",
         windService = "grib",
+        gribFetcher = "OpenSkiron",
         tideGribConf = testTideGribConf,
         windGribConf = testWindGribConf,
         tideTimeService = "admiralty",
     )
 
 class ConfTest {
-    private val dotEnvMock = mockk<Dotenv>()
-
     @Test
     fun getConfSerializesYaml() {
         assertEquals(
@@ -108,13 +104,13 @@ class ConfTest {
 
     @Test
     fun getTideTimeServiceReturnsCorrectType() {
-        every { dotEnvMock[any()] }.returns("apiKey")
-        assertIs<TideTimeService>(getTideTimeService(testConfig, dotEnvMock))
+        val env = mapOf(Pair("ADMIRALTY_API_KEY", "apiKey"))
+        assertIs<TideTimeService>(getTideTimeService(testConfig, env))
     }
 
     @Test
     fun getTideTimeServiceThrowIllegalArgumentWhenNoApiKeyProvided() {
-        every { dotEnvMock[any()] }.returns("")
-        assertFailsWith<IllegalStateException> { getTideTimeService(testConfig, dotEnvMock) }
+        val env = mapOf(Pair("ADMIRALTY_API_KEY", ""))
+        assertFailsWith<IllegalStateException> { getTideTimeService(testConfig, env) }
     }
 }

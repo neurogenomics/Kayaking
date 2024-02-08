@@ -1,6 +1,8 @@
 package com.kayak_backend
 
 import com.charleskorn.kaml.Yaml
+import com.kayak_backend.gribFetcher.GribFetcher
+import com.kayak_backend.gribFetcher.OpenSkironGribFetcher
 import com.kayak_backend.gribReader.GribReader
 import com.kayak_backend.gribReader.NetCDFGribReader
 import com.kayak_backend.interpolator.SimpleInterpolator
@@ -10,8 +12,6 @@ import com.kayak_backend.services.tides.GribTideFetcher
 import com.kayak_backend.services.tides.TideService
 import com.kayak_backend.services.wind.GribWindFetcher
 import com.kayak_backend.services.wind.WindService
-import io.github.cdimascio.dotenv.Dotenv
-import io.github.cdimascio.dotenv.dotenv
 import kotlinx.serialization.Serializable
 import java.nio.file.Files
 import java.nio.file.Path
@@ -45,6 +45,7 @@ data class Conf(
     val tideTimeService: String,
     val tideGribConf: TideGribConf? = null,
     val windGribConf: WindGribConf? = null,
+    val gribFetcher: String,
 )
 
 fun getConf(filePath: String): Conf {
@@ -81,14 +82,23 @@ fun getWindService(conf: Conf): WindService {
     }
 }
 
+fun getGribFetcher(conf: Conf): GribFetcher {
+    return when (conf.gribFetcher) {
+        "OpenSkiron" -> {
+            OpenSkironGribFetcher()
+        }
+        else -> throw UnsupportedOperationException("Grib Fetcher Conf not Provided")
+    }
+}
+
 fun getTideTimeService(
     conf: Conf,
-    dotenv: Dotenv,
+    sysEnv: Map<String, String>,
 ): TideTimeService {
     return when (conf.tideTimeService) {
         "admiralty" -> {
-            val apiKey = dotenv["ADMIRALTY_API_KEY"]
-            if (apiKey == null || apiKey.isEmpty()) {
+            val apiKey = sysEnv["ADMIRALTY_API_KEY"]
+            if (apiKey.isNullOrEmpty()) {
                 throw IllegalStateException("Admiralty API key is missing or empty in .env")
             }
             AdmiraltyTideTimeService(apiKey)
