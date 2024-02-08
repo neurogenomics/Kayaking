@@ -27,12 +27,10 @@ class BeachesGetter(private val client: OkHttpClient = OkHttpClient(), private v
 
         for (i in 0 until elements.length()) {
             val e = elements.getJSONObject(i)
-            if (e.getString("type").equals("node"))
-                {
+            if (e.getString("type").equals("node")) {
                     val location = Location(e.getDouble("lat"), e.getDouble("lon"))
                     nodes[e.getBigInteger("id")] = location
-                } else if (e.getString("type").equals("way"))
-                {
+                } else if (e.getString("type").equals("way")) {
                     beachJSONs.add(e)
                 }
         }
@@ -50,8 +48,7 @@ class BeachesGetter(private val client: OkHttpClient = OkHttpClient(), private v
 
             var name: String? = null
 
-            if (beach.has("name"))
-                {
+            if (beach.has("name")) {
                     name = beach.getString("name")
                 }
             /*if (beach.has("tags")){
