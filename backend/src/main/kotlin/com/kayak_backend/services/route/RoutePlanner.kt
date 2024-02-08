@@ -1,28 +1,22 @@
 package com.kayak_backend.services.route
 
 import com.kayak_backend.models.Location
-import com.kayak_backend.services.coastline.IsleOfWightCoastline
-import com.kayak_backend.services.slipways.SlipwayService
 import org.locationtech.jts.geom.Polygon
-import java.io.File
-import java.io.FileWriter
-import java.io.IOException
-import java.io.PrintWriter
-import java.time.LocalDateTime
+
+class StartPos(val location: Location, val name: String)
 
 class RoutePlanner(
     private val baseRoutePolygon: Polygon,
-    private val startPositions: List<Location>,
+    private val startPositions: List<StartPos>,
 ) {
     private val sections = mutableListOf<Leg>()
-    private val routeToStarts = mutableMapOf<Location, Location>()
+    private val routeToStarts = mutableMapOf<Location, StartPos>()
 
     init {
         val baseRoute = polygonToCoords(baseRoutePolygon)
         for (startPos in startPositions) {
-            val closestPoint = closestLocation(startPos, baseRoute)
-            val x = closestPoint.distance(startPos)
-            if (closestPoint.distance(startPos) < 1000) {
+            val closestPoint = closestLocation(startPos.location, baseRoute)
+            if (closestPoint.distance(startPos.location) < 1000) {
                 routeToStarts[closestPoint] = startPos
             }
         }
@@ -106,60 +100,61 @@ class RoutePlanner(
     }
 
     private fun connectToStart(leg: Leg): Leg {
-        return Leg.MultipleLegs(listOf(Leg.SingleLeg(leg.start, routeToStarts[leg.start]!!), leg))
+        return Leg.MultipleLegs(listOf(Leg.SingleLeg(leg.start, routeToStarts[leg.start]!!.location), leg))
     }
 
     private fun connectToEnd(leg: Leg): Leg {
-        return Leg.MultipleLegs(listOf(leg, Leg.SingleLeg(leg.end, routeToStarts[leg.end]!!)))
+        return Leg.MultipleLegs(listOf(leg, Leg.SingleLeg(leg.end, routeToStarts[leg.end]!!.location)))
     }
 
-    private fun routeGenerator(condition: (Leg) -> Boolean): Iterator<Leg> {
-        val x = sections.indices.map { index -> OneRouteGenerator(condition, index) }
+    private fun routeGenerator(
+        condition: (Leg) -> Boolean,
+        startIndices: IntRange,
+    ): Iterator<Leg> {
+        val x = startIndices.map { index -> OneRouteGenerator(condition, index) }
         return AlternatingGenerator(x)
     }
 
-    fun generateRoutes(condition: (Leg) -> Boolean): List<Leg> {
-        return routeGenerator(condition).asSequence().filter(condition).take(40).toList()
+    private fun fullLegToRoute(leg: Leg): Route {
+        return Route(leg.length, leg.locations)
+    }
+
+    fun generateRoutes(
+        startLocation: Location,
+        startLocationRadius: Double = 5000.0,
+        condition: (Leg) -> Boolean,
+        maxGenerated: Int = 300,
+    ): Sequence<Route> {
+        val startIndices = filterStartPositionIndices(startLocation, startLocationRadius)
+        return routeGenerator(condition, startIndices).asSequence().take(maxGenerated).filter(condition).map { fullLegToRoute(it) }
+    }
+
+    private fun filterStartPositionIndices(
+        location: Location,
+        startLocationRadius: Double,
+    ): IntRange {
+        return startPositions.filter { location.distance(it.location) < startLocationRadius }.indices
     }
 }
 
-private fun outputLegs(
-    legs: List<Leg>,
-    timer: LegTimer,
-    dateTime: LocalDateTime,
-) {
-    try {
-        PrintWriter(FileWriter(File("/home/jamie/thirdyear/tests/coast/sections.csv"))).use { writer ->
-            writer.println("latitude,longitude,line_id,length")
-            for ((i, section) in legs.withIndex()) {
-                var curr = dateTime
-                var duration = 0L
-                duration = timer.getDuration(section, curr)
-                for (location in section.locations) {
-                    writer.println("${location.latitude},${location.longitude},$i,$duration")
-                }
-            }
-        }
-    } catch (e: IOException) {
-        e.printStackTrace()
-    }
-}
-
-fun main() {
-    val coast = IsleOfWightCoastline().getCoastline()
-    val route = createBaseRoute(coast, 500.0)
-
-    val slipways = SlipwayService().getAllSlipways()
-
-    val startPos = slipways // mutableListOf(Location(50.668004, -1.494413), Location(50.631615, -1.400700), Location(50.662056, -1.569421))
-
-    val planner = RoutePlanner(route, startPos)
-    val timer = LegTimer(BasicKayak())
-    val now = LocalDateTime.now()
-    val routes =
-        planner.generateRoutes {
-            timer.getDuration(it, now) < 45 * 60
-        }
-
-    outputLegs(routes, timer, now)
-}
+// private fun outputLegs(
+//    legs: List<Leg>,
+//    timer: LegTimer,
+//    dateTime: LocalDateTime,
+// ) {
+//    try {
+//        PrintWriter(FileWriter(File("/home/jamie/thirdyear/tests/coast/sections.csv"))).use { writer ->
+//            writer.println("latitude,longitude,line_id,length")
+//            for ((i, section) in legs.withIndex()) {
+//                var curr = dateTime
+//                var duration = 0L
+//                duration = timer.getDuration(section, curr)
+//                for (location in section.locations) {
+//                    writer.println("${location.latitude},${location.longitude},$i,$duration")
+//                }
+//            }
+//        }
+//    } catch (e: IOException) {
+//        e.printStackTrace()
+//    }
+// }

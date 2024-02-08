@@ -1,9 +1,17 @@
 package com.kayak_backend.services.route
 
+import com.kayak_backend.models.Location
+import kotlinx.serialization.Serializable
 import org.locationtech.jts.geom.Geometry
 import org.locationtech.jts.geom.GeometryFactory
 import org.locationtech.jts.geom.Polygon
 import org.locationtech.jts.simplify.TopologyPreservingSimplifier
+
+@Serializable
+data class Route(
+    val length: Double,
+    val locations: List<Location>,
+)
 
 fun createBaseRoute(
     polygon: Polygon,
