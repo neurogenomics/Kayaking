@@ -26,6 +26,7 @@ repositories {
 }
 
 dependencies {
+    implementation("org.apache.commons:commons-compress:1.21")
     implementation("com.squareup.okhttp3:okhttp:4.12.0")
     implementation("org.json:json:20231013")
     implementation("io.ktor:ktor-server-core-jvm")
@@ -43,7 +44,7 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.5.0")
     implementation("io.ktor:ktor-server-data-conversion")
     implementation("org.locationtech.jts:jts-core:1.19.0")
-    testImplementation("io.mockk:mockk:${mockkVersion}")
+    testImplementation("io.mockk:mockk:$mockkVersion")
 }
 tasks {
     create("stage").dependsOn("installDist")
