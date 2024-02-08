@@ -1,8 +1,11 @@
 package com.kayak_backend
 
 import com.charleskorn.kaml.Yaml
+import com.kayak_backend.gribFetcher.GribFetcher
+import com.kayak_backend.gribFetcher.OpenSkironGribFetcher
 import com.kayak_backend.gribReader.GribReader
 import com.kayak_backend.gribReader.NetCDFGribReader
+import com.kayak_backend.interpolator.SimpleInterpolator
 import com.kayak_backend.services.tideTimes.AdmiraltyTideTimeService
 import com.kayak_backend.services.tideTimes.TideTimeService
 import com.kayak_backend.services.tides.GribTideFetcher
@@ -42,6 +45,7 @@ data class Conf(
     val tideTimeService: String,
     val tideGribConf: TideGribConf? = null,
     val windGribConf: WindGribConf? = null,
+    val gribFetcher: String,
 )
 
 fun getConf(filePath: String): Conf {
@@ -60,8 +64,9 @@ fun getTideService(conf: Conf): TideService {
     return when (conf.tideService) {
         "grib" -> {
             conf.tideGribConf ?: throw UnsupportedOperationException("Tide Grib Config not Provided")
-            GribTideFetcher(conf.tideGribConf, getGribReader(conf.tideGribConf.gribReader))
+            GribTideFetcher(conf.tideGribConf, getGribReader(conf.tideGribConf.gribReader), SimpleInterpolator())
         }
+
         else -> throw UnsupportedOperationException("Tide service type non existent")
     }
 }
@@ -70,9 +75,19 @@ fun getWindService(conf: Conf): WindService {
     return when (conf.windService) {
         "grib" -> {
             conf.windGribConf ?: throw UnsupportedOperationException("Wind Grib Config not Provided")
-            GribWindFetcher(conf.windGribConf, getGribReader(conf.windGribConf.gribReader))
+            GribWindFetcher(conf.windGribConf, getGribReader(conf.windGribConf.gribReader), SimpleInterpolator())
         }
+
         else -> throw UnsupportedOperationException("Wind service type non existent")
+    }
+}
+
+fun getGribFetcher(conf: Conf): GribFetcher {
+    return when (conf.gribFetcher) {
+        "OpenSkiron" -> {
+            OpenSkironGribFetcher()
+        }
+        else -> throw UnsupportedOperationException("Grib Fetcher Conf not Provided")
     }
 }
 

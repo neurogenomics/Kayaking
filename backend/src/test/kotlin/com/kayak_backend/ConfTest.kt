@@ -12,7 +12,7 @@ import kotlin.test.assertIs
 val testTideGribConf =
     TideGribConf(
         gribReader = "NetCDFGribReader",
-        filePath = "gribFiles/testGrib.grb",
+        filePath = "src/test/gribFiles/testGrib.grb",
         latVarName = "TwoD/LatLon_100X120-49p74N-1p333W/lat",
         lonVarName = "TwoD/LatLon_100X120-49p74N-1p333W/lon",
         timeVarName = "TwoD/LatLon_100X120-49p74N-1p333W/time",
@@ -23,7 +23,7 @@ val testTideGribConf =
 val testWindGribConf =
     WindGribConf(
         gribReader = "NetCDFGribReader",
-        filePath = "gribFiles/testGrib.grb",
+        filePath = "src/test/gribFiles/testGrib.grb",
         latVarName = "TwoD/LatLon_76X92-49p73N-1p324W/lat",
         lonVarName = "TwoD/LatLon_76X92-49p73N-1p324W/lon",
         timeVarName = "TwoD/LatLon_76X92-49p73N-1p324W/time",
@@ -35,6 +35,7 @@ val testConfig =
     Conf(
         tideService = "grib",
         windService = "grib",
+        gribFetcher = "OpenSkiron",
         tideGribConf = testTideGribConf,
         windGribConf = testWindGribConf,
         tideTimeService = "admiralty",

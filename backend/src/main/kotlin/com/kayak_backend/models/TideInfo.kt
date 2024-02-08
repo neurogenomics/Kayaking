@@ -8,6 +8,9 @@ import java.time.LocalDateTime
 data class TideInfo(val u: Double, val v: Double)
 
 @Serializable
+data class TideGrid(val grid: List<List<TideInfo>>, val latIndex: List<Double>, val lonIndex: List<Double>)
+
+@Serializable
 data class TideEvent(
     val isHighTide: Boolean,
     @Serializable(with = LocalDateTimeSerializer::class)
