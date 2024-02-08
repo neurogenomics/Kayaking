@@ -1,21 +1,81 @@
 package com.kayak_backend.services.tides
 
-import com.kayak_backend.gribReader.NetCDFGribReader
+import com.kayak_backend.TideGribConf
+import com.kayak_backend.gribReader.GribFileError
+import com.kayak_backend.gribReader.GribReader
+import com.kayak_backend.interpolator.Interpolator
 import com.kayak_backend.models.Location
+import com.kayak_backend.models.Range
+import com.kayak_backend.models.TideGrid
 import com.kayak_backend.models.TideInfo
 import java.time.LocalDateTime
 
-class GribTideFetcher: TideService {
-    private val filePath = "gribFiles/Cherbourg_4km_WRF_WAM_240125-12.grb"
-    private val uVariableName = "TwoD/LatLon_100X120-49p74N-1p333W/u-component_of_current_surface"
-    private val vVariableName = "TwoD/LatLon_100X120-49p74N-1p333W/v-component_of_current_surface"
-    private val latName = "TwoD/LatLon_100X120-49p74N-1p333W/lat"
-    private val lonName = "TwoD/LatLon_100X120-49p74N-1p333W/lon"
-    private val timeName = "TwoD/LatLon_100X120-49p74N-1p333W/reftime"
-
-    override fun getTide(loc: Location, time: LocalDateTime): TideInfo {
-        val gribReader = NetCDFGribReader()
-        val pair =  gribReader.getVarPair(loc.latitude, loc.longitude, time, uVariableName, vVariableName, filePath, latName, lonName, timeName)
+class GribTideFetcher(
+    private val conf: TideGribConf,
+    private val gribReader: GribReader,
+    private val interpolator: Interpolator,
+) : TideService {
+    override fun getTide(
+        loc: Location,
+        time: LocalDateTime,
+    ): TideInfo {
+        val pair =
+            gribReader.getVarPair(
+                loc.latitude,
+                loc.longitude,
+                time,
+                conf.uTideVarName,
+                conf.vTideVarName,
+                conf.filePath,
+                conf.latVarName,
+                conf.lonVarName,
+                conf.timeVarName,
+            )
         return TideInfo(u = pair.first, v = pair.second)
+    }
+
+    override fun getTideGrid(
+        cornerSW: Location,
+        cornerNE: Location,
+        time: LocalDateTime,
+        resolutions: Pair<Double, Double>,
+    ): TideGrid {
+        val latRange = Range(cornerSW.latitude, cornerNE.latitude)
+        val lonRange = Range(cornerSW.longitude, cornerNE.longitude)
+        val (uData, latIndexU, lonIndexU) =
+            gribReader.getVarGrid(
+                latRange,
+                lonRange,
+                time,
+                conf.uTideVarName,
+                conf.filePath,
+                conf.latVarName,
+                conf.lonVarName,
+                conf.timeVarName,
+            )
+        val (vData, latIndexV, lonIndexV) =
+            gribReader.getVarGrid(
+                latRange,
+                lonRange,
+                time,
+                conf.vTideVarName,
+                conf.filePath,
+                conf.latVarName,
+                conf.lonVarName,
+                conf.timeVarName,
+            )
+        if (latIndexU != latIndexV || lonIndexU != lonIndexV) throw GribFileError("Tide Values uneven! Check variable names")
+        val (interpolatedUData, newLatIndexU, newLonIndexU) =
+            interpolator.interpolate(uData, Pair(latIndexU, lonIndexU), Pair(latRange, lonRange), resolutions)
+        val (interpolatedVData, newLatIndexV, newLonIndexV) =
+            interpolator.interpolate(vData, Pair(latIndexV, lonIndexV), Pair(latRange, lonRange), resolutions)
+        if (newLatIndexU != newLatIndexV || newLonIndexU != newLonIndexV) throw GribFileError("Something went wrong with interpolation")
+        val grid =
+            interpolatedUData.zip(interpolatedVData) { us, vs ->
+                us.zip(vs) { u, v ->
+                    TideInfo(u, v)
+                }
+            }
+        return TideGrid(grid, newLatIndexU, newLonIndexU)
     }
 }
