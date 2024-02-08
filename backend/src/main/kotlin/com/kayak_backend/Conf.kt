@@ -3,10 +3,14 @@ package com.kayak_backend
 import com.charleskorn.kaml.Yaml
 import com.kayak_backend.gribReader.GribReader
 import com.kayak_backend.gribReader.NetCDFGribReader
+import com.kayak_backend.services.tideTimes.AdmiraltyTideTimeService
+import com.kayak_backend.services.tideTimes.TideTimeService
 import com.kayak_backend.services.tides.GribTideFetcher
 import com.kayak_backend.services.tides.TideService
 import com.kayak_backend.services.wind.GribWindFetcher
 import com.kayak_backend.services.wind.WindService
+import io.github.cdimascio.dotenv.Dotenv
+import io.github.cdimascio.dotenv.dotenv
 import kotlinx.serialization.Serializable
 import java.nio.file.Files
 import java.nio.file.Path
@@ -30,13 +34,14 @@ data class WindGribConf(
     val lonVarName: String,
     val timeVarName: String,
     val uWindVarName: String,
-    val vTideVarName: String,
+    val vWindVarName: String,
 )
 
 @Serializable
 data class Conf(
     val tideService: String,
     val windService: String,
+    val tideTimeService: String,
     val tideGribConf: TideGribConf? = null,
     val windGribConf: WindGribConf? = null,
 )
@@ -59,7 +64,7 @@ fun getTideService(conf: Conf): TideService {
             conf.tideGribConf ?: throw UnsupportedOperationException("Tide Grib Config not Provided")
             GribTideFetcher(conf.tideGribConf, getGribReader(conf.tideGribConf.gribReader))
         }
-        else -> throw UnsupportedOperationException("Tide Conf required")
+        else -> throw UnsupportedOperationException("Tide service type non existent")
     }
 }
 
@@ -69,6 +74,22 @@ fun getWindService(conf: Conf): WindService {
             conf.windGribConf ?: throw UnsupportedOperationException("Wind Grib Config not Provided")
             GribWindFetcher(conf.windGribConf, getGribReader(conf.windGribConf.gribReader))
         }
-        else -> throw UnsupportedOperationException("Tide Conf required")
+        else -> throw UnsupportedOperationException("Wind service type non existent")
+    }
+}
+
+fun getTideTimeService(
+    conf: Conf,
+    dotenv: Dotenv,
+): TideTimeService {
+    return when (conf.tideTimeService) {
+        "admiralty" -> {
+            val apiKey = dotenv["ADMIRALTY_API_KEY"]
+            if (apiKey == null || apiKey.isEmpty()) {
+                throw IllegalStateException("Admiralty API key is missing or empty in .env")
+            }
+            AdmiraltyTideTimeService(apiKey)
+        }
+        else -> throw UnsupportedOperationException("TideTime Conf required")
     }
 }
