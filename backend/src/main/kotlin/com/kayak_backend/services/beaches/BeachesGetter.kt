@@ -1,6 +1,7 @@
 package com.kayak_backend.services.beaches
 import com.kayak_backend.models.BeachInfo
 import com.kayak_backend.models.Location
+import com.kayak_backend.models.averageLocation
 import okhttp3.HttpUrl
 import okhttp3.OkHttpClient
 import okhttp3.Request
@@ -64,7 +65,7 @@ class BeachesGetter(private val client: OkHttpClient = OkHttpClient(), private v
                 }
             }*/
 
-            beaches.add(BeachInfo(name, coordinates))
+            beaches.add(BeachInfo(name, coordinates, averageLocation(coordinates)))
         }
 
         return beaches

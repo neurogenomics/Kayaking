@@ -3,6 +3,6 @@ package com.kayak_backend.models
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class BeachInfo(val name: String?, val coordinates: List<Location>)
+data class BeachInfo(val name: String?, val coordinates: List<Location>, val avergeLocation: Location)
 
 // , val lifeguard: Boolean?, val supervised: Boolean?, val surface: String?

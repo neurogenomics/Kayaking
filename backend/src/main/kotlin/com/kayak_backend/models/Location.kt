@@ -24,4 +24,18 @@ data class Location(val latitude: Double, val longitude: Double) {
 
         return RADIUS * c
     }
+
+}
+
+fun averageLocation(locs: List<Location>): Location{
+    val n = locs.size
+    var latitude = 0.0;
+    var longitude = 0.0;
+
+    for(l in locs){
+        latitude += l.latitude
+        longitude += l.longitude
+    }
+
+    return Location(latitude/n, longitude/n)
 }

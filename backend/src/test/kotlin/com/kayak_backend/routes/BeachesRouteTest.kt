@@ -22,7 +22,7 @@ class BeachesRouteTest {
     private val beachesMock = mockk<BeachesService>()
 
     init {
-        every { beachesMock.getAllBeaches() } returns listOf(BeachInfo("beach1", listOf(Location(1.0, 2.0))))
+        every { beachesMock.getAllBeaches() } returns listOf(BeachInfo("beach1", listOf(Location(1.0, 2.0)), Location(1.0, 2.0)))
     }
 
     // TODO: Reuse original setup or move to separate file
