@@ -1,7 +1,7 @@
 package com.kayak_backend.services.routes
 
 import com.kayak_backend.models.*
-import com.kayak_backend.services.route.WeatherKayak
+import com.kayak_backend.services.route.kayak.WeatherKayak
 import com.kayak_backend.services.tides.TideService
 import com.kayak_backend.services.wind.WindService
 import io.mockk.every

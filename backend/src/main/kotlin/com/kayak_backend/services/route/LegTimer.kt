@@ -1,6 +1,7 @@
 package com.kayak_backend.services.route
 
 import com.kayak_backend.models.Location
+import com.kayak_backend.services.route.kayak.Kayak
 import java.time.LocalDateTime
 import java.time.ZoneOffset
 import kotlin.math.roundToLong

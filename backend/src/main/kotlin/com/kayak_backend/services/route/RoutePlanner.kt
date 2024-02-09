@@ -2,6 +2,7 @@ package com.kayak_backend.services.route
 
 import com.kayak_backend.models.Location
 import com.kayak_backend.services.coastline.IsleOfWightCoastline
+import com.kayak_backend.services.route.kayak.BasicKayak
 import com.kayak_backend.services.slipways.SlipwayService
 import org.locationtech.jts.geom.Polygon
 import java.io.File

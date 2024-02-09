@@ -1,4 +1,4 @@
-package com.kayak_backend.services.route
+package com.kayak_backend.services.route.kayak
 
 import com.kayak_backend.getConf
 import com.kayak_backend.getTideService
@@ -41,6 +41,7 @@ class WeatherKayak(
                 } else {
                     2 * PI - dif
                 }
+
             resultSpeed = findThirdSideOfTriangle(kayakerSpeed, weatherMag, angle)
         }
 
