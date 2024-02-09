@@ -1,16 +1,53 @@
 import MapView, { Marker, Polyline } from 'react-native-maps';
-import { Image, StyleSheet, View } from 'react-native';
-import React, { useEffect } from 'react';
-import windData from './fakeWindData.json';
-import arrow from '../assets/arrow.png';
+import { StyleSheet, View, TouchableOpacity, Text } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { Route } from '../src/models/routeModel';
 import { UserInput } from '../src/models/userInputModel';
+import { Modalize } from 'react-native-modalize';
+import { LocationModel } from '../src/models/locationModel';
+import { getRoute } from '../src/services/routeService';
+import {RoutesSlideUp} from "./RoutesSlideUp";
 
-export const MapVisualisation: React.FC<UserInput> = () => {
+type SlipwayMapProps = {
+  navigation;
+  route: {
+    params: { user: UserInput };
+  };
+};
+
+export const MapVisualisation: React.FC<SlipwayMapProps> = ({
+  navigation,
+  route,
+}) => {
+  const [routes, setRoutes] = useState<Route[]>();
+
   const isleOfWightLocation = {
     longitude: -1.33,
     latitude: 50.67,
     longitudeDelta: 0.56,
     latitudeDelta: 0.22,
+  };
+
+  useEffect(() => {
+    console.log(route.params.user);
+    getRoutes(route.params.user);
+  }, []);
+
+  const getRoutes = async (user: UserInput) => {
+    try {
+      const location: LocationModel = {
+        latitude: user.latitude,
+        longitude: user.longitude,
+      };
+      const startDate: Date = new Date(user.startTime);
+      const endDate: Date = new Date(user.endTime);
+      const duration: number = (endDate - startDate) / (1000 * 60);
+      console.log(duration);
+      const routes: Route[] = await getRoute(location, duration, startDate);
+      setRoutes(routes);
+    } catch (error) {
+      console.error('Error getting routes: ', error);
+    }
   };
 
   const rotate = (u: number, v: number) => {
@@ -19,44 +56,32 @@ export const MapVisualisation: React.FC<UserInput> = () => {
     return `rotate(${deg}deg)`;
   };
 
-  const sampleCoordinates = [
-    { latitude: 50.7051, longitude: -1.2929 }, // Ryde
-    { latitude: 50.7037, longitude: -1.2986 }, // Seaview
-    { latitude: 50.7067, longitude: -1.313 }, // Bembridge
-    { latitude: 50.6691, longitude: -1.1554 }, // Sandown
-    { latitude: 50.741, longitude: -1.1567 }, // Yaverland
-    { latitude: 50.6939, longitude: -1.3047 }, // Newport
-  ];
+  const colours = ['blue', 'red', 'green', 'pink', 'yellow'];
 
   return (
     <View style={styles.mapContainer}>
       <MapView style={styles.map} initialRegion={isleOfWightLocation}>
-        <Polyline coordinates={sampleCoordinates} strokeWidth={2} strokeColor={'blue'}></Polyline>
-        {/*<View>*/}
-        {/*  {windData.map((wind, index) => (*/}
-        {/*    <Marker*/}
-        {/*      key={index}*/}
-        {/*      coordinate={{*/}
-        {/*        latitude: wind.latitude,*/}
-        {/*        longitude: wind.longitude,*/}
-        {/*      }}*/}
-        {/*    >*/}
-        {/*      <Image*/}
-        {/*        source={arrow}*/}
-        {/*        style={{*/}
-        {/*          width: 30,*/}
-        {/*          height: 30,*/}
-        {/*          resizeMode: 'contain',*/}
-        {/*          backgroundColor: 'transparent',*/}
-        {/*          transform: [*/}
-        {/*            { rotate: rotate(wind.wind_data[1], wind.wind_data[0]) },*/}
-        {/*          ],*/}
-        {/*        }}*/}
-        {/*      ></Image>*/}
-        {/*    </Marker>*/}
-        {/*  ))}*/}
-        {/*</View>*/}
+        {routes ? (
+          routes.map((route, index) => (
+            <View key={index}>
+              <Marker
+                title={`Route ${index + 1}`}
+                description={`Distance covered: ${Math.round(route.length / 1000)}km`}
+                coordinate={route.locations[0]}
+              />
+              <Polyline
+                key={index}
+                coordinates={route.locations}
+                strokeWidth={2}
+                strokeColor={colours[index % 5]}
+              />
+            </View>
+          ))
+        ) : (
+          <View />
+        )}
       </MapView>
+      {/*<RoutesSlideUp {navigation, routes} />*/}
     </View>
   );
 };

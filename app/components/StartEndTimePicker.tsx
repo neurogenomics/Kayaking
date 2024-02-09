@@ -13,7 +13,6 @@ export const StartEndTimePicker: React.FC<{
   const onStartTimeChange = (event, selectedStartTime: Date) => {
     const currentStart: Date = selectedStartTime || startTime;
     setStartTime(currentStart);
-    setEndTime(currentStart);
     setShowEndTimePicker(true);
   };
 
@@ -29,7 +28,7 @@ export const StartEndTimePicker: React.FC<{
           value={startTime}
           mode="time"
           is24Hour={true}
-          minimumDate={startTime}
+          minimumDate={new Date()}
           onChange={onStartTimeChange}
         ></DateTimePicker>
       </View>
@@ -39,7 +38,7 @@ export const StartEndTimePicker: React.FC<{
           value={endTime}
           mode="time"
           is24Hour={true}
-          minimumDate={endTime}
+          minimumDate={startTime}
           disabled={!showEndTimePicker}
           onChange={onEndTimeChange}
         ></DateTimePicker>

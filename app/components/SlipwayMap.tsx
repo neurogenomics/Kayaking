@@ -7,6 +7,9 @@ import {
   RouteType,
   UserInput,
 } from '../src/models/userInputModel';
+import { LocationModel } from '../src/models/locationModel';
+import { Route } from '../src/models/routeModel';
+import { getRoute } from '../src/services/routeService';
 
 type SlipwayMapProps = {
   navigation;
@@ -19,15 +22,17 @@ export const SlipwayMap: React.FC<SlipwayMapProps> = ({
   navigation,
   route,
 }) => {
+
   const [latitude, setLatitude] = useState(0);
   const [longitude, setLongitude] = useState(0);
+  const [routes, setRoutes] = useState(null);
 
   const handleMarkerSelect = (event): void => {
     setLatitude(event.nativeEvent.coordinate.latitude);
     setLongitude(event.nativeEvent.coordinate.longitude);
   };
 
-  const findRoute = () => {
+  const findRoute = async () => {
     const user: UserInput = {
       latitude: latitude,
       longitude: longitude,
@@ -37,8 +42,6 @@ export const SlipwayMap: React.FC<SlipwayMapProps> = ({
       breakTime: 0,
       routeType: RouteType.PointToPoint,
     };
-    console.log('USERINPUT');
-    console.log(user);
     navigation.navigate('Choose a Route', { user });
   };
 

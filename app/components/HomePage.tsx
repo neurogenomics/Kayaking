@@ -9,8 +9,11 @@ import { PaddleSpeed } from '../src/models/userInputModel';
 export const HomePage: React.FC<{ navigation: StackNavigationHelpers }> = ({
   navigation,
 }) => {
-  const [startTime, setStartTime] = useState(new Date());
-  const [endTime, setEndTime] = useState(new Date());
+    const now = new Date();
+    const later = new Date();
+    later.setHours(later.getHours()+1);
+  const [startTime, setStartTime] = useState(now);
+  const [endTime, setEndTime] = useState(later);
   const [paddleSpeed, setPaddleSpeed] = useState(PaddleSpeed.Normal);
 
   const handleSaveLocation = () => {
