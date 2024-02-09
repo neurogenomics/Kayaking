@@ -7,21 +7,26 @@ class StartPos(val location: Location, val name: String)
 
 class RoutePlanner(
     private val baseRoutePolygon: Polygon,
-    private val startPositions: List<StartPos>,
+    private val inStartPositions: List<StartPos>,
 ) {
     // The base route slip into sections by the possible start positions
     private val sections = mutableListOf<Leg>()
 
     // Maps the closet point in the base route to a start position
     private val routeToStart = mutableMapOf<Location, StartPos>()
+    private val startIndexToSectionIndex = mutableMapOf<Int, Int>()
+    private val startPositions: List<StartPos> = mutableListOf()
 
     init {
         // Construct routeToStart
         val baseRoute = polygonToCoords(baseRoutePolygon)
-        for (startPos in startPositions) {
+        for (startPos in inStartPositions) {
             val closestPoint = closestLocation(startPos.location, baseRoute)
             if (closestPoint.distance(startPos.location) < 1000) {
-                routeToStart[closestPoint] = startPos
+                if (!routeToStart.contains(closestPoint)) {
+                    routeToStart[closestPoint] = startPos
+                    startPositions.addFirst(startPos)
+                }
             }
         }
         // Construct sections
@@ -30,9 +35,12 @@ class RoutePlanner(
         for (location in baseRoute) {
             currentLegLocations.add(location)
             if (routeToStart.contains(location)) {
+
                 if (firstSection == null) {
+
                     firstSection = currentLegLocations
                 } else {
+                    startIndexToSectionIndex[startPositions.indexOf(routeToStart[location])] = sections.size
                     sections.add(Leg.create(currentLegLocations))
                 }
                 currentLegLocations = mutableListOf(location)
@@ -41,7 +49,8 @@ class RoutePlanner(
         if (firstSection != null) {
             currentLegLocations.addAll(firstSection)
         }
-        sections.add(Leg.create(currentLegLocations))
+        startIndexToSectionIndex[0] = sections.size
+        sections.addFirst(Leg.create(currentLegLocations))
         assert(sections.size == startPositions.size)
     }
 
@@ -114,7 +123,7 @@ class RoutePlanner(
 
     private fun routeGenerator(
         condition: (Leg) -> Boolean,
-        startIndices: IntRange,
+        startIndices: List<Int>,
     ): Iterator<Leg> {
         val x = startIndices.map { index -> OneRouteGenerator(condition, index) }
         return AlternatingGenerator(x)
@@ -129,7 +138,8 @@ class RoutePlanner(
         condition: (Leg) -> Boolean,
         maxGenerated: Int = 300,
     ): Sequence<Route> {
-        val startIndices = startPositions.filter(startPositionFilter).indices
-        return routeGenerator(condition, startIndices).asSequence().take(maxGenerated).filter(condition).map { fullLegToRoute(it) }
+        val startIndices = startPositions.indices.filter { startPositionFilter(startPositions[it]) }
+        val sectionIndices = startIndices.map { startIndexToSectionIndex[it]!! }
+        return routeGenerator(condition, sectionIndices).asSequence().take(maxGenerated).filter(condition).map { fullLegToRoute(it) }
     }
 }

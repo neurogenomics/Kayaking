@@ -9,6 +9,6 @@ class BasicKayak : Kayak {
         location: Location,
         bearing: Double,
     ): Double {
-        return 3.0
+        return 1.54
     }
 }

@@ -36,7 +36,7 @@ fun Route.planRoute() {
                 routePlanner.generateRoutes(
                     { location.distance(it.location) < 5000 },
                     { legTimer.getDuration(it, startTime) < duration * 60 },
-                ).take(5).toList()
+                ).toList()
             call.respond(routes)
         }
     }
