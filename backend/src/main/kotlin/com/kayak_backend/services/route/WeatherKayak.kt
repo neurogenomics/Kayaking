@@ -13,7 +13,6 @@ class WeatherKayak(
     private val windService: WindService = getWindService(getConf("./config.yaml")),
     private val tideService: TideService = getTideService(getConf("./config.yaml")),
 ) : Kayak {
-
     override fun getSpeed(
         dateTime: LocalDateTime,
         location: Location,
@@ -21,6 +20,7 @@ class WeatherKayak(
     ): Double {
         val windinfo = windService.getWind(location, dateTime)
         val tideinfo = tideService.getTide(location, dateTime)
+        // TODO need way to set this, should all kayaks have kayaker speed as a parameter?
         val kayakerSpeed = 3.0
         val goalBearingRad = Math.toRadians(bearing)
 
@@ -33,13 +33,11 @@ class WeatherKayak(
         // need to find out how to solve the simultaneous equations :(
         var resultSpeed = 0.0
         var resultBearing = 0.0
-        if (weatherU == 0.0)
-            {
-                // do something
-            } else if (sin(goalBearingRad) == 0.0)
-            {
-                // do something
-            } else {
+        if (weatherU == 0.0) {
+            // do something
+        } else if (sin(goalBearingRad) == 0.0) {
+            // do something
+        } else {
             resultBearing = acos(weatherV / weatherU)
             resultSpeed = (weatherU + kayakerSpeed * sin(resultBearing)) / sin(goalBearingRad)
         }
