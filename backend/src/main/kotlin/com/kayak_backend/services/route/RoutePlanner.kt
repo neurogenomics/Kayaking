@@ -9,22 +9,27 @@ class RoutePlanner(
     private val baseRoutePolygon: Polygon,
     private val startPositions: List<StartPos>,
 ) {
+    // The base route slip into sections by the possible start positions
     private val sections = mutableListOf<Leg>()
-    private val routeToStarts = mutableMapOf<Location, StartPos>()
+
+    // Maps the closet point in the base route to a start position
+    private val routeToStart = mutableMapOf<Location, StartPos>()
 
     init {
+        // Construct routeToStart
         val baseRoute = polygonToCoords(baseRoutePolygon)
         for (startPos in startPositions) {
             val closestPoint = closestLocation(startPos.location, baseRoute)
             if (closestPoint.distance(startPos.location) < 1000) {
-                routeToStarts[closestPoint] = startPos
+                routeToStart[closestPoint] = startPos
             }
         }
+        // Construct sections
         var firstSection: List<Location>? = null
         var currentLegLocations = mutableListOf<Location>()
         for (location in baseRoute) {
             currentLegLocations.add(location)
-            if (routeToStarts.contains(location)) {
+            if (routeToStart.contains(location)) {
                 if (firstSection == null) {
                     firstSection = currentLegLocations
                 } else {
@@ -100,11 +105,11 @@ class RoutePlanner(
     }
 
     private fun connectToStart(leg: Leg): Leg {
-        return Leg.MultipleLegs(listOf(Leg.SingleLeg(leg.start, routeToStarts[leg.start]!!.location), leg))
+        return Leg.MultipleLegs(listOf(Leg.SingleLeg(leg.start, routeToStart[leg.start]!!.location), leg))
     }
 
     private fun connectToEnd(leg: Leg): Leg {
-        return Leg.MultipleLegs(listOf(leg, Leg.SingleLeg(leg.end, routeToStarts[leg.end]!!.location)))
+        return Leg.MultipleLegs(listOf(leg, Leg.SingleLeg(leg.end, routeToStart[leg.end]!!.location)))
     }
 
     private fun routeGenerator(
@@ -119,6 +124,13 @@ class RoutePlanner(
         return Route(leg.length, leg.locations)
     }
 
+    private fun filterStartPositionIndices(
+        location: Location,
+        startLocationRadius: Double,
+    ): IntRange {
+        return startPositions.filter { location.distance(it.location) < startLocationRadius }.indices
+    }
+
     fun generateRoutes(
         startLocation: Location,
         startLocationRadius: Double = 5000.0,
@@ -128,33 +140,4 @@ class RoutePlanner(
         val startIndices = filterStartPositionIndices(startLocation, startLocationRadius)
         return routeGenerator(condition, startIndices).asSequence().take(maxGenerated).filter(condition).map { fullLegToRoute(it) }
     }
-
-    private fun filterStartPositionIndices(
-        location: Location,
-        startLocationRadius: Double,
-    ): IntRange {
-        return startPositions.filter { location.distance(it.location) < startLocationRadius }.indices
-    }
 }
-
-// private fun outputLegs(
-//    legs: List<Leg>,
-//    timer: LegTimer,
-//    dateTime: LocalDateTime,
-// ) {
-//    try {
-//        PrintWriter(FileWriter(File("/home/jamie/thirdyear/tests/coast/sections.csv"))).use { writer ->
-//            writer.println("latitude,longitude,line_id,length")
-//            for ((i, section) in legs.withIndex()) {
-//                var curr = dateTime
-//                var duration = 0L
-//                duration = timer.getDuration(section, curr)
-//                for (location in section.locations) {
-//                    writer.println("${location.latitude},${location.longitude},$i,$duration")
-//                }
-//            }
-//        }
-//    } catch (e: IOException) {
-//        e.printStackTrace()
-//    }
-// }
