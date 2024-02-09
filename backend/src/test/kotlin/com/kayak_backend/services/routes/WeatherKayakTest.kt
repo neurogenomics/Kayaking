@@ -68,7 +68,7 @@ class WeatherKayakTest {
 
         every {
             windServiceMock.getWind(loc, date)
-        } returns WindInfo(1.0, -1.0)
+        } returns WindInfo(1.0 / sqrt(2.0), -1.0 / sqrt(2.0))
         every {
             tideServiceMock.getTide(loc, date)
         } returns TideInfo(0.0, 0.0)
@@ -102,14 +102,14 @@ class WeatherKayakTest {
 
         every {
             windServiceMock.getWind(loc, date)
-        } returns WindInfo(1.0, 0.0)
+        } returns WindInfo(1.0 / sqrt(2.0), 0.0)
         every {
             tideServiceMock.getTide(loc, date)
-        } returns TideInfo(0.0, -1.0)
+        } returns TideInfo(0.0, -1.0 / sqrt(2.0))
 
         println(kayak.getSpeed(date, loc, bearing))
 
-        val expected = 3.623
+        val expected = 2.208
         assert(abs(kayak.getSpeed(date, loc, bearing) - expected) < roundingAllowance)
     }
 
@@ -119,10 +119,10 @@ class WeatherKayakTest {
 
         every {
             windServiceMock.getWind(loc, date)
-        } returns WindInfo(1.0, 0.0)
+        } returns WindInfo(0.0, 0.0)
         every {
             tideServiceMock.getTide(loc, date)
-        } returns TideInfo(-2.0, -1.0)
+        } returns TideInfo(-1.0 / sqrt(2.0), -1.0 / sqrt(2.0))
 
         println(kayak.getSpeed(date, loc, bearing))
 
@@ -136,10 +136,10 @@ class WeatherKayakTest {
 
         every {
             windServiceMock.getWind(loc, date)
-        } returns WindInfo(1.0, 0.0)
+        } returns WindInfo(0.0, 0.0)
         every {
             tideServiceMock.getTide(loc, date)
-        } returns TideInfo(-2.0, 1.0)
+        } returns TideInfo(-1.0 / sqrt(2.0), 1.0 / sqrt(2.0))
 
         println(kayak.getSpeed(date, loc, bearing))
 

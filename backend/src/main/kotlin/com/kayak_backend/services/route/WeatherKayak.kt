@@ -23,25 +23,38 @@ class WeatherKayak(
         // TODO need way to set this, should all kayaks have kayaker speed as a parameter?
         val kayakerSpeed = 3.0
         val goalBearingRad = Math.toRadians(bearing)
-
-        // elsi ou es tu parti ;(
+        val sqr: (Double) -> Double = { it * it }
 
         val weatherU: Double = windinfo.u + tideinfo.u
         val weatherV: Double = windinfo.v + tideinfo.v
+        val weatherBearing = (atan2(weatherU, weatherV) + 2 * PI) % (2 * PI)
+        val weatherMag = sqrt(sqr(weatherU) + sqr(weatherV))
 
-        // i think these maths equations are all wrong
-        // need to find out how to solve the simultaneous equations :(
-        var resultSpeed = 0.0
-        var resultBearing = 0.0
-        if (weatherU == 0.0) {
-            // do something
-        } else if (sin(goalBearingRad) == 0.0) {
-            // do something
+        val resultSpeed: Double
+
+        val dif = abs(weatherBearing - goalBearingRad)
+        if (dif == PI || dif == 0.0) {
+            resultSpeed = kayakerSpeed + if (dif == 0.0) weatherMag else -weatherMag
         } else {
-            resultBearing = acos(weatherV / weatherU)
-            resultSpeed = (weatherU + kayakerSpeed * sin(resultBearing)) / sin(goalBearingRad)
+            val angle: Double =
+                if (dif < PI && dif > 0) {
+                    dif
+                } else {
+                    2 * PI - dif
+                }
+            resultSpeed = findThirdSideOfTriangle(kayakerSpeed, weatherMag, angle)
         }
 
         return resultSpeed
+    }
+
+    private fun findThirdSideOfTriangle(
+        sideA: Double,
+        sideB: Double,
+        angleA: Double,
+    ): Double {
+        val angleB = asin(sin(angleA) * (sideB / sideA))
+        val angleC = PI - angleA - angleB
+        return sideA * sin(angleC) / sin(angleA)
     }
 }
