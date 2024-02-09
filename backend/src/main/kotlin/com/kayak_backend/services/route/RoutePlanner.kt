@@ -32,12 +32,13 @@ class RoutePlanner(
         // Construct sections
         var firstSection: List<Location>? = null
         var currentLegLocations = mutableListOf<Location>()
+        var startIndex = 0
         for (location in baseRoute) {
             currentLegLocations.add(location)
             if (routeToStart.contains(location)) {
 
                 if (firstSection == null) {
-
+                    startIndex = startPositions.indexOf(routeToStart[location])
                     firstSection = currentLegLocations
                 } else {
                     startIndexToSectionIndex[startPositions.indexOf(routeToStart[location])] = sections.size
@@ -49,7 +50,7 @@ class RoutePlanner(
         if (firstSection != null) {
             currentLegLocations.addAll(firstSection)
         }
-        startIndexToSectionIndex[0] = sections.size
+        startIndexToSectionIndex[startIndex] = sections.size
         sections.addFirst(Leg.create(currentLegLocations))
         assert(sections.size == startPositions.size)
     }
