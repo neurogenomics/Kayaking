@@ -124,20 +124,12 @@ class RoutePlanner(
         return Route(leg.length, leg.locations)
     }
 
-    private fun filterStartPositionIndices(
-        location: Location,
-        startLocationRadius: Double,
-    ): IntRange {
-        return startPositions.filter { location.distance(it.location) < startLocationRadius }.indices
-    }
-
     fun generateRoutes(
-        startLocation: Location,
-        startLocationRadius: Double = 5000.0,
+        startPositionFilter: (StartPos) -> Boolean,
         condition: (Leg) -> Boolean,
         maxGenerated: Int = 300,
     ): Sequence<Route> {
-        val startIndices = filterStartPositionIndices(startLocation, startLocationRadius)
+        val startIndices = startPositions.filter(startPositionFilter).indices
         return routeGenerator(condition, startIndices).asSequence().take(maxGenerated).filter(condition).map { fullLegToRoute(it) }
     }
 }
