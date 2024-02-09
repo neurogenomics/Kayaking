@@ -8,8 +8,12 @@ import com.kayak_backend.services.wind.WindService
 import java.time.LocalDateTime
 import kotlin.math.abs
 import kotlin.math.atan2
+import kotlin.math.sqrt
 
 private const val BAD_WIND_LIMIT = 90
+
+// TODO figure out what this limit should be and if it should just be a component
+private const val BAD_WIND_MAGNITUDE_LIMIT = 2
 
 class WindFiltering(
     private val windService: WindService = getWindService(getConf("./config.yaml")),
@@ -32,9 +36,10 @@ class WindFiltering(
         bearing: Double,
         wind: WindInfo,
     ): Boolean {
+        val magnitude = sqrt(wind.u * wind.u + wind.v * wind.v)
         val resultWind = Math.toDegrees(atan2(wind.u, wind.v))
         val dif = abs(resultWind - bearing)
 
-        return (dif < BAD_WIND_LIMIT || dif > (360 - BAD_WIND_LIMIT))
+        return magnitude >= BAD_WIND_MAGNITUDE_LIMIT && (dif < BAD_WIND_LIMIT || dif > (360 - BAD_WIND_LIMIT))
     }
 }

@@ -11,6 +11,7 @@ import org.junit.Test
 import java.time.LocalDateTime
 
 class WindFilteringTest {
+    // Tests may break if BAD_WIND_MAGNITUDE_LIMIT is changed in WindFiltering
     private val windServiceMock = mockk<WindService>()
     private val seaBearingMock = mockk<SeaBearingService>()
     private val windFiltering = WindFiltering(windServiceMock, seaBearingMock)
@@ -28,7 +29,7 @@ class WindFilteringTest {
             )
         every {
             windServiceMock.getWind(Location(0.0, 0.0), dateTime)
-        } returns WindInfo(1.0, 0.0)
+        } returns WindInfo(6.0, 0.0)
 
         val result = windFiltering.classifyAreas()
         assert(!result[0].bad)
@@ -42,7 +43,7 @@ class WindFilteringTest {
             )
         every {
             windServiceMock.getWind(Location(0.0, 0.0), dateTime)
-        } returns WindInfo(1.0, -1.0)
+        } returns WindInfo(1.0, -6.0)
 
         val result = windFiltering.classifyAreas()
         assert(!result[0].bad)
@@ -56,7 +57,7 @@ class WindFilteringTest {
             )
         every {
             windServiceMock.getWind(Location(0.0, 0.0), dateTime)
-        } returns WindInfo(0.0, 1.0)
+        } returns WindInfo(0.0, 6.0)
 
         val result = windFiltering.classifyAreas()
         assert(result[0].bad)
@@ -70,7 +71,7 @@ class WindFilteringTest {
             )
         every {
             windServiceMock.getWind(Location(0.0, 0.0), dateTime)
-        } returns WindInfo(1.0, 1.0)
+        } returns WindInfo(6.0, 6.0)
 
         val result = windFiltering.classifyAreas()
         assert(result[0].bad)
@@ -84,7 +85,7 @@ class WindFilteringTest {
             )
         every {
             windServiceMock.getWind(Location(0.0, 0.0), dateTime)
-        } returns WindInfo(1.0, 1.0)
+        } returns WindInfo(6.0, 6.0)
 
         val result = windFiltering.classifyAreas()
         assert(result[0].bad)
@@ -96,5 +97,19 @@ class WindFilteringTest {
 
         val result = windFiltering.classifyAreas()
         assert(result.isEmpty())
+    }
+
+    @Test
+    fun weakBadWindMarkedGood() {
+        every { seaBearingMock.getSeaBearings() } returns
+            listOf(
+                SeaBearingInfo(0.0, Location(0.0, 0.0)),
+            )
+        every {
+            windServiceMock.getWind(Location(0.0, 0.0), dateTime)
+        } returns WindInfo(0.1, 0.1)
+
+        val result = windFiltering.classifyAreas()
+        assert(!result[0].bad)
     }
 }
