@@ -20,8 +20,8 @@ class WindFiltering(
         val seaBearings = seaBearingService.getSeaBearings()
 
         return seaBearings.map {
-            // TODO change the LocalDateTime after grib updater included
-            val wind = windService.getWind(it.coor, LocalDateTime.of(2024, 1, 25, 14, 0))
+            val now = LocalDateTime.now()
+            val wind = windService.getWind(it.coor, LocalDateTime.of(now.year, now.month, now.dayOfMonth, now.hour, now.minute))
 
             WindZonesInfo(it, badArea(it.bearing, wind))
         }
