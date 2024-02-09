@@ -13,6 +13,10 @@ class WeatherKayak(
     private val windService: WindService = getWindService(getConf("./config.yaml")),
     private val tideService: TideService = getTideService(getConf("./config.yaml")),
 ) : Kayak {
+    // factors that wind and tide speed impact kayaker speed
+    private val windMult = 0.2
+    private val tideMult = 0.5
+
     override fun getSpeed(
         dateTime: LocalDateTime,
         location: Location,
@@ -22,11 +26,11 @@ class WeatherKayak(
         val windinfo = windService.getWind(location, dateTime)
         val tideinfo = tideService.getTide(location, dateTime)
         val goalBearingRad = Math.toRadians(bearing)
-        val sqr: (Double) -> Double = { it * it }
 
-        val weatherU: Double = windinfo.u + tideinfo.u
-        val weatherV: Double = windinfo.v + tideinfo.v
+        val weatherU: Double = windinfo.u * windMult + tideinfo.u * tideMult
+        val weatherV: Double = windinfo.v * windMult + tideinfo.v * tideMult
         val weatherBearing = (atan2(weatherU, weatherV) + 2 * PI) % (2 * PI)
+        val sqr: (Double) -> Double = { it * it }
         val weatherMag = sqrt(sqr(weatherU) + sqr(weatherV))
 
         val resultSpeed: Double
@@ -45,6 +49,7 @@ class WeatherKayak(
             resultSpeed = findThirdSideOfTriangle(kayakerSpeed, weatherMag, angle)
         }
 
+        println(resultSpeed)
         return resultSpeed
     }
 
