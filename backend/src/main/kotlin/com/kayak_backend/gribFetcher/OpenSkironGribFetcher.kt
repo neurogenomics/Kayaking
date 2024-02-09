@@ -84,9 +84,15 @@ class OpenSkironGribFetcher(private val client: OkHttpClient = OkHttpClient()) :
             return false
         }
         // To handle the variable delay with openskiron publishing their gribfiles
-        if (!(downloadForecast(dateTime, client) || downloadForecast(dateTime.minusHours(6), client))) {
-            return false
+        var success = false
+        for (i in 0..10) {
+            if (downloadForecast(dateTime.minusHours(6L * i), client)) {
+                success = true
+                break
+            }
         }
+        if (!success) return false
+
         decompressBz2(bz2GribPath, gribPath)
         val originalFile = File(bz2GribPath)
         if (originalFile.exists()) {
