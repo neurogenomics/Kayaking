@@ -9,7 +9,7 @@ export const getRoute = async (
   durationInMins: Double,
   date?: Date,
 ): Promise<Route[]> => {
-  let url = `slipway?lat=${startLocation.latitude}&lon=${startLocation.longitude}&duration=${durationInMins}`;
+  let url = `planRoute?lat=${startLocation.latitude}&lon=${startLocation.longitude}&duration=${durationInMins}`;
   if (date) {
     url += `&startDateTime=${format(date, 'yyyy-MM-dd')}`;
   }
