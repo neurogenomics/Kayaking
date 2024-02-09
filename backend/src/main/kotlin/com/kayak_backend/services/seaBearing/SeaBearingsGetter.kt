@@ -2,24 +2,19 @@ package com.kayak_backend.services.seaBearing
 
 import com.kayak_backend.models.Location
 import com.kayak_backend.services.coastline.CoastlineService
-import com.kayak_backend.services.route.createBaseRoute
+import com.kayak_backend.services.route.Route
 import org.locationtech.jts.geom.Coordinate
 import kotlin.math.atan2
 import kotlin.math.cos
 import kotlin.math.sin
 
-// idk about this
-private const val ROUTE_BUFFER = 100.0
-
-// TODO maybe change to instead pass in a polygon not the coastline service
-class SeaBearingsGetter(private val coastlineService: CoastlineService) {
+class SeaBearingsGetter(private val coastlineService: CoastlineService, private val route: Route, private val routeBuffer: Double = 100.0) {
     /*
      * Returns list of bearings between each pair of coordinates in the coastline
      * Requires the coastline service to return the coordinates in a clockwise order.
      * */
     fun getSeaBearings(): List<SeaBearingInfo> {
-        // TODO change the route/coastline service design maybe so seaBearings isn't using both?
-        val coastline = createBaseRoute(coastlineService.getCoastline(), ROUTE_BUFFER).coordinates
+        val coastline = route.createBaseRoute(coastlineService.getCoastline(), routeBuffer).coordinates
 
         if (coastline.isEmpty()) return emptyList()
 

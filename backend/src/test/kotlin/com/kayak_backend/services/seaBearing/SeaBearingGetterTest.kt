@@ -1,24 +1,25 @@
 package com.kayak_backend.services.seaBearing
 import com.kayak_backend.services.coastline.CoastlineService
+import com.kayak_backend.services.route.Route
 import io.mockk.every
 import io.mockk.mockk
-import org.locationtech.jts.geom.Coordinate
+import org.locationtech.jts.geom.*
 import kotlin.math.abs
 import kotlin.test.Test
 
 private const val ALLOWED_ROUNDING_ERROR = 2.0
 
 class SeaBearingGetterTest {
-    // TODO fix tests when Route vs coastline service is sorted
     private val coastlineMock = mockk<CoastlineService>()
-    private val seaBearingsGetter = SeaBearingsGetter(coastlineMock)
+    private val routeMock = mockk<Route>()
+    private val seaBearingsGetter = SeaBearingsGetter(coastlineMock, routeMock, 0.0)
 
     @Test
     fun findCorrectBearingToSea() {
         // this has not taken into account spherical factors
         val expectedBearings = listOf(45.0, 135.0, 225.0, 315.0)
 
-        every { coastlineMock.getCoastline().coordinates } returns
+        val mockOut =
             arrayOf(
                 Coordinate(1.0, 1.0),
                 Coordinate(2.0, 0.0),
@@ -26,6 +27,8 @@ class SeaBearingGetterTest {
                 Coordinate(0.0, 0.0),
                 Coordinate(1.0, 1.0),
             )
+
+        every { routeMock.createBaseRoute(coastlineMock.getCoastline(), 0.0).coordinates } returns mockOut
 
         val result = seaBearingsGetter.getSeaBearings()
 
@@ -36,7 +39,7 @@ class SeaBearingGetterTest {
 
     @Test
     fun emptyCoastlineReturnsEmptyBearings() {
-        every { coastlineMock.getCoastline().coordinates } returns arrayOf()
+        every { routeMock.createBaseRoute(coastlineMock.getCoastline(), 0.0).coordinates } returns arrayOf()
 
         val result = seaBearingsGetter.getSeaBearings()
 
@@ -45,10 +48,8 @@ class SeaBearingGetterTest {
 
     @Test
     fun oneCoordinateCoastlineReturnsEmptyBearings() {
-        every { coastlineMock.getCoastline().coordinates } returns
-            arrayOf(
-                Coordinate(1.0, 1.0),
-            )
+        val mockOut = arrayOf(Coordinate(1.0, 1.0))
+        every { routeMock.createBaseRoute(coastlineMock.getCoastline(), 0.0).coordinates } returns mockOut
 
         val result = seaBearingsGetter.getSeaBearings()
 
@@ -57,14 +58,23 @@ class SeaBearingGetterTest {
 
     @Test
     fun repeatedConsecutiveCoordinateInCoastlineIgnored() {
-        every { coastlineMock.getCoastline().coordinates } returns
+        val expectedBearings = listOf(0.0, 180.0)
+        val mockOut =
             arrayOf(
                 Coordinate(1.0, 1.0),
                 Coordinate(1.0, 1.0),
+                Coordinate(2.0, 1.0),
+                Coordinate(1.0, 1.0),
             )
+
+        every { routeMock.createBaseRoute(coastlineMock.getCoastline(), 0.0).coordinates } returns mockOut
 
         val result = seaBearingsGetter.getSeaBearings()
 
-        assert(result.isEmpty())
+        assert(result.size == 2)
+        for (i in expectedBearings.indices) {
+            println(result[i])
+            assert(abs(expectedBearings[i] - result[i].bearing) < ALLOWED_ROUNDING_ERROR)
+        }
     }
 }
