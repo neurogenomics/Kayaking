@@ -9,8 +9,8 @@ const AppNavigator = () => {
   return (
     <Stack.Navigator>
       <Stack.Screen name="Home" component={HomePage} />
-      <Stack.Screen name="Find a Slipway" component={SlipwayMap} />
-      <Stack.Screen name="Tide Map" component={MapVisualisation} />
+      <Stack.Screen name="Choose a Slipway" component={SlipwayMap} />
+      <Stack.Screen name="Choose a Route" component={MapVisualisation} />
     </Stack.Navigator>
   );
 };

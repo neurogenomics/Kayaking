@@ -2,24 +2,44 @@ import MapView, { Marker } from 'react-native-maps';
 import { Button, StyleSheet, View } from 'react-native';
 import React, { useState } from 'react';
 import beachData from './fakeBeachData.json';
+import {
+  PaddleSpeed,
+  RouteType,
+  UserInput,
+} from '../src/models/userInputModel';
 
-interface Beach {
-  title: string;
-  description: string;
-  coordinate: {
-    latitude: number;
-    longitude: number;
+type SlipwayMapProps = {
+  navigation;
+  route: {
+    params: { startTime: string; endTime: string; paddleSpeed: PaddleSpeed };
   };
-}
+};
 
-export const SlipwayMap: React.FC<{ navigation }> = ({ navigation }) => {
-  const handleMarkerSelect = (marker: Beach): void => {
-    // TODO do something when you select the marker
-    console.log(marker);
+export const SlipwayMap: React.FC<SlipwayMapProps> = ({
+  navigation,
+  route,
+}) => {
+  const [latitude, setLatitude] = useState(0);
+  const [longitude, setLongitude] = useState(0);
+
+  const handleMarkerSelect = (event): void => {
+    setLatitude(event.nativeEvent.coordinate.latitude);
+    setLongitude(event.nativeEvent.coordinate.longitude);
   };
 
-  const goToTideMap = () => {
-    navigation.navigate('Tide Map');
+  const findRoute = () => {
+    const user: UserInput = {
+      latitude: latitude,
+      longitude: longitude,
+      startTime: route.params.startTime,
+      endTime: route.params.endTime,
+      paddleSpeed: route.params.paddleSpeed,
+      breakTime: 0,
+      routeType: RouteType.PointToPoint,
+    };
+    console.log('USERINPUT');
+    console.log(user);
+    navigation.navigate('Choose a Route', { user });
   };
 
   const isleOfWight = {
@@ -31,7 +51,7 @@ export const SlipwayMap: React.FC<{ navigation }> = ({ navigation }) => {
 
   return (
     <View style={styles.mapContainer}>
-      <Button title={'Go to tide map'} onPress={goToTideMap}></Button>
+      <Button title={'Generate routes'} onPress={findRoute}></Button>
       <MapView style={styles.map} initialRegion={isleOfWight}>
         {beachData.map((beach, index) => (
           <Marker

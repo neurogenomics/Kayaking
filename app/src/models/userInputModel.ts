@@ -10,8 +10,10 @@ export enum RouteType {
 }
 
 export type UserInput = {
-  startTime: Date;
-  endTime: Date;
+  latitude: number;
+  longitude: number;
+  startTime: string;
+  endTime: string;
   paddleSpeed: PaddleSpeed;
   breakTime: number;
   routeType: RouteType;
