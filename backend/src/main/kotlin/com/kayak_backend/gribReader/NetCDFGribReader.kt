@@ -39,7 +39,6 @@ class NetCDFGribReader : GribReader {
         timeVarName: String,
     ): Pair<Double, Double> {
         val file = NetcdfDataset.openFile(filePath, null)
-
         val (latIndex, lonIndex) = findLatLon(file, latVarName, lat, lonVarName, lon)
         val timeIndex = findTime(file, timeVarName, time)
         val val1 = fetchVarAtLoc(file, latIndex, lonIndex, timeIndex, var1Name)
@@ -213,18 +212,28 @@ class NetCDFGribReader : GribReader {
         var latDim = 0
         var lonDim = 0
         var timeDim = 0
+        var maxTimeSize = 0
+
+        val assignTimeDim = { size: Int, i: Int ->
+            if (size > maxTimeSize) {
+                maxTimeSize = size
+                timeDim = i
+            }
+        }
 
         for ((i, dim) in variable.dimensionsAll.withIndex()) {
             // Since the variable is stored in a Nd array with n likely being 3 (lon lat time)
             // this checks along which axis are these all being stored
             // this isn't constant, as e.g. wind has another dimension which is height above surface
             // however in the grib files we have encountered this dimension is of size one (only one measurement)
+            // sometimes time is called different things, this gets the one that is actually has size
             val name = dim.dodsName
             when (name) {
                 "lat" -> latDim = i
                 "lon" -> lonDim = i
-                "time" -> timeDim = i
-                "time1" -> timeDim = i // Sometimes time is stored under the time1 variable for reasons unknown
+                "time" -> assignTimeDim(dim.length, i)
+                "time1" -> assignTimeDim(dim.length, i)
+                "reftime" -> assignTimeDim(dim.length, i)
             }
         }
         return Triple(latDim, lonDim, timeDim)
