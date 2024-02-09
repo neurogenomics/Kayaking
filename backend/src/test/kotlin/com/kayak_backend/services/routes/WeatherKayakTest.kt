@@ -23,12 +23,11 @@ class WeatherKayakTest {
      * also if we later on do want to return result bearings, must test it wraps around at 360
      * */
 
-    // TODO probably need round error allowances for all the squaring and trig- i chose one randomly so change if better idea
     private val roundingAllowance = 0.005
 
     private val loc = Location(0.0, 0.0)
     private val date = LocalDateTime.of(2024, 10, 10, 10, 10)
-    private val kayakerSpeed = 3.0 // i feel like this should be passed into kayak or something?
+    private val kayakerSpeed = 3.0
 
     @Test
     fun weatherOppositeToGoalBearing() {
@@ -43,7 +42,7 @@ class WeatherKayakTest {
 
         println("result is ${kayak.getSpeed(date,loc,bearing)}")
 
-        assertEquals(kayak.getSpeed(date, loc, bearing), 2.0)
+        assertEquals(kayak.getSpeed(date, loc, bearing, kayakerSpeed), 2.0)
     }
 
     @Test
@@ -59,7 +58,7 @@ class WeatherKayakTest {
 
         println("result is ${kayak.getSpeed(date,loc,bearing)}")
 
-        assertEquals(kayak.getSpeed(date, loc, bearing), 4.0)
+        assertEquals(kayak.getSpeed(date, loc, bearing, kayakerSpeed), 4.0)
     }
 
     @Test
@@ -76,7 +75,7 @@ class WeatherKayakTest {
         println(kayak.getSpeed(date, loc, bearing))
 
         val expected = sqrt(8.0)
-        assert(abs(kayak.getSpeed(date, loc, bearing) - expected) < roundingAllowance)
+        assert(abs(kayak.getSpeed(date, loc, bearing, kayakerSpeed) - expected) < roundingAllowance)
     }
 
     @Test
@@ -93,7 +92,7 @@ class WeatherKayakTest {
         println(kayak.getSpeed(date, loc, bearing))
 
         val expected = 3.623
-        assert(abs(kayak.getSpeed(date, loc, bearing) - expected) < roundingAllowance)
+        assert(abs(kayak.getSpeed(date, loc, bearing, kayakerSpeed) - expected) < roundingAllowance)
     }
 
     @Test
@@ -110,7 +109,7 @@ class WeatherKayakTest {
         println(kayak.getSpeed(date, loc, bearing))
 
         val expected = 2.208
-        assert(abs(kayak.getSpeed(date, loc, bearing) - expected) < roundingAllowance)
+        assert(abs(kayak.getSpeed(date, loc, bearing, kayakerSpeed) - expected) < roundingAllowance)
     }
 
     @Test
@@ -127,7 +126,7 @@ class WeatherKayakTest {
         println(kayak.getSpeed(date, loc, bearing))
 
         val expected = 2.208
-        assert(abs(kayak.getSpeed(date, loc, bearing) - expected) < roundingAllowance)
+        assert(abs(kayak.getSpeed(date, loc, bearing, kayakerSpeed) - expected) < roundingAllowance)
     }
 
     @Test
@@ -144,6 +143,6 @@ class WeatherKayakTest {
         println(kayak.getSpeed(date, loc, bearing))
 
         val expected = 3.099
-        assert(abs(kayak.getSpeed(date, loc, bearing) - expected) < roundingAllowance)
+        assert(abs(kayak.getSpeed(date, loc, bearing, kayakerSpeed) - expected) < roundingAllowance)
     }
 }

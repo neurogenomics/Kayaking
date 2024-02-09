@@ -8,7 +8,8 @@ class BasicKayak : Kayak {
         dateTime: LocalDateTime,
         location: Location,
         bearing: Double,
+        kayakerSpeed: Double,
     ): Double {
-        return 3.0
+        return kayakerSpeed
     }
 }

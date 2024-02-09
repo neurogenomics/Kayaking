@@ -17,11 +17,10 @@ class WeatherKayak(
         dateTime: LocalDateTime,
         location: Location,
         bearing: Double,
+        kayakerSpeed: Double,
     ): Double {
         val windinfo = windService.getWind(location, dateTime)
         val tideinfo = tideService.getTide(location, dateTime)
-        // TODO need way to set this, should all kayaks have kayaker speed as a parameter?
-        val kayakerSpeed = 3.0
         val goalBearingRad = Math.toRadians(bearing)
         val sqr: (Double) -> Double = { it * it }
 
