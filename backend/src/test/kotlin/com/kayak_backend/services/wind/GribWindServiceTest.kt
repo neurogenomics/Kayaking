@@ -36,7 +36,7 @@ class GribWindServiceTest {
         val lat = 5.0
         val lon = 4.0
         val time = LocalDateTime.of(2024, 2, 1, 12, 0)
-        every { gribReader.getVarPair(lat, lon, time, any(), any(), any(), any(), any(), any()) } returns mockResponse
+        every { gribReader.getVarPair(lat, lon, time, any(), any(), any()) } returns mockResponse
         assertEquals(WindInfo(1.0, -1.0), gribWindFetcher.getWind(Location(lat, lon), time))
     }
 
@@ -55,9 +55,6 @@ class GribWindServiceTest {
                 time,
                 testWindGribConf.uWindVarName,
                 any(),
-                any(),
-                any(),
-                any(),
             )
         } returns Triple(mockGrid1, mockLatIndex, mockLonIndex)
 
@@ -68,23 +65,20 @@ class GribWindServiceTest {
                 time,
                 testWindGribConf.vWindVarName,
                 any(),
-                any(),
-                any(),
-                any(),
             )
         } returns Triple(mockGrid2, mockLatIndex, mockLonIndex)
         every { interpolator.interpolate(mockGrid1, indices, ranges, resolutions) } returns
-            Triple(
-                mockGrid1,
-                mockLatIndex,
-                mockLonIndex,
-            )
+                Triple(
+                    mockGrid1,
+                    mockLatIndex,
+                    mockLonIndex,
+                )
         every { interpolator.interpolate(mockGrid2, indices, ranges, resolutions) } returns
-            Triple(
-                mockGrid2,
-                mockLatIndex,
-                mockLonIndex,
-            )
+                Triple(
+                    mockGrid2,
+                    mockLatIndex,
+                    mockLonIndex,
+                )
         val response = gribWindFetcher.getWindGrid(corner1, corner2, time, resolutions)
         assertEquals(expectedGrid, response)
     }
