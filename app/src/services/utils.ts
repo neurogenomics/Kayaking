@@ -9,6 +9,8 @@ export const getData = async <T>(
   options: AxiosRequestConfig = {},
 ): Promise<T> => {
   const url = generateUrl(path);
+  console.log(url);
   const response = await axios.get<T>(url, options);
+
   return response.data;
 };
