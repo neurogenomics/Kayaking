@@ -68,17 +68,17 @@ class GribWindServiceTest {
             )
         } returns Triple(mockGrid2, mockLatIndex, mockLonIndex)
         every { interpolator.interpolate(mockGrid1, indices, ranges, resolutions) } returns
-                Triple(
-                    mockGrid1,
-                    mockLatIndex,
-                    mockLonIndex,
-                )
+            Triple(
+                mockGrid1,
+                mockLatIndex,
+                mockLonIndex,
+            )
         every { interpolator.interpolate(mockGrid2, indices, ranges, resolutions) } returns
-                Triple(
-                    mockGrid2,
-                    mockLatIndex,
-                    mockLonIndex,
-                )
+            Triple(
+                mockGrid2,
+                mockLatIndex,
+                mockLonIndex,
+            )
         val response = gribWindFetcher.getWindGrid(corner1, corner2, time, resolutions)
         assertEquals(expectedGrid, response)
     }

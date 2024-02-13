@@ -9,7 +9,6 @@ import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
 class NetCDFGribReader : GribReader {
-
     override fun getSingleVar(
         lat: Double,
         lon: Double,
@@ -32,7 +31,7 @@ class NetCDFGribReader : GribReader {
         time: LocalDateTime,
         var1Name: String,
         var2Name: String,
-        filePath: String
+        filePath: String,
     ): Pair<Double, Double> {
         val file = NetcdfDataset.openFile(filePath, null)
 
@@ -59,7 +58,7 @@ class NetCDFGribReader : GribReader {
         lonRange: Range,
         time: LocalDateTime,
         variableName: String,
-        filePath: String
+        filePath: String,
     ): Triple<List<List<Double>>, List<Double>, List<Double>> {
         val file = NetcdfDataset.openFile(filePath, null)
 
@@ -79,7 +78,10 @@ class NetCDFGribReader : GribReader {
         return Triple(data, latIndex, lonIndex)
     }
 
-    private fun getVariable(file: NetcdfFile, name: String): Variable {
+    private fun getVariable(
+        file: NetcdfFile,
+        name: String,
+    ): Variable {
         val pattern = Regex(name)
         file.variables.forEach {
             if (pattern matches it.fullName) {
@@ -94,7 +96,7 @@ class NetCDFGribReader : GribReader {
         lat: Double,
         lon: Double,
     ): Pair<Int, Int> {
-        //TODO: Make this less inefficient
+        // TODO: Make this less inefficient
         val group = variable.group
 
         val latVar = group.findVariable("lat") ?: throw GribFileError("Latitude variable not found")
@@ -123,7 +125,6 @@ class NetCDFGribReader : GribReader {
         latIndices: Pair<Int, Int>,
         lonIndices: Pair<Int, Int>,
     ): Pair<List<Double>, List<Double>> {
-
         val group = variable.group
 
         val latVar = group.findVariable("lat") ?: throw GribFileError("Latitude variable not found")
@@ -207,7 +208,6 @@ class NetCDFGribReader : GribReader {
         val rank = variable.rank
         val origin = IntArray(rank)
         val (latDim, lonDim, timeDim) = getDimensionsIndex(variable)
-
 
         origin[latDim] = latIndex1 + 1
         origin[lonDim] = lonIndex1 + 1
