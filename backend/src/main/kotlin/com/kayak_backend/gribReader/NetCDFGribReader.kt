@@ -15,16 +15,14 @@ class NetCDFGribReader : GribReader {
         time: LocalDateTime,
         variableName: String,
         filePath: String,
-        latVarName: String,
-        lonVarName: String,
-        timeVarName: String,
     ): Double {
         val file = NetcdfDataset.openFile(filePath, null)
 
-        val (latIndex, lonIndex) = findLatLon(file, latVarName, lat, lonVarName, lon)
-        val timeIndex = findTime(file, timeVarName, time)
+        val variable = getVariable(file, variableName)
+        val (latIndex, lonIndex) = findLatLon(variable, lat, lon)
+        val timeIndex = findTime(variable, time)
 
-        return fetchVarAtLoc(file, latIndex, lonIndex, timeIndex, variableName)
+        return fetchVarAtLoc(variable, latIndex, lonIndex, timeIndex).also { file.close() }
     }
 
     override fun getVarPair(
@@ -34,17 +32,25 @@ class NetCDFGribReader : GribReader {
         var1Name: String,
         var2Name: String,
         filePath: String,
-        latVarName: String,
-        lonVarName: String,
-        timeVarName: String,
     ): Pair<Double, Double> {
         val file = NetcdfDataset.openFile(filePath, null)
-        val (latIndex, lonIndex) = findLatLon(file, latVarName, lat, lonVarName, lon)
-        val timeIndex = findTime(file, timeVarName, time)
-        val val1 = fetchVarAtLoc(file, latIndex, lonIndex, timeIndex, var1Name)
-        val val2 = fetchVarAtLoc(file, latIndex, lonIndex, timeIndex, var2Name)
 
-        return Pair(val1, val2)
+        val variable1 = getVariable(file, var1Name)
+        val variable2 = getVariable(file, var2Name)
+
+        if (variable1.group.fullName == variable2.group.fullName) {
+            val (latIndex, lonIndex) = findLatLon(variable1, lat, lon)
+            val timeIndex = findTime(variable1, time)
+            val val1 = fetchVarAtLoc(variable1, latIndex, lonIndex, timeIndex)
+            val val2 = fetchVarAtLoc(variable2, latIndex, lonIndex, timeIndex)
+            file.close()
+            return Pair(val1, val2)
+        } else {
+            file.close()
+            val val1 = getSingleVar(lat, lon, time, var1Name, filePath)
+            val val2 = getSingleVar(lat, lon, time, var2Name, filePath)
+            return Pair(val1, val2)
+        }
     }
 
     override fun getVarGrid(
@@ -53,63 +59,78 @@ class NetCDFGribReader : GribReader {
         time: LocalDateTime,
         variableName: String,
         filePath: String,
-        latVarName: String,
-        lonVarName: String,
-        timeVarName: String,
     ): Triple<List<List<Double>>, List<Double>, List<Double>> {
         val file = NetcdfDataset.openFile(filePath, null)
-        val (latIndex1, lonIndex1) = findLatLon(file, latVarName, latRange.start, lonVarName, lonRange.start)
-        val (latIndex2, lonIndex2) = findLatLon(file, latVarName, latRange.end, lonVarName, lonRange.end)
-        val timeIndex = findTime(file, timeVarName, time)
 
-        val data = fetchVarGrid(file, latIndex1, latIndex2, lonIndex1, lonIndex2, timeIndex, variableName)
+        val variable = getVariable(file, variableName)
+
+        val (latIndex1, lonIndex1) = findLatLon(variable, latRange.start, lonRange.start)
+        val (latIndex2, lonIndex2) = findLatLon(variable, latRange.end, lonRange.end)
+        val timeIndex = findTime(variable, time)
+
+        val data = fetchVarGrid(variable, latIndex1, latIndex2, lonIndex1, lonIndex2, timeIndex)
         val (latIndex, lonIndex) =
             getLatLonRange(
-                file,
-                latVarName,
+                variable,
                 Pair(latIndex1, latIndex2),
-                lonVarName,
                 Pair(lonIndex1, lonIndex2),
             )
         return Triple(data, latIndex, lonIndex)
     }
 
-    private fun findLatLon(
+    private fun getVariable(
         file: NetcdfFile,
-        latVarName: String,
+        name: String,
+    ): Variable {
+        val pattern = Regex(name)
+        file.variables.forEach {
+            if (pattern matches it.fullName) {
+                return it
+            }
+        }
+        throw GribFileError("$name variable not found")
+    }
+
+    private fun findLatLon(
+        variable: Variable,
         lat: Double,
-        lonVarName: String,
         lon: Double,
     ): Pair<Int, Int> {
-        val latVar = file.findVariable(latVarName) ?: throw GribFileError("Latitude variable not found")
+        // TODO: Make this less inefficient
+        val group = variable.group
+
+        val latVar = group.findVariable("lat") ?: throw GribFileError("Latitude variable not found")
         val latData = latVar.read()
+        if (lat < latData.getDouble(0) || lat > latData.getDouble(latData.shape[0] - 1)) throw GribIndexError("Latitude out of bounds")
 
         var latIndex = 0
-        while (latIndex < (latVar.shape[0] - 1) && latData.getDouble(latIndex + 1) < lat) {
+        while (latData.getDouble(latIndex + 1) < lat) {
             latIndex++
         }
 
-        val lonVar = file.findVariable(lonVarName) ?: throw GribFileError("Longitude variable not found")
+        val lonVar = group.findVariable("lon") ?: throw GribFileError("Longitude variable not found")
         val lonData = lonVar.read()
+        if (lon < lonData.getDouble(0) || lon > lonData.getDouble(lonData.shape[0] - 1)) throw GribIndexError("Longitude out of bounds")
 
         var lonIndex = 0
-        while (lonIndex < (lonVar.shape[0] - 1) && lonData.getDouble(lonIndex + 1) < lon) {
+        while (lonData.getDouble(lonIndex + 1) < lon) {
             lonIndex++
         }
+
         return Pair(latIndex, lonIndex)
     }
 
     private fun getLatLonRange(
-        file: NetcdfFile,
-        latVarName: String,
+        variable: Variable,
         latIndices: Pair<Int, Int>,
-        lonVarName: String,
         lonIndices: Pair<Int, Int>,
     ): Pair<List<Double>, List<Double>> {
-        val latVar = file.findVariable(latVarName) ?: throw GribFileError("Latitude variable not found")
+        val group = variable.group
+
+        val latVar = group.findVariable("lat") ?: throw GribFileError("Latitude variable not found")
         val latData = latVar.read()
 
-        val lonVar = file.findVariable(lonVarName) ?: throw GribFileError("Longitude variable not found")
+        val lonVar = group.findVariable("lon") ?: throw GribFileError("Longitude variable not found")
         val lonData = lonVar.read()
 
         val latIndex =
@@ -132,30 +153,32 @@ class NetCDFGribReader : GribReader {
     }
 
     private fun findTime(
-        file: NetcdfFile,
-        timeVarName: String,
+        variable: Variable,
         time: LocalDateTime,
     ): Int {
-        val timeVar = file.findVariable(timeVarName) ?: throw GribFileError("Time variable not found")
+        val group = variable.group
+
+        val timeVar = group.findVariable("time") ?: throw GribFileError("Time variable not found")
         val reftime = processDateString(timeVar.unitsString)
         val duration = Duration.between(reftime, time)
         val firstTime = timeVar.read().getDouble(0).toInt()
-        return duration.toHours().toInt() - firstTime
+
+        val timeIndex = duration.toHours().toInt() - firstTime
+        if (timeIndex < 0 || timeIndex > timeVar.shape[1] - 1) throw GribIndexError("Time variable out of bounds")
+        return timeIndex
     }
 
     private fun fetchVarAtLoc(
-        file: NetcdfFile,
+        variable: Variable,
         latIndex: Int,
         lonIndex: Int,
         timeIndex: Int,
-        variableName: String,
     ): Double {
-        val variable = file.findVariable(variableName) ?: throw GribFileError("Variable $variableName not found")
         val rank = variable.rank
         val origin = IntArray(rank)
 
         val (latDim, lonDim, timeDim) = getDimensionsIndex(variable)
-        testRanges(variable, latIndex, lonIndex, timeIndex, latDim, lonDim, timeDim)
+
         origin[latDim] = latIndex
         origin[lonDim] = lonIndex
         origin[timeDim] = timeIndex
@@ -175,21 +198,16 @@ class NetCDFGribReader : GribReader {
     }
 
     private fun fetchVarGrid(
-        file: NetcdfFile,
+        variable: Variable,
         latIndex1: Int,
         latIndex2: Int,
         lonIndex1: Int,
         lonIndex2: Int,
         timeIndex: Int,
-        variableName: String,
     ): List<List<Double>> {
-        val variable = file.findVariable(variableName) ?: throw GribFileError("Variable $variableName not found")
         val rank = variable.rank
         val origin = IntArray(rank)
         val (latDim, lonDim, timeDim) = getDimensionsIndex(variable)
-
-        testRanges(variable, latIndex1, lonIndex1, timeIndex, latDim, lonDim, timeDim)
-        testRanges(variable, latIndex2, lonIndex2, timeIndex, latDim, lonDim, timeDim)
 
         origin[latDim] = latIndex1 + 1
         origin[lonDim] = lonIndex1 + 1
@@ -237,22 +255,6 @@ class NetCDFGribReader : GribReader {
             }
         }
         return Triple(latDim, lonDim, timeDim)
-    }
-
-    private fun testRanges(
-        variable: Variable,
-        latIndex: Int,
-        lonIndex: Int,
-        timeIndex: Int,
-        latDim: Int,
-        lonDim: Int,
-        timeDim: Int,
-    ) {
-        val varShape = variable.shape
-        // shape contains the sizes of each of the grids, i.e. longitude latitude and
-        if (latIndex !in 1..<varShape[latDim] - 1) throw GribIndexError("Latitude out of bounds")
-        if (lonIndex !in 1..<varShape[lonDim] - 1) throw GribIndexError("Longitude out of bounds")
-        if (timeIndex !in 1..<varShape[timeDim] - 1) throw GribIndexError("Time is out of bounds")
     }
 
     private fun trySurrounding(
