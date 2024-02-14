@@ -164,7 +164,7 @@ class NetCDFGribReader : GribReader {
         val firstTime = timeVar.read().getDouble(0).toInt()
 
         val timeIndex = duration.toHours().toInt() - firstTime
-        if (timeIndex < 0 || timeIndex > timeVar.shape[1] - 1) throw GribIndexError("Time variable out of bounds")
+        if (timeIndex < 0 || timeIndex > timeVar.shape.max() - 1) throw GribIndexError("Time variable out of bounds")
         return timeIndex
     }
 
