@@ -16,7 +16,8 @@ import io.ktor.server.util.*
 
 fun Route.planRoute() {
     val coast = IsleOfWightCoastline().getCoastline()
-    val route = createBaseRoute(coast, 500.0)
+    val distanceFromCoast = 500.0
+    val route = createBaseRoute(coast, distanceFromCoast)
     val slipways = SlipwayService().getAllSlipways()
     val beaches = BeachesService().getAllBeaches()
     val slipwayStarts = slipways.mapIndexed { index, location -> StartPos(location, "Slipway $index") }
