@@ -1,97 +1,51 @@
-// HomePage.tsx
-import React, {useState } from 'react';
-import { View, Text, Image, Button, StyleSheet} from 'react-native';
-import kayakingImage from '../assets/kayaking.png';
-import { SunsetInfo } from '../src/models/sunsetModel';
-import { LocationModel, locationToString } from '../src/models/locationModel';
-import { getSunset } from '../src/services/sunsetService';
-import DisplayDataScreen from './DisplayDataScreen';
-import { getClosestSlipway } from '../src/services/slipwayService';
-import { Vector, vectorToString } from '../src/models/vectorModel';
-import { getTideDirection } from '../src/services/tideService';
-import { InputLocation } from './InputLocation';
-import { getWindDirection } from '../src/services/windService';
+import React, { useState } from 'react';
+import {
+  Button,
+  Image,
+  ImageSourcePropType,
+  StyleSheet,
+  Text,
+  View,
+} from 'react-native';
+import { StackNavigationHelpers } from '@react-navigation/stack/lib/typescript/src/types';
+import { StartEndTimePicker } from './StartEndTimePicker';
+import { PaddleSpeedButtons } from './PaddleSpeedButtons';
+import { PaddleSpeed } from '../src/models/userInputModel';
+import kayaking from '../assets/kayaking.png';
 
-const HomePage: React.FC = () => {
-  const [longitude, setLongitude] = useState('');
-  const [latitude, setLatitude] = useState('');
-  const [sunrise, setSunrise] = useState('No sunrise data yet');
-  const [sunset, setSunset] = useState('No sunset data yet');
-  const [slipway, setSlipway] = useState('No slipway data yet');
-  const [tide, setTide] = useState('No tide data yet');
-  const [wind, setWind] = useState('No wind data yet');
-  const [showData, setShowData] = useState(false);
-
-  const location: LocationModel = {
-    latitude: parseFloat(longitude),
-    longitude: parseFloat(latitude),
-  };
-
-  const updateSunset = async () => {
-    try {
-      const sunsetInfo: SunsetInfo = await getSunset(location);
-      setSunset(sunsetInfo.sunset.toString());
-      setSunrise(sunsetInfo.sunrise.toString());
-      console.log('Sunset data updated successfully');
-    } catch (error) {
-      console.error('Error updating sunset data: ', error);
-    }
-  };
-
-  const updateSlipway = async () => {
-    try {
-      const slipwayInfo: LocationModel = await getClosestSlipway(location);
-      setSlipway(locationToString(slipwayInfo));
-      console.log('Slipway data updated successfully');
-    } catch (error) {
-      console.error('Error updating slipway data: ', error);
-    }
-  };
-
-  const updateTide = async () => {
-    try {
-      const tideInfo: Vector = await getTideDirection(location);
-      setTide(vectorToString(tideInfo));
-      console.log('Tide data updated successfully');
-    } catch (error) {
-      console.error('Error updating tide data: ', error);
-    }
-  };
-
-  const updateWind = async () => {
-    try {
-      const windInfo: Vector = await getWindDirection(location);
-      setWind(vectorToString(windInfo));
-      console.log('Wind data updated successfully');
-    } catch (error) {
-      console.error('Error updating wind data: ', error);
-    }
-  };
+export const HomePage: React.FC<{ navigation: StackNavigationHelpers }> = ({
+  navigation,
+}) => {
+  const now: Date = new Date();
+  const later: Date = new Date();
+  later.setHours(later.getHours() + 1);
+  const [startTime, setStartTime] = useState(now);
+  const [endTime, setEndTime] = useState(later);
+  const [paddleSpeed, setPaddleSpeed] = useState(PaddleSpeed.Normal);
 
   const handleSaveLocation = () => {
-    updateSunset();
-    updateSlipway();
-    updateTide();
-    updateWind();
-    setShowData(true);
+    navigation.navigate('Choose a Slipway', {
+      startTime: startTime.toISOString(),
+      endTime: endTime.toISOString(),
+      paddleSpeed,
+    });
   };
 
   return (
     <View style={styles.container}>
-      {!showData && <Text style={styles.title}>Welcome, Kayaker!</Text>}
-      <Image source={kayakingImage} style={{ width: 200, height: 200 }} />
-      <Text style={styles.title}>Enter your location below:</Text>
-      <InputLocation setLongitude={setLongitude} setLatitude={setLatitude} />
-      <Button title="Save Location" onPress={handleSaveLocation} />
-      {showData && (
-        <DisplayDataScreen
-          sunrise={sunrise}
-          sunset={sunset}
-          slipway={slipway}
-          tide={tide}
-          wind={wind}
-        />
-      )}
+      <Text style={styles.title}>Welcome, Kayaker!</Text>
+      <Image source={kayaking as ImageSourcePropType} style={styles.image} />
+      <StartEndTimePicker
+        startTime={startTime}
+        setStartTime={setStartTime}
+        endTime={endTime}
+        setEndTime={setEndTime}
+      />
+      <PaddleSpeedButtons
+        paddleSpeed={paddleSpeed}
+        setPaddleSpeed={setPaddleSpeed}
+      />
+      <Button title="Find a Slipway!" onPress={handleSaveLocation} />
     </View>
   );
 };
@@ -104,10 +58,11 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   title: {
-    fontSize: 20,
+    fontSize: 32,
     margin: 5,
     textAlign: 'center',
   },
+  image: { width: 200, height: 200 },
 });
 
 export default HomePage;
