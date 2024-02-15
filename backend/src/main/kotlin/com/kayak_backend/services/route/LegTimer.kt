@@ -13,9 +13,8 @@ class LegTimer(private val kayak: Kayak) {
         dateTime: LocalDateTime,
     ): Long {
         val epoch = dateTime.toEpochSecond(ZoneOffset.UTC)
-        val times = durationCache.getOrPut(leg) { mutableMapOf(epoch to calculateDuration(leg, dateTime)) }
-        val x = times.getOrPut(epoch) { calculateDuration(leg, dateTime) }
-        return x
+        val times = durationCache.getOrPut(leg) { mutableMapOf() }
+        return times.getOrPut(epoch) { calculateDuration(leg, dateTime) }
     }
 
     private fun calculateDuration(
