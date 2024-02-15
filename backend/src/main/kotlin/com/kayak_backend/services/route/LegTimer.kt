@@ -29,13 +29,13 @@ class LegTimer(private val kayak: Kayak) {
                         (leg.start.latitude + leg.start.latitude) / 2,
                         (leg.start.longitude + leg.start.longitude) / 2,
                     )
-                val x = (leg.length / kayak.getSpeed(dateTime, midpoint, leg.bearing)).roundToLong()
-                x
+                (leg.length / kayak.getSpeed(dateTime, midpoint, leg.bearing)).roundToLong()
             }
+
             is Leg.MultipleLegs -> {
                 var totalDuration = 0L
                 var currDateTime = dateTime
-                for (subLeg in leg.legs) {
+                leg.legs.forEach { subLeg ->
                     val duration = getDuration(subLeg, currDateTime)
                     currDateTime = currDateTime.plusSeconds(duration)
                     totalDuration += duration
