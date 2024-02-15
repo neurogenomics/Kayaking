@@ -8,35 +8,42 @@ class StartPos(val location: Location, val name: String)
 class RoutePlanner(
     private val baseRoutePolygon: Polygon,
     private val inStartPositions: List<StartPos>,
+    private val maxStartDistance: Int = 1000,
 ) {
-    // The base route slip into sections by the possible start positions
+    // The base route split into sections by the possible start positions
     private val sections = mutableListOf<Leg>()
+
+    // All the start positions after filtering out any too far from the route (further than maxStartDistance)
+    private val startPositions: List<StartPos> = mutableListOf()
 
     // Maps the closet point in the base route to a start position
     private val routeToStart = mutableMapOf<Location, StartPos>()
+
+    // Maps the index of start positions to the index of sections
     private val startIndexToSectionIndex = mutableMapOf<Int, Int>()
-    private val startPositions: List<StartPos> = mutableListOf()
 
     init {
         // Construct routeToStart
         val baseRoute = polygonToCoords(baseRoutePolygon)
+
+        // Construct startPositions and routeToStart
         for (startPos in inStartPositions) {
             val closestPoint = closestLocation(startPos.location, baseRoute)
-            if (closestPoint.distance(startPos.location) < 1000) {
+            if (closestPoint.distance(startPos.location) < maxStartDistance) {
                 if (!routeToStart.contains(closestPoint)) {
                     routeToStart[closestPoint] = startPos
                     startPositions.addFirst(startPos)
                 }
             }
         }
-        // Construct sections
+
+        // Construct sections and startIndexToSectionIndex
         var firstSection: List<Location>? = null
         var currentLegLocations = mutableListOf<Location>()
         var startIndex = 0
         for (location in baseRoute) {
             currentLegLocations.add(location)
             if (routeToStart.contains(location)) {
-
                 if (firstSection == null) {
                     startIndex = startPositions.indexOf(routeToStart[location])
                     firstSection = currentLegLocations
@@ -52,7 +59,6 @@ class RoutePlanner(
         }
         startIndexToSectionIndex[startIndex] = sections.size
         sections.addFirst(Leg.create(currentLegLocations))
-        assert(sections.size == startPositions.size)
     }
 
     private fun polygonToCoords(polygon: Polygon): List<Location> {
