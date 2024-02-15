@@ -17,16 +17,13 @@ class RoutePlanner(
     // The base route split into sections by the possible start positions
     private var sections: List<Leg>
 
-    // All the start positions after filtering out any too far from the route (further than maxStartDistance)
-    // private val startPositions: List<StartPos> = mutableListOf()
-
-    // Maps the closet point in the base route to a start position(s)
+    // Maps the closest point on the base route to a start position(s)
     private val routeToStarts = mutableMapOf<Location, MutableList<StartPos>>()
+
+    // Maps the closest point on the base route to a start position(s)
     private val startToRoute = mutableMapOf<StartPos, Location>()
     private val routeToNextSectionIndex = mutableMapOf<Location, Int>()
     private val routeToPrevSectionIndex = mutableMapOf<Location, Int>()
-
-    // Maps the index of start positions to the index of sections
 
     init {
         // Construct startPositions and routeToStart
@@ -99,7 +96,6 @@ class RoutePlanner(
     }
 
     private fun <T> alternate(sequences: List<Sequence<T>>): Sequence<T> {
-        // Create a sequence of iterators for each input sequence
         val iterators = sequences.map { it.iterator() }.toMutableList()
 
         return sequence {
@@ -117,12 +113,33 @@ class RoutePlanner(
         }
     }
 
+    private fun connectToStart(leg: Leg): Leg {
+        // TODO allow route to connect to multiple start locations
+        val start = routeToStarts[leg.start]!![0]
+        val end = routeToStarts[leg.end]!![0]
+        return Leg.MultipleLegs(listOf(Leg.SingleLeg(start.location, leg.start), leg, Leg.SingleLeg(leg.end, end.location)))
+    }
+
     private fun routeGenerator(
         condition: (Leg) -> Boolean,
         routeLocations: List<Location>,
     ): Sequence<Leg> {
-        val x = routeLocations.map { SectionCombiner(routeToNextSectionIndex[it]!!).asSequence().takeWhile(condition) }
-        return alternate(x)
+        val forwardRoutes =
+            routeLocations.map { routeLocation ->
+                SectionCombiner(
+                    routeToNextSectionIndex[routeLocation]!!,
+                ).asSequence().map { connectToStart(it) }.takeWhile(condition)
+            }
+
+        // TODO combines these
+        //        val backwardsRoutes =
+        //            routeLocations.map { routeLocation ->
+        //                SectionCombiner(
+        //                    routeToNextSectionIndex[routeLocation]!!, -1
+        //                ).asSequence().map { connectToStart(it) }.takeWhile(condition)
+        //            }
+
+        return alternate(forwardRoutes)
     }
 
     fun generateRoutes(
@@ -149,8 +166,8 @@ fun main() {
     val routes =
         routePlanner.generateRoutes(
             { location.distance(it.location) < 5000 },
-            { it.length < 1000 },
-        ).take(5).toList()
+            { it.length < 5000 },
+        ).take(100).toList()
 
     val outputFile = File("/home/jamie/thirdyear/tests/coast/sections.csv")
     outputFile.bufferedWriter().use { out ->
