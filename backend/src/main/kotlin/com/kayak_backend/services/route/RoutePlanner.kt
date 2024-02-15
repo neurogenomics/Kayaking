@@ -23,18 +23,15 @@ class RoutePlanner(
     private val startIndexToSectionIndex = mutableMapOf<Int, Int>()
 
     init {
-        // Construct routeToStart
-        val baseRoute = polygonToCoords(baseRoutePolygon)
-
         // Construct startPositions and routeToStart
-        for (startPos in inStartPositions) {
-            val closestPoint = closestLocation(startPos.location, baseRoute)
-            if (closestPoint.distance(startPos.location) < maxStartDistance) {
-                if (!routeToStart.contains(closestPoint)) {
+        val baseRoute = baseRoutePolygon.coordinates.map { Location(it.x, it.y) }
+        inStartPositions.forEach { startPos ->
+            val closestPoint = baseRoute.minWith(compareBy { it.distance(startPos.location) })
+            if (closestPoint.distance(startPos.location) < maxStartDistance && !routeToStart.contains(closestPoint))
+                {
                     routeToStart[closestPoint] = startPos
                     startPositions.addFirst(startPos)
                 }
-            }
         }
 
         // Construct sections and startIndexToSectionIndex
@@ -59,31 +56,6 @@ class RoutePlanner(
         }
         startIndexToSectionIndex[startIndex] = sections.size
         sections.addFirst(Leg.create(currentLegLocations))
-    }
-
-    private fun polygonToCoords(polygon: Polygon): List<Location> {
-        val locations = mutableListOf<Location>()
-        for (coordinate in polygon.coordinates) {
-            locations.add(Location(coordinate.x, coordinate.y))
-        }
-        return locations
-    }
-
-    private fun closestLocation(
-        start: Location,
-        locations: List<Location>,
-    ): Location {
-        var closest = locations.first()
-        var shortestDistance = start.distance(closest)
-
-        for (location in locations) {
-            val distance = start.distance(location)
-            if (distance < shortestDistance) {
-                shortestDistance = distance
-                closest = location
-            }
-        }
-        return closest
     }
 
     inner class SectionIterator(private var currentIndex: Int = 0) : Iterator<Leg> {
