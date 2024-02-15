@@ -22,6 +22,7 @@ class SeaBearingsGetter(private val coastlineService: CoastlineService, private 
                 val brng = seaDirection(b, a)
                 SeaBearingInfo(brng, Location(a.x, a.y))
             } else {
+                // Null for the case the same coordinate is twice in a row, to avoid non-meaningful bearings
                 null
             }
         }.filterNotNull()
