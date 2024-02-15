@@ -24,8 +24,6 @@ export const PaddleSpeedButtons: React.FC<{
             ]}
             onPress={() => {
               setPaddleSpeed(option.type);
-              //TODO remove this
-              console.log(option.name);
             }}
           >
             <Text style={styles.buttonText}>{option.name}</Text>

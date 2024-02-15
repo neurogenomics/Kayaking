@@ -1,18 +1,18 @@
-import MapView, { Marker } from 'react-native-maps';
+import MapView, { Marker, MarkerSelectEvent } from 'react-native-maps';
 import { Button, StyleSheet, View } from 'react-native';
 import React, { useState } from 'react';
+// TODO: get rid of this once Elsa's beach data is merged
 import beachData from './fakeBeachData.json';
 import {
   PaddleSpeed,
   RouteType,
   UserInput,
 } from '../src/models/userInputModel';
-import { LocationModel } from '../src/models/locationModel';
-import { Route } from '../src/models/routeModel';
-import { getRoute } from '../src/services/routeService';
+import { StackNavigationHelpers } from '@react-navigation/stack/lib/typescript/src/types';
+import { isleOfWight } from '../constants';
 
 type SlipwayMapProps = {
-  navigation;
+  navigation: StackNavigationHelpers;
   route: {
     params: { startTime: string; endTime: string; paddleSpeed: PaddleSpeed };
   };
@@ -22,17 +22,15 @@ export const SlipwayMap: React.FC<SlipwayMapProps> = ({
   navigation,
   route,
 }) => {
-
   const [latitude, setLatitude] = useState(0);
   const [longitude, setLongitude] = useState(0);
-  const [routes, setRoutes] = useState(null);
 
-  const handleMarkerSelect = (event): void => {
+  const handleMarkerSelect = (event: MarkerSelectEvent): void => {
     setLatitude(event.nativeEvent.coordinate.latitude);
     setLongitude(event.nativeEvent.coordinate.longitude);
   };
 
-  const findRoute = async () => {
+  const findRoute = () => {
     const user: UserInput = {
       latitude: latitude,
       longitude: longitude,
@@ -43,13 +41,6 @@ export const SlipwayMap: React.FC<SlipwayMapProps> = ({
       routeType: RouteType.PointToPoint,
     };
     navigation.navigate('Choose a Route', { user });
-  };
-
-  const isleOfWight = {
-    longitude: -1.33,
-    latitude: 50.67,
-    longitudeDelta: 0.56,
-    latitudeDelta: 0.22,
   };
 
   return (

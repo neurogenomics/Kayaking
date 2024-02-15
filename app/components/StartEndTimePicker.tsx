@@ -1,5 +1,7 @@
 import { StyleSheet, Text, View } from 'react-native';
-import DateTimePicker from '@react-native-community/datetimepicker';
+import DateTimePicker, {
+  DateTimePickerEvent,
+} from '@react-native-community/datetimepicker';
 import React, { useState } from 'react';
 
 export const StartEndTimePicker: React.FC<{
@@ -10,16 +12,23 @@ export const StartEndTimePicker: React.FC<{
 }> = ({ startTime, setStartTime, endTime, setEndTime }) => {
   const [showEndTimePicker, setShowEndTimePicker] = useState(false);
 
-  const onStartTimeChange = (event, selectedStartTime: Date) => {
+  const onStartTimeChange = (
+    _event: DateTimePickerEvent,
+    selectedStartTime: Date,
+  ) => {
     const currentStart: Date = selectedStartTime || startTime;
     setStartTime(currentStart);
     setShowEndTimePicker(true);
   };
 
-  const onEndTimeChange = (event, selectedEndTime: Date) => {
+  const onEndTimeChange = (
+    _event: DateTimePickerEvent,
+    selectedEndTime: Date,
+  ) => {
     const currentEnd: Date = selectedEndTime || endTime;
     setEndTime(currentEnd);
   };
+
   return (
     <View style={styles.timePickerContainer}>
       <View style={styles.pickerContainer}>

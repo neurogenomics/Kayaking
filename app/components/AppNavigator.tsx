@@ -1,7 +1,7 @@
 import { createStackNavigator } from '@react-navigation/stack';
 import HomePage from './HomePage';
 import { SlipwayMap } from './SlipwayMap';
-import {MapVisualisation} from "./MapVisualisation";
+import { MapVisualisation } from './MapVisualisation';
 
 const Stack = createStackNavigator();
 
