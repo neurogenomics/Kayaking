@@ -36,7 +36,7 @@ class GribTideServiceTest {
         val lat = 5.0
         val lon = 4.0
         val time = LocalDateTime.of(2024, 2, 1, 12, 0)
-        every { gribReader.getVarPair(lat, lon, time, any(), any(), any(), any(), any(), any()) } returns mockResponse
+        every { gribReader.getVarPair(lat, lon, time, any(), any(), any()) } returns mockResponse
         assertEquals(TideInfo(1.0, -1.0), gribTideFetcher.getTide(Location(lat, lon), time))
     }
 
@@ -55,9 +55,6 @@ class GribTideServiceTest {
                 time,
                 testTideGribConf.uTideVarName,
                 any(),
-                any(),
-                any(),
-                any(),
             )
         } returns Triple(mockGrid1, mockLatIndex, mockLonIndex)
 
@@ -67,9 +64,6 @@ class GribTideServiceTest {
                 any(),
                 time,
                 testTideGribConf.vTideVarName,
-                any(),
-                any(),
-                any(),
                 any(),
             )
         } returns Triple(mockGrid2, mockLatIndex, mockLonIndex)

@@ -27,9 +27,6 @@ class GribWindFetcher(
                 conf.uWindVarName,
                 conf.vWindVarName,
                 conf.filePath,
-                conf.latVarName,
-                conf.lonVarName,
-                conf.timeVarName,
             )
         return WindInfo(u = pair.first, v = pair.second)
     }
@@ -49,9 +46,6 @@ class GribWindFetcher(
                 time,
                 conf.uWindVarName,
                 conf.filePath,
-                conf.latVarName,
-                conf.lonVarName,
-                conf.timeVarName,
             )
         val (vData, latIndexV, lonIndexV) =
             gribReader.getVarGrid(
@@ -60,9 +54,6 @@ class GribWindFetcher(
                 time,
                 conf.vWindVarName,
                 conf.filePath,
-                conf.latVarName,
-                conf.lonVarName,
-                conf.timeVarName,
             )
         if (latIndexU != latIndexV || lonIndexU != lonIndexV) throw GribFileError("Wind Values uneven! Check variable names")
         val (interpolatedUData, newLatIndexU, newLonIndexU) =

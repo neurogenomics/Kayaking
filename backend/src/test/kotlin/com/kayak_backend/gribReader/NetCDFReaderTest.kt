@@ -25,9 +25,6 @@ class NetCDFReaderTest {
                 timeTest,
                 testWindGribConf.uWindVarName,
                 testWindGribConf.filePath,
-                testWindGribConf.latVarName,
-                testWindGribConf.lonVarName,
-                testWindGribConf.timeVarName,
             )
         assertEquals(expectedAnswer, value, 1e-3)
     }
@@ -46,9 +43,6 @@ class NetCDFReaderTest {
                 testWindGribConf.uWindVarName,
                 testWindGribConf.vWindVarName,
                 testWindGribConf.filePath,
-                testWindGribConf.latVarName,
-                testWindGribConf.lonVarName,
-                testWindGribConf.timeVarName,
             )
         assertEquals(expectedAnswer.first, value.first, 1e-3)
         assertEquals(expectedAnswer.second, value.second, 1e-3)
@@ -68,9 +62,6 @@ class NetCDFReaderTest {
                 timeTest,
                 testTideGribConf.uTideVarName,
                 testTideGribConf.filePath,
-                testTideGribConf.latVarName,
-                testTideGribConf.lonVarName,
-                testTideGribConf.timeVarName,
             )
         assertEquals(expected.size, value.first.size)
         assertEquals(expected[0].size, value.first[0].size)
@@ -96,9 +87,6 @@ class NetCDFReaderTest {
                 timeTest,
                 testTideGribConf.uTideVarName,
                 testTideGribConf.filePath,
-                testTideGribConf.latVarName,
-                testTideGribConf.lonVarName,
-                testTideGribConf.timeVarName,
             )
         Assert.assertEquals(value, neighbors.average(), 1e-3)
     }
@@ -116,9 +104,6 @@ class NetCDFReaderTest {
                 timeTestEarly,
                 testWindGribConf.uWindVarName,
                 testWindGribConf.filePath,
-                testWindGribConf.latVarName,
-                testWindGribConf.lonVarName,
-                testWindGribConf.timeVarName,
             )
         }
 
@@ -129,9 +114,6 @@ class NetCDFReaderTest {
                 timeTestLate,
                 testWindGribConf.uWindVarName,
                 testWindGribConf.filePath,
-                testWindGribConf.latVarName,
-                testWindGribConf.lonVarName,
-                testWindGribConf.timeVarName,
             )
         }
     }
@@ -149,9 +131,6 @@ class NetCDFReaderTest {
                 timeTest,
                 testWindGribConf.uWindVarName,
                 testWindGribConf.filePath,
-                testWindGribConf.latVarName,
-                testWindGribConf.lonVarName,
-                testWindGribConf.timeVarName,
             )
         }
 
@@ -162,9 +141,6 @@ class NetCDFReaderTest {
                 timeTest,
                 testWindGribConf.uWindVarName,
                 testWindGribConf.filePath,
-                testWindGribConf.latVarName,
-                testWindGribConf.lonVarName,
-                testWindGribConf.timeVarName,
             )
         }
     }
@@ -172,7 +148,7 @@ class NetCDFReaderTest {
     @Test
     fun rejectsOutOfBoundLongitude() {
         val latTest = 50.7499
-        val lonTestWest = -2.944
+        val lonTestWest = -3.0
         val lonTestEast = 0.313
         val timeTest: LocalDateTime = LocalDateTime.of(2024, 1, 25, 14, 0)
         assertFailsWith<GribIndexError> {
@@ -182,9 +158,6 @@ class NetCDFReaderTest {
                 timeTest,
                 testWindGribConf.uWindVarName,
                 testWindGribConf.filePath,
-                testWindGribConf.latVarName,
-                testWindGribConf.lonVarName,
-                testWindGribConf.timeVarName,
             )
         }
 
@@ -195,9 +168,6 @@ class NetCDFReaderTest {
                 timeTest,
                 testWindGribConf.uWindVarName,
                 testWindGribConf.filePath,
-                testWindGribConf.latVarName,
-                testWindGribConf.lonVarName,
-                testWindGribConf.timeVarName,
             )
         }
     }
