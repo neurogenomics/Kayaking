@@ -92,11 +92,16 @@ export const MapVisualisation: React.FC<MapVisualisationProps> = () => {
       >
         {coords ? (
           coords.map((coord, index) => (
-            <View key={index} style={styles.arrows}>
+            <View key={index}>
               <Marker coordinate={coord.coord}>
                 <Image
                   source={arrow as ImageSourcePropType}
-                  style={styles.arrows}
+                  style={{
+                    width: 30,
+                    height: 30,
+                    objectFit: 'contain',
+                    transform: [{ rotate: `${coord.direction}deg` }],
+                  }}
                 />
               </Marker>
             </View>
@@ -124,5 +129,4 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  arrows: { width: 30, height: 30, objectFit: 'contain' },
 });
