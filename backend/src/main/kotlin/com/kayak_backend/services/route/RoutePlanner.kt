@@ -1,11 +1,7 @@
 package com.kayak_backend.services.route
 
 import com.kayak_backend.models.Location
-import com.kayak_backend.services.coastline.IsleOfWightCoastline
-import com.kayak_backend.services.slipways.BeachesService
-import com.kayak_backend.services.slipways.SlipwayService
 import org.locationtech.jts.geom.Polygon
-import java.io.File
 
 class StartPos(val location: Location, val name: String)
 
@@ -150,32 +146,5 @@ class RoutePlanner(
         val validStarts = startToRoute.filter { startPositionFilter(it.key) }
         val generator = routeGenerator(condition, validStarts.values.toList())
         return generator.take(maxGenerated).map { Route(it.length, it.locations) }.sortedByDescending { it.length }
-    }
-}
-
-fun main() {
-    val coast = IsleOfWightCoastline().getCoastline()
-    val route = createBaseRoute(coast, 500.0)
-    val slipways = SlipwayService().getAllSlipways()
-    val beaches = BeachesService().getAllBeaches()
-    val slipwayStarts = slipways.mapIndexed { index, location -> StartPos(location, "Slipway $index") }
-    val beachStarts = beaches.map { beachInfo -> StartPos(beachInfo.avergeLocation, beachInfo.name ?: "Unnamed beach") }
-    val startPositions = slipwayStarts.plus(beachStarts)
-    val routePlanner = RoutePlanner(route, startPositions)
-    val location = Location(50.575, -1.295)
-    val routes =
-        routePlanner.generateRoutes(
-            { location.distance(it.location) < 5000 },
-            { it.length < 5000 },
-        ).take(100).toList()
-
-    val outputFile = File("/home/jamie/thirdyear/tests/coast/sections.csv")
-    outputFile.bufferedWriter().use { out ->
-        out.write("id,latitude,longitude\n")
-        routes.forEachIndexed { index, route ->
-            route.locations.forEach { location2 ->
-                out.write("$index,${location2.latitude},${location2.longitude}\n")
-            }
-        }
     }
 }
