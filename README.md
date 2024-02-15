@@ -29,7 +29,9 @@ yarn test
 
 ## Backend
 ### Running the server
-To run the server locally, run the following commands:
+To run the server locally, 
+1) set environment variables: ADMIRALTY_API_KEY= and ENVIRONMENT="dev"
+2) run the following commands:
 ```
 cd backend
 ./gradlew run
