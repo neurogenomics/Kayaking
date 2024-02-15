@@ -16,19 +16,15 @@ class SeaBearingsGetter(private val coastlineService: CoastlineService, private 
     fun getSeaBearings(): List<SeaBearingInfo> {
         val coastline = route.createBaseRoute(coastlineService.getCoastline(), routeBuffer).coordinates
 
-        if (coastline.isEmpty()) return emptyList()
-
-        var prev = coastline[0]
-
-        return coastline.drop(1).mapNotNull {
-            if (it != prev) {
-                val brng = seaDirection(it, prev)
-                prev = it
-                SeaBearingInfo(brng, Location(prev.x, prev.y))
+        return coastline.toList().zipWithNext {
+                a: Coordinate, b: Coordinate ->
+            if (a != b) {
+                val brng = seaDirection(b, a)
+                SeaBearingInfo(brng, Location(a.x, a.y))
             } else {
                 null
             }
-        }
+        }.filterNotNull()
     }
 
     /*
