@@ -24,8 +24,7 @@ class WindFiltering(
         val seaBearings = seaBearingService.getSeaBearings()
 
         return seaBearings.map {
-            val now = LocalDateTime.now()
-            val wind = windService.getWind(it.coor, LocalDateTime.of(now.year, now.month, now.dayOfMonth, now.hour, now.minute))
+            val wind = windService.getWind(it.coor, LocalDateTime.now())
 
             WindZonesInfo(it, badArea(it.bearing, wind))
         }

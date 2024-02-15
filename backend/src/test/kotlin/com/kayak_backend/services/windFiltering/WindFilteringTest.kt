@@ -8,18 +8,12 @@ import com.kayak_backend.services.wind.WindService
 import io.mockk.every
 import io.mockk.mockk
 import org.junit.Test
-import java.time.LocalDateTime
 
 class WindFilteringTest {
     // Tests may break if BAD_WIND_MAGNITUDE_LIMIT is changed in WindFiltering
     private val windServiceMock = mockk<WindService>()
     private val seaBearingMock = mockk<SeaBearingService>()
     private val windFiltering = WindFiltering(windServiceMock, seaBearingMock)
-
-    // TODO will need to update when sorted out in WindFiltering and grib updates
-    private val now = LocalDateTime.now()
-
-    private val dateTime = LocalDateTime.of(now.year, now.month, now.dayOfMonth, now.hour, now.minute)
 
     @Test
     fun perpendicularBearingAndWindMarkedGood() {
@@ -28,7 +22,7 @@ class WindFilteringTest {
                 SeaBearingInfo(0.0, Location(0.0, 0.0)),
             )
         every {
-            windServiceMock.getWind(Location(0.0, 0.0), dateTime)
+            windServiceMock.getWind(Location(0.0, 0.0), any())
         } returns WindInfo(6.0, 0.0)
 
         val result = windFiltering.classifyAreas()
@@ -42,7 +36,7 @@ class WindFilteringTest {
                 SeaBearingInfo(0.0, Location(0.0, 0.0)),
             )
         every {
-            windServiceMock.getWind(Location(0.0, 0.0), dateTime)
+            windServiceMock.getWind(Location(0.0, 0.0), any())
         } returns WindInfo(1.0, -6.0)
 
         val result = windFiltering.classifyAreas()
@@ -56,7 +50,7 @@ class WindFilteringTest {
                 SeaBearingInfo(0.0, Location(0.0, 0.0)),
             )
         every {
-            windServiceMock.getWind(Location(0.0, 0.0), dateTime)
+            windServiceMock.getWind(Location(0.0, 0.0), any())
         } returns WindInfo(0.0, 6.0)
 
         val result = windFiltering.classifyAreas()
@@ -70,7 +64,7 @@ class WindFilteringTest {
                 SeaBearingInfo(0.0, Location(0.0, 0.0)),
             )
         every {
-            windServiceMock.getWind(Location(0.0, 0.0), dateTime)
+            windServiceMock.getWind(Location(0.0, 0.0), any())
         } returns WindInfo(6.0, 6.0)
 
         val result = windFiltering.classifyAreas()
@@ -84,7 +78,7 @@ class WindFilteringTest {
                 SeaBearingInfo(350.0, Location(0.0, 0.0)),
             )
         every {
-            windServiceMock.getWind(Location(0.0, 0.0), dateTime)
+            windServiceMock.getWind(Location(0.0, 0.0), any())
         } returns WindInfo(6.0, 6.0)
 
         val result = windFiltering.classifyAreas()
@@ -106,7 +100,7 @@ class WindFilteringTest {
                 SeaBearingInfo(0.0, Location(0.0, 0.0)),
             )
         every {
-            windServiceMock.getWind(Location(0.0, 0.0), dateTime)
+            windServiceMock.getWind(Location(0.0, 0.0), any())
         } returns WindInfo(0.1, 0.1)
 
         val result = windFiltering.classifyAreas()
