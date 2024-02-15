@@ -43,6 +43,7 @@ class SeaBearingsGetter(private val coastlineService: CoastlineService, private 
         val x = cos(lat1) * sin(lat2) - sin(lat1) * cos(lat2) * cos(lon2 - lon1)
         val r = atan2(y, x)
 
+        // atan returns value between -180 and 180 so +450 to first make positive (+360) then find perpendicular (+90)
         return (Math.toDegrees(r) + 450) % 360
     }
 }
