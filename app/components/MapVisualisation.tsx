@@ -1,5 +1,5 @@
 import MapView, { Marker } from 'react-native-maps';
-import { StyleSheet, View, Image } from 'react-native';
+import { StyleSheet, View, Image, ImageSourcePropType } from 'react-native';
 import React, { useState, useEffect } from 'react';
 import { UserInput } from '../src/models/userInputModel';
 import { LocationModel } from '../src/models/locationModel';
@@ -11,6 +11,7 @@ import {
   CoordRotation,
 } from '../src/models/gridModel';
 import { getGrid } from '../src/services/gridService';
+import arrow from '../assets/arrow.png';
 
 type MapVisualisationProps = {
   navigation;
@@ -21,7 +22,6 @@ type MapVisualisationProps = {
 
 export const MapVisualisation: React.FC<MapVisualisationProps> = () => {
   const [coords, setCoords] = useState<CoordRotation[]>();
-  const [grid, setGrid] = useState<GridModel>();
 
   // TODO: get constants from server
   const gridStart: LocationModel = {
@@ -45,8 +45,7 @@ export const MapVisualisation: React.FC<MapVisualisationProps> = () => {
         gridEnd,
         gridResolution,
       );
-      setGrid(grid);
-      setArrowCoords();
+      setArrowCoords(grid);
     } catch (error) {
       console.log('Error getting grid: ', error);
     }
@@ -62,24 +61,22 @@ export const MapVisualisation: React.FC<MapVisualisationProps> = () => {
     return angleDegrees;
   };
 
-  const setArrowCoords = () => {
-    if (grid) {
-      const markers: CoordRotation[] = [];
-      for (let i = 0; i < grid.latIndex.length; i++) {
-        for (let j = 0; j < grid.lonIndex.length; j++) {
-          const direction = getBearing(grid.grid[i][j].u, grid.grid[i][j].v);
-          const coordRotation: CoordRotation = {
-            coord: {
-              latitude: grid.latIndex[i],
-              longitude: grid.lonIndex[j],
-            },
-            direction: direction,
-          };
-          markers.push(coordRotation);
-        }
+  const setArrowCoords = (grid: GridModel) => {
+    const markers: CoordRotation[] = [];
+    for (let i = 0; i < grid.latIndex.length; i++) {
+      for (let j = 0; j < grid.lonIndex.length; j++) {
+        const direction = getBearing(grid.grid[i][j].u, grid.grid[i][j].v);
+        const coordRotation: CoordRotation = {
+          coord: {
+            latitude: grid.latIndex[i],
+            longitude: grid.lonIndex[j],
+          },
+          direction: direction,
+        };
+        markers.push(coordRotation);
       }
-      setCoords(markers);
     }
+    setCoords(markers);
   };
 
   useEffect(() => {
@@ -98,7 +95,7 @@ export const MapVisualisation: React.FC<MapVisualisationProps> = () => {
             <View key={index} style={styles.arrows}>
               <Marker coordinate={coord.coord}>
                 <Image
-                  source={require('../assets/arrow.png')}
+                  source={arrow as ImageSourcePropType}
                   style={styles.arrows}
                 />
               </Marker>

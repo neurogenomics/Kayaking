@@ -1,9 +1,17 @@
 import React, { useState } from 'react';
-import { Button, Image, StyleSheet, Text, View } from 'react-native';
+import {
+  Button,
+  Image,
+  ImageSourcePropType,
+  StyleSheet,
+  Text,
+  View,
+} from 'react-native';
 import { StackNavigationHelpers } from '@react-navigation/stack/lib/typescript/src/types';
 import { StartEndTimePicker } from './StartEndTimePicker';
 import { PaddleSpeedButtons } from './PaddleSpeedButtons';
 import { PaddleSpeed } from '../src/models/userInputModel';
+import arrow from '../assets/kayaking.png';
 
 export const HomePage: React.FC<{ navigation: StackNavigationHelpers }> = ({
   navigation,
@@ -26,7 +34,7 @@ export const HomePage: React.FC<{ navigation: StackNavigationHelpers }> = ({
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Welcome, Kayaker!</Text>
-      <Image source={require('../assets/kayaking.png')} style={styles.image} />
+      <Image source={arrow as ImageSourcePropType} style={styles.image} />
       <StartEndTimePicker
         startTime={startTime}
         setStartTime={setStartTime}

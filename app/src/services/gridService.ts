@@ -1,5 +1,5 @@
 import { LocationModel } from '../models/locationModel';
-import {GridModel, GridType, ResolutionModel} from '../models/gridModel';
+import { GridModel, GridType, ResolutionModel } from '../models/gridModel';
 import { getData } from './utils';
 import { format } from 'date-fns';
 
