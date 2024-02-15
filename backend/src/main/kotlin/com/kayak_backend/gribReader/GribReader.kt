@@ -10,9 +10,6 @@ interface GribReader {
         time: LocalDateTime,
         variableName: String,
         filePath: String,
-        latVarName: String,
-        lonVarName: String,
-        timeVarName: String,
     ): Double
 
     fun getVarPair(
@@ -22,9 +19,6 @@ interface GribReader {
         var1Name: String,
         var2Name: String,
         filePath: String,
-        latVarName: String,
-        lonVarName: String,
-        timeVarName: String,
     ): Pair<Double, Double>
 
     fun getVarGrid(
@@ -33,8 +27,5 @@ interface GribReader {
         time: LocalDateTime,
         variableName: String,
         filePath: String,
-        latVarName: String,
-        lonVarName: String,
-        timeVarName: String,
     ): Triple<List<List<Double>>, List<Double>, List<Double>>
 }

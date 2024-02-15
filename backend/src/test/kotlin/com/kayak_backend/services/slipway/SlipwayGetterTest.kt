@@ -1,4 +1,4 @@
-package com.kayak_backend.services.sunset
+package com.kayak_backend.services.slipway
 import com.kayak_backend.models.Location
 import com.kayak_backend.services.slipways.SlipwaysGetter
 import io.ktor.network.sockets.*

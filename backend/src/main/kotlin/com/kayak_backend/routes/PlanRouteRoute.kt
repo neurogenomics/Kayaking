@@ -5,7 +5,6 @@ import com.kayak_backend.services.coastline.IsleOfWightCoastline
 import com.kayak_backend.services.route.*
 import com.kayak_backend.services.route.RoutePlanner
 import com.kayak_backend.services.route.StartPos
-import com.kayak_backend.services.route.createBaseRoute
 import com.kayak_backend.services.slipways.BeachesService
 import com.kayak_backend.services.slipways.SlipwayService
 import io.ktor.server.application.*
@@ -17,7 +16,7 @@ import io.ktor.server.util.*
 fun Route.planRoute() {
     val coast = IsleOfWightCoastline().getCoastline()
     val distanceFromCoast = 500.0
-    val route = createBaseRoute(coast, distanceFromCoast)
+    val route = BaseRoute().createBaseRoute(coast, distanceFromCoast)
     val slipways = SlipwayService().getAllSlipways()
     val beaches = BeachesService().getAllBeaches()
     val slipwayStarts = slipways.mapIndexed { index, location -> StartPos(location, "Slipway $index") }
