@@ -11,133 +11,131 @@ class RoutePlanner(
     private val maxStartDistance: Int = 1000,
 ) {
     // The base route split into sections by the possible start positions
-    private val sections = mutableListOf<Leg>()
+    private var sections: List<Leg>
 
-    // All the start positions after filtering out any too far from the route (further than maxStartDistance)
-    private val startPositions: List<StartPos> = mutableListOf()
+    // Maps the closest point on the base route to a start position(s)
+    private val routeToStarts = mutableMapOf<Location, MutableList<StartPos>>()
 
-    // Maps the closet point in the base route to a start position
-    private val routeToStart = mutableMapOf<Location, StartPos>()
-
-    // Maps the index of start positions to the index of sections
-    private val startIndexToSectionIndex = mutableMapOf<Int, Int>()
+    // Maps the closest point on the base route to a start position(s)
+    private val startToRoute = mutableMapOf<StartPos, Location>()
+    private val routeToNextSectionIndex = mutableMapOf<Location, Int>()
+    private val routeToPrevSectionIndex = mutableMapOf<Location, Int>()
 
     init {
-        // Construct routeToStart
-        val baseRoute = polygonToCoords(baseRoutePolygon)
-
         // Construct startPositions and routeToStart
-        for (startPos in inStartPositions) {
-            val closestPoint = closestLocation(startPos.location, baseRoute)
+        val baseRoute = baseRoutePolygon.coordinates.map { Location(it.x, it.y) }
+
+        // Find valid startPositions along the route and connect them to the startPositions
+        inStartPositions.forEach { startPos ->
+            val closestPoint = baseRoute.minWith(compareBy { it.distance(startPos.location) })
             if (closestPoint.distance(startPos.location) < maxStartDistance) {
-                if (!routeToStart.contains(closestPoint)) {
-                    routeToStart[closestPoint] = startPos
-                    startPositions.addFirst(startPos)
-                }
+                routeToStarts.getOrPut(closestPoint) { mutableListOf() }.add(startPos)
+                startToRoute[startPos] = closestPoint
             }
         }
 
-        // Construct sections and startIndexToSectionIndex
-        var firstSection: List<Location>? = null
+        sections = splitRouteIntoSections(baseRoute, routeToStarts.keys)
+        sections.forEachIndexed { index, section ->
+            routeToNextSectionIndex[section.start] = index
+            routeToPrevSectionIndex[section.end] = (index + 1) % sections.size
+        }
+    }
+
+    private fun splitRouteIntoSections(
+        route: List<Location>,
+        startPosOnRoute: Set<Location>,
+    ): List<Leg> {
+        val sections = mutableListOf<Leg>()
         var currentLegLocations = mutableListOf<Location>()
-        var startIndex = 0
-        for (location in baseRoute) {
+        route.forEach { location ->
             currentLegLocations.add(location)
-            if (routeToStart.contains(location)) {
-                if (firstSection == null) {
-                    startIndex = startPositions.indexOf(routeToStart[location])
-                    firstSection = currentLegLocations
-                } else {
-                    startIndexToSectionIndex[startPositions.indexOf(routeToStart[location])] = sections.size
-                    sections.add(Leg.create(currentLegLocations))
-                }
+            if (startPosOnRoute.contains(location)) {
+                sections.add(Leg.create(currentLegLocations))
                 currentLegLocations = mutableListOf(location)
             }
         }
-        if (firstSection != null) {
-            currentLegLocations.addAll(firstSection)
+        // Connect first and last section
+        if (sections.isNotEmpty()) {
+            currentLegLocations.addAll(sections.removeFirst().locations)
         }
-        startIndexToSectionIndex[startIndex] = sections.size
         sections.addFirst(Leg.create(currentLegLocations))
+        return sections
     }
 
-    private fun polygonToCoords(polygon: Polygon): List<Location> {
-        val locations = mutableListOf<Location>()
-        for (coordinate in polygon.coordinates) {
-            locations.add(Location(coordinate.x, coordinate.y))
-        }
-        return locations
-    }
-
-    private fun closestLocation(
-        start: Location,
-        locations: List<Location>,
-    ): Location {
-        var closest = locations.first()
-        var shortestDistance = start.distance(closest)
-
-        for (location in locations) {
-            val distance = start.distance(location)
-            if (distance < shortestDistance) {
-                shortestDistance = distance
-                closest = location
-            }
-        }
-        return closest
-    }
-
-    inner class SectionIterator(private var currentIndex: Int = 0) : Iterator<Leg> {
+    inner class SectionIterator(private var currentIndex: Int = 0, private var step: Int = 1) : Iterator<Leg> {
         override fun hasNext(): Boolean = true
 
         override fun next(): Leg {
             val leg = sections[currentIndex]
-            currentIndex = (currentIndex + 1) % sections.size
+            currentIndex = (currentIndex + step) % sections.size
             return leg
         }
     }
 
-    inner class OneRouteGenerator(private val condition: (Leg) -> Boolean, private var startIndex: Int = 0) :
-        Iterator<Leg> {
-        private val sectionIterator = SectionIterator(startIndex)
+    inner class SectionCombiner(private var currentIndex: Int = 0, private var step: Int = 1) : Iterator<Leg> {
+        private val sectionIterator = SectionIterator(currentIndex, step)
         private var current: Leg? = null
 
-        override fun hasNext(): Boolean {
-            val temp = current
-            return temp == null || condition(temp)
-        }
+        override fun hasNext(): Boolean = true
 
         override fun next(): Leg {
             var temp = current
             val newLeg = sectionIterator.next()
             if (temp == null) {
-                temp = connectToStart(newLeg)
-                current = temp
-                return connectToEnd(temp)
+                current = newLeg
+                return newLeg
             }
             temp = Leg.MultipleLegs(listOf(temp, newLeg))
             current = temp
-            return connectToEnd(temp)
+            return temp
+        }
+    }
+
+    private fun <T> alternate(sequences: List<Sequence<T>>): Sequence<T> {
+        val iterators = sequences.map { it.iterator() }.toMutableList()
+
+        return sequence {
+            while (iterators.isNotEmpty()) {
+                val it = iterators.iterator()
+                while (it.hasNext()) {
+                    val iterator = it.next()
+                    if (iterator.hasNext()) {
+                        yield(iterator.next())
+                    } else {
+                        it.remove()
+                    }
+                }
+            }
         }
     }
 
     private fun connectToStart(leg: Leg): Leg {
-        return Leg.MultipleLegs(listOf(Leg.SingleLeg(leg.start, routeToStart[leg.start]!!.location), leg))
-    }
-
-    private fun connectToEnd(leg: Leg): Leg {
-        return Leg.MultipleLegs(listOf(leg, Leg.SingleLeg(leg.end, routeToStart[leg.end]!!.location)))
+        // TODO allow route to connect to multiple start locations
+        val start = routeToStarts[leg.start]!![0]
+        val end = routeToStarts[leg.end]!![0]
+        return Leg.MultipleLegs(listOf(Leg.SingleLeg(start.location, leg.start), leg, Leg.SingleLeg(leg.end, end.location)))
     }
 
     private fun routeGenerator(
         condition: (Leg) -> Boolean,
-        startIndices: List<Int>,
-    ): Iterator<Leg> {
-        val x = startIndices.map { index -> OneRouteGenerator(condition, index) }
-        return AlternatingGenerator(x)
-    }
+        routeLocations: List<Location>,
+    ): Sequence<Leg> {
+        val forwardRoutes =
+            routeLocations.map { routeLocation ->
+                SectionCombiner(
+                    routeToNextSectionIndex[routeLocation]!!,
+                ).asSequence().map { connectToStart(it) }.takeWhile(condition)
+            }
 
-    private fun fullLegToRoute(leg: Leg): Route {
-        return Route(leg.length, leg.locations)
+        // TODO combines these
+        //        val backwardsRoutes =
+        //            routeLocations.map { routeLocation ->
+        //                SectionCombiner(
+        //                    routeToNextSectionIndex[routeLocation]!!, -1
+        //                ).asSequence().map { connectToStart(it) }.takeWhile(condition)
+        //            }
+
+        return alternate(forwardRoutes)
     }
 
     fun generateRoutes(
@@ -145,8 +143,8 @@ class RoutePlanner(
         condition: (Leg) -> Boolean,
         maxGenerated: Int = 300,
     ): Sequence<Route> {
-        val startIndices = startPositions.indices.filter { startPositionFilter(startPositions[it]) }
-        val sectionIndices = startIndices.map { startIndexToSectionIndex[it]!! }
-        return routeGenerator(condition, sectionIndices).asSequence().take(maxGenerated).filter(condition).map { fullLegToRoute(it) }
+        val validStarts = startToRoute.filter { startPositionFilter(it.key) }
+        val generator = routeGenerator(condition, validStarts.values.toList())
+        return generator.take(maxGenerated).map { Route(it.length, it.locations) }.sortedByDescending { it.length }
     }
 }
