@@ -6,39 +6,48 @@ import org.locationtech.jts.geom.Polygon
 class StartPos(val location: Location, val name: String)
 
 class RoutePlanner(
-    private val baseRoutePolygon: Polygon,
-    private val inStartPositions: List<StartPos>,
+    baseRoutePolygon: Polygon,
+    inStartPositions: List<StartPos>,
     private val maxStartDistance: Int = 1000,
 ) {
     // The base route split into sections by the possible start positions
-    private var sections: List<Leg>
+    private val sections: List<Leg>
 
     // Maps the closest point on the base route to a start position(s)
-    private val routeToStarts = mutableMapOf<Location, MutableList<StartPos>>()
+    private val routeToStarts: Map<Location, MutableList<StartPos>>
 
     // Maps the closest point on the base route to a start position(s)
-    private val startToRoute = mutableMapOf<StartPos, Location>()
-    private val routeToNextSectionIndex = mutableMapOf<Location, Int>()
-    private val routeToPrevSectionIndex = mutableMapOf<Location, Int>()
+    private val startToRoute: Map<StartPos, Location>
+    private val routeToNextSectionIndex: Map<Location, Int>
+    private val routeToPrevSectionIndex: Map<Location, Int>
 
     init {
         // Construct startPositions and routeToStart
         val baseRoute = baseRoutePolygon.coordinates.map { Location(it.x, it.y) }
 
+        val mutableStartToRoute = mutableMapOf<StartPos, Location>()
+        val mutableRouteToStarts = mutableMapOf<Location, MutableList<StartPos>>()
+
         // Find valid startPositions along the route and connect them to the startPositions
         inStartPositions.forEach { startPos ->
             val closestPoint = baseRoute.minWith(compareBy { it.distance(startPos.location) })
             if (closestPoint.distance(startPos.location) < maxStartDistance) {
-                routeToStarts.getOrPut(closestPoint) { mutableListOf() }.add(startPos)
-                startToRoute[startPos] = closestPoint
+                mutableRouteToStarts.getOrPut(closestPoint) { mutableListOf() }.add(startPos)
+                mutableStartToRoute[startPos] = closestPoint
             }
         }
+        startToRoute = mutableStartToRoute
+        routeToStarts = mutableRouteToStarts
 
         sections = splitRouteIntoSections(baseRoute, routeToStarts.keys)
+        val mutableRouteToNextSectionIndex = mutableMapOf<Location, Int>()
+        val mutableRouteToPrevSectionIndex = mutableMapOf<Location, Int>()
         sections.forEachIndexed { index, section ->
-            routeToNextSectionIndex[section.start] = index
-            routeToPrevSectionIndex[section.end] = (index + 1) % sections.size
+            mutableRouteToNextSectionIndex[section.start] = index
+            mutableRouteToPrevSectionIndex[section.end] = (index + 1) % sections.size
         }
+        routeToNextSectionIndex = mutableRouteToNextSectionIndex
+        routeToPrevSectionIndex = mutableRouteToPrevSectionIndex
     }
 
     private fun splitRouteIntoSections(
