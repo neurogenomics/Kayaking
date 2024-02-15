@@ -25,7 +25,7 @@ data class Location(val latitude: Double, val longitude: Double) {
         return RADIUS * c
     }
 
-    fun bearing(coord2: Location): Double {
+    infix fun bearingTo(coord2: Location): Double {
         val lat1 = Math.toRadians(this.latitude)
         val lon1 = Math.toRadians(this.longitude)
         val lat2 = Math.toRadians(coord2.latitude)
