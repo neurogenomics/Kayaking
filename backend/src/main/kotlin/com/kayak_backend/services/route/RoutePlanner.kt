@@ -8,7 +8,7 @@ class StartPos(val location: Location, val name: String)
 class RoutePlanner(
     baseRoutePolygon: Polygon,
     inStartPositions: List<StartPos>,
-    private val maxStartDistance: Int = 1000,
+    maxStartDistance: Int = 1000,
 ) {
     // The base route split into sections by the possible start positions
     private val sections: List<Leg>
@@ -29,7 +29,7 @@ class RoutePlanner(
         val mutableRouteToStarts = mutableMapOf<Location, MutableList<StartPos>>()
 
         // Find valid startPositions along the route and connect them to the startPositions
-        inStartPositions.forEach { startPos ->
+        for (startPos in inStartPositions) {
             val closestPoint = baseRoute.minWith(compareBy { it.distance(startPos.location) })
             if (closestPoint.distance(startPos.location) < maxStartDistance) {
                 mutableRouteToStarts.getOrPut(closestPoint) { mutableListOf() }.add(startPos)
@@ -122,7 +122,13 @@ class RoutePlanner(
         // TODO allow route to connect to multiple start locations
         val start = routeToStarts[leg.start]!![0]
         val end = routeToStarts[leg.end]!![0]
-        return Leg.MultipleLegs(listOf(Leg.SingleLeg(start.location, leg.start), leg, Leg.SingleLeg(leg.end, end.location)))
+        return Leg.MultipleLegs(
+            listOf(
+                Leg.SingleLeg(start.location, leg.start),
+                leg,
+                Leg.SingleLeg(leg.end, end.location),
+            ),
+        )
     }
 
     private fun routeGenerator(
