@@ -32,13 +32,12 @@ class LegTimer(private val kayak: Kayak) {
             }
 
             is Leg.MultipleLegs -> {
-                var totalDuration = 0L
-                var currDateTime = dateTime
-                leg.legs.forEach { subLeg ->
-                    val duration = getDuration(subLeg, currDateTime)
-                    currDateTime = currDateTime.plusSeconds(duration)
-                    totalDuration += duration
-                }
+                val (totalDuration, _) =
+                    leg.legs.fold(0L to dateTime) { (total, currDateTime), subLeg ->
+                        val duration = getDuration(subLeg, currDateTime)
+                        val nextDateTime = currDateTime.plusSeconds(duration)
+                        total + duration to nextDateTime
+                    }
                 totalDuration
             }
         }

@@ -9,6 +9,10 @@ class BasicKayak : Kayak {
         location: Location,
         bearing: Double,
     ): Double {
-        return 1.54
+        return DEFAULT_SPEED
+    }
+
+    companion object {
+        private const val DEFAULT_SPEED = 1.54
     }
 }

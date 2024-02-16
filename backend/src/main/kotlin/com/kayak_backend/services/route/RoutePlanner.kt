@@ -71,6 +71,7 @@ class RoutePlanner(
         return sections
     }
 
+    // Iterate along the sections starting at section currentIndex
     inner class SectionIterator(private var currentIndex: Int = 0, private var step: Int = 1) : Iterator<Leg> {
         override fun hasNext(): Boolean = true
 
@@ -81,6 +82,7 @@ class RoutePlanner(
         }
     }
 
+    // Combines a section with all the sections from previous itterations
     inner class SectionCombiner(private var currentIndex: Int = 0, private var step: Int = 1) : Iterator<Leg> {
         private val sectionIterator = SectionIterator(currentIndex, step)
         private var current: Leg? = null
@@ -100,6 +102,7 @@ class RoutePlanner(
         }
     }
 
+    // Given a list of sequences, create a sequence which alternates between them
     private fun <T> alternate(sequences: List<Sequence<T>>): Sequence<T> {
         val iterators = sequences.map { it.iterator() }.toMutableList()
 
@@ -118,6 +121,7 @@ class RoutePlanner(
         }
     }
 
+    // Given a leg, create a longer leg that connects to the start and end slipways
     private fun connectToStart(leg: Leg): Leg {
         // TODO allow route to connect to multiple start locations
         val start = routeToStarts[leg.start]!![0]
@@ -131,6 +135,7 @@ class RoutePlanner(
         )
     }
 
+    // Given the start locations, generate a sequence of routes that all abide by condition
     private fun routeGenerator(
         condition: (Leg) -> Boolean,
         routeLocations: List<Location>,
@@ -153,6 +158,7 @@ class RoutePlanner(
         return alternate(forwardRoutes)
     }
 
+    // Generates a sequence of routes starting from the filtered start positions and that all abide by condition
     fun generateRoutes(
         startPositionFilter: (StartPos) -> Boolean,
         condition: (Leg) -> Boolean,
