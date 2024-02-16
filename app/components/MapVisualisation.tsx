@@ -1,5 +1,5 @@
-import MapView, { Marker } from 'react-native-maps';
-import { StyleSheet, View, Image, ImageSourcePropType } from 'react-native';
+import MapView, { Polyline } from 'react-native-maps';
+import { StyleSheet, View } from 'react-native';
 import React, { useState, useEffect } from 'react';
 import { UserInput } from '../src/models/userInputModel';
 import { LocationModel } from '../src/models/locationModel';
@@ -8,10 +8,8 @@ import {
   GridModel,
   GridType,
   ResolutionModel,
-  CoordRotation,
 } from '../src/models/gridModel';
 import { getGrid } from '../src/services/gridService';
-import arrow from '../assets/arrow.png';
 
 type MapVisualisationProps = {
   navigation;
@@ -20,8 +18,12 @@ type MapVisualisationProps = {
   };
 };
 
+type ArrowCoords = {
+  coords: LocationModel[];
+};
+
 export const MapVisualisation: React.FC<MapVisualisationProps> = () => {
-  const [coords, setCoords] = useState<CoordRotation[]>();
+  const [coords, setCoords] = useState<ArrowCoords[]>();
 
   // TODO: get constants from server
   const gridStart: LocationModel = {
@@ -37,15 +39,41 @@ export const MapVisualisation: React.FC<MapVisualisationProps> = () => {
     lonRes: 0.1,
   };
 
+  const makeArrowCoordinates = (grid: GridModel, gridRes: ResolutionModel) => {
+    const markers: ArrowCoords[] = [];
+    for (let i = 0; i < grid.latIndex.length; i++) {
+      for (let j = 0; j < grid.lonIndex.length; j++) {
+        console.log('grid lon index ' + grid.lonIndex[i][j]);
+        console.log('grid lat index ' + grid.latIndex[i][j]);
+        // TODO: add direction to arrows
+        const direction = getBearing(grid.grid[i][j].u, grid.grid[i][j].v);
+        const bottom: LocationModel = {
+          longitude: grid.lonIndex[i][j] - gridRes.lonRes / 2,
+          latitude: grid.latIndex[i][j] - gridRes.latRes / 2,
+        };
+        const top: LocationModel = {
+          longitude: grid.lonIndex[i][j] + gridRes.lonRes / 2,
+          latitude: grid.latIndex[i][j] + gridRes.latRes / 2,
+        };
+        const x: LocationModel[] = [bottom, top];
+        const arrowPoints: ArrowCoords = { coords: x };
+        markers.push(arrowPoints);
+      }
+    }
+    setCoords(markers);
+  };
+
   const getArrowGrid = async () => {
     try {
+      console.log('hello???');
       const grid: GridModel = await getGrid(
         GridType.WIND,
         gridStart,
         gridEnd,
         gridResolution,
       );
-      setArrowCoords(grid);
+      console.log('hello');
+      makeArrowCoordinates(grid, gridResolution);
     } catch (error) {
       console.log('Error getting grid: ', error);
     }
@@ -61,49 +89,18 @@ export const MapVisualisation: React.FC<MapVisualisationProps> = () => {
     return angleDegrees;
   };
 
-  const setArrowCoords = (grid: GridModel) => {
-    const markers: CoordRotation[] = [];
-    for (let i = 0; i < grid.latIndex.length; i++) {
-      for (let j = 0; j < grid.lonIndex.length; j++) {
-        const direction = getBearing(grid.grid[i][j].u, grid.grid[i][j].v);
-        const coordRotation: CoordRotation = {
-          coord: {
-            latitude: grid.latIndex[i],
-            longitude: grid.lonIndex[j],
-          },
-          direction: direction,
-        };
-        markers.push(coordRotation);
-      }
-    }
-    setCoords(markers);
-  };
-
   useEffect(() => {
-    void getArrowGrid();
+    console.log('hi');
+    getArrowGrid();
   }, []);
 
   return (
     <View style={styles.mapContainer}>
-      <MapView
-        style={styles.map}
-        initialRegion={isleOfWight}
-        rotateEnabled={false}
-      >
+      <MapView style={styles.map} initialRegion={isleOfWight}>
         {coords ? (
-          coords.map((coord, index) => (
+          coords.map((coord: ArrowCoords, index) => (
             <View key={index}>
-              <Marker coordinate={coord.coord}>
-                <Image
-                  source={arrow as ImageSourcePropType}
-                  style={{
-                    width: 30,
-                    height: 30,
-                    objectFit: 'contain',
-                    transform: [{ rotate: `${coord.direction}deg` }],
-                  }}
-                />
-              </Marker>
+              <Polyline coordinates={coord.coords}></Polyline>
             </View>
           ))
         ) : (
