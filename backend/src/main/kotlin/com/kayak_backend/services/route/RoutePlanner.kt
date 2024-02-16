@@ -30,8 +30,8 @@ class RoutePlanner(
 
         // Find valid startPositions along the route and connect them to the startPositions
         for (startPos in inStartPositions) {
-            val closestPoint = baseRoute.minWith(compareBy { it.distance(startPos.location) })
-            if (closestPoint.distance(startPos.location) < maxStartDistance) {
+            val closestPoint = baseRoute.minWith(compareBy { it distanceTo startPos.location })
+            if (closestPoint distanceTo startPos.location < maxStartDistance) {
                 mutableRouteToStarts.getOrPut(closestPoint) { mutableListOf() }.add(startPos)
                 mutableStartToRoute[startPos] = closestPoint
             }

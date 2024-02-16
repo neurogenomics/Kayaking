@@ -10,7 +10,7 @@ private const val RADIUS: Double = 6371.0 * 1000
 
 @Serializable
 data class Location(val latitude: Double, val longitude: Double) {
-    fun distance(coord2: Location): Double {
+    infix fun distanceTo(coord2: Location): Double {
         val coord1 = this
         val deltaLat = Math.toRadians(coord2.latitude - coord1.latitude)
         val deltaLon = Math.toRadians(coord2.longitude - coord1.longitude)

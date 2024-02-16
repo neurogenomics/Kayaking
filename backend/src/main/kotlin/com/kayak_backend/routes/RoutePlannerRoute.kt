@@ -34,7 +34,7 @@ fun Route.planRoute() {
             val location = Location(lat, lng)
             val routes =
                 routePlanner.generateRoutes(
-                    { location.distance(it.location) < 5000 },
+                    { location distanceTo it.location < 5000 },
                     { legTimer.getDuration(it, startTime) < duration * 60 },
                 ).take(5).toList()
             call.respond(routes)
