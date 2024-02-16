@@ -15,10 +15,7 @@
       "**/*"
     ],
     "ios": {
-      "supportsTablet": true,
-      "infoPlist": {
-        "NSLocationWhenInUseUsageDescription": "Allow Expo experiences to use your location"
-      }
+      "supportsTablet": true
     },
     "android": {
       "adaptiveIcon": {

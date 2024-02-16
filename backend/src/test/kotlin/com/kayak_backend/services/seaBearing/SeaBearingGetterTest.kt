@@ -1,9 +1,9 @@
 package com.kayak_backend.services.seaBearing
 import com.kayak_backend.services.coastline.CoastlineService
-import com.kayak_backend.services.route.Route
+import com.kayak_backend.services.route.BaseRoute
 import io.mockk.every
 import io.mockk.mockk
-import org.locationtech.jts.geom.*
+import org.locationtech.jts.geom.Coordinate
 import kotlin.math.abs
 import kotlin.test.Test
 
@@ -11,7 +11,7 @@ private const val ALLOWED_ROUNDING_ERROR = 2.0
 
 class SeaBearingGetterTest {
     private val coastlineMock = mockk<CoastlineService>()
-    private val routeMock = mockk<Route>()
+    private val routeMock = mockk<BaseRoute>()
     private val seaBearingsGetter = SeaBearingsGetter(coastlineMock, routeMock, 0.0)
 
     @Test
