@@ -3,13 +3,9 @@ import { Button, StyleSheet, View } from 'react-native';
 import React, { useState } from 'react';
 // TODO: get rid of this once Elsa's beach data is merged
 import beachData from './fakeBeachData.json';
-import {
-  PaddleSpeed,
-  RouteType,
-  UserInput,
-} from '../src/models/userInputModel';
+import { PaddleSpeed, RouteType, UserInput } from '../models/userInputModel';
 import { StackNavigationHelpers } from '@react-navigation/stack/lib/typescript/src/types';
-import { isleOfWight } from '../constants';
+import { isleOfWight } from '../../constants';
 
 type SlipwayMapProps = {
   navigation: StackNavigationHelpers;

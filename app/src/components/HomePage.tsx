@@ -10,7 +10,7 @@ import {
 import { StackNavigationHelpers } from '@react-navigation/stack/lib/typescript/src/types';
 import { StartEndTimePicker } from './StartEndTimePicker';
 import { PaddleSpeedButtons } from './PaddleSpeedButtons';
-import { PaddleSpeed } from '../src/models/userInputModel';
+import { PaddleSpeed } from '../models/userInputModel';
 import kayaking from '../assets/kayaking.png';
 
 export const HomePage: React.FC<{ navigation: StackNavigationHelpers }> = ({
