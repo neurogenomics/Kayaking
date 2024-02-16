@@ -1,85 +1,62 @@
 import * as React from 'react';
-import { View, Pressable, Dimensions } from 'react-native';
+import { View, Dimensions, Pressable } from 'react-native';
 import Animated, {
   Extrapolate,
   interpolate,
-  interpolateColor,
   useAnimatedStyle,
-  useSharedValue,
-  withTiming,
 } from 'react-native-reanimated';
-import type { ICarouselInstance } from 'react-native-reanimated-carousel';
-import Carousel from 'react-native-reanimated-carousel';
+import Carousel, { ICarouselInstance } from 'react-native-reanimated-carousel';
+import { format, isSameHour, isToday } from 'date-fns';
 
-const PAGE_WIDTH = 100;
-const PAGE_HEIGHT = 40;
-
-function Index() {
+type DateCarosoulProps = {
+  dates: Date[];
+  onDateChanged: (date: Date) => void;
+};
+const DateCarosoul: React.FC<DateCarosoulProps> = ({
+  dates,
+  onDateChanged,
+}: DateCarosoulProps) => {
   const r = React.useRef<ICarouselInstance>(null);
-  const window = Dimensions.get('window');
-
-  function getNext20Hours(): string[] {
-    const result: string[] = [];
-    const now = new Date();
-
-    for (let i = 1; i <= 20; i++) {
-      const nextHour = new Date(now.getTime() + i * 3600 * 1000);
-      const hour = String(nextHour.getHours()).padStart(2, '0');
-      const minutes = String(nextHour.getMinutes()).padStart(2, '0');
-      result.push(`${hour}:${minutes}`);
-    }
-
-    return result;
-  }
-
-  const DATA = getNext20Hours(); //['周一', '周二', '周三', '周四', '周五', '周六', '周日'];
-
+  const width = Dimensions.get('window').width;
   return (
-    <View style={{ flex: 1 }}>
-      <View>
-        <Carousel
-          ref={r}
-          style={{
-            width: window.width,
-            height: PAGE_HEIGHT,
-            justifyContent: 'center',
-            alignItems: 'center',
-          }}
-          width={window.width / 3}
-          height={PAGE_HEIGHT}
-          data={DATA}
-          renderItem={({ item, animationValue }) => {
-            return (
-              <Item
-                animationValue={animationValue}
-                label={item}
-                onPress={() =>
-                  r.current?.scrollTo({
-                    count: animationValue.value,
-                    animated: true,
-                  })
-                }
-              />
-            );
-          }}
-        />
-      </View>
+    <View style={{ flexGrow: 1, paddingTop: 0 }}>
+      <Carousel
+        ref={r}
+        loop={false}
+        width={width / 3}
+        height={60}
+        style={{
+          width: width,
+          justifyContent: 'center',
+          alignItems: 'center',
+        }}
+        data={dates}
+        onSnapToItem={(index) => onDateChanged(dates[index])}
+        renderItem={({ item, animationValue }) => (
+          <Item
+            animationValue={animationValue}
+            date={item}
+            onPress={() =>
+              r.current?.scrollTo({
+                count: animationValue.value,
+                animated: true,
+              })
+            }
+          ></Item>
+        )}
+      />
     </View>
   );
-}
+};
 
-export default Index;
-
-interface Props {
+type ItemProps = {
   animationValue: Animated.SharedValue<number>;
-  label: string;
+  date: Date;
   onPress?: () => void;
-}
+};
 
-const Item: React.FC<Props> = (props) => {
-  const { animationValue, label, onPress } = props;
-
-  const translateY = useSharedValue(0);
+const Item: React.FC<ItemProps> = (props) => {
+  const { animationValue, date, onPress } = props;
 
   const containerStyle = useAnimatedStyle(() => {
     const opacity = interpolate(
@@ -88,7 +65,6 @@ const Item: React.FC<Props> = (props) => {
       [0.5, 1, 0.5],
       Extrapolate.CLAMP,
     );
-
     return {
       opacity,
     };
@@ -102,28 +78,17 @@ const Item: React.FC<Props> = (props) => {
       Extrapolate.CLAMP,
     );
 
-    const color = interpolateColor(
-      animationValue.value,
-      [-1, 0, 1],
-      ['#b6bbc0', '#0071fa', '#b6bbc0'],
-    );
-
     return {
-      transform: [{ scale }, { translateY: translateY.value }],
-      color,
+      transform: [{ scale }],
     };
-  }, [animationValue, translateY]);
-
-  const onPressIn = React.useCallback(() => {
-    translateY.value = withTiming(-8, { duration: 250 });
-  }, [translateY]);
-
-  const onPressOut = React.useCallback(() => {
-    translateY.value = withTiming(0, { duration: 250 });
-  }, [translateY]);
+  }, [animationValue]);
+  const now = new Date();
+  const isNow = isSameHour(now, date) && isToday(date);
+  const timeLabel = format(date, 'HH:mm');
+  const dateLabel = isToday(date) ? 'Today' : format(date, 'do MMM');
 
   return (
-    <Pressable onPress={onPress} onPressIn={onPressIn} onPressOut={onPressOut}>
+    <Pressable onPress={onPress}>
       <Animated.View
         style={[
           {
@@ -134,10 +99,46 @@ const Item: React.FC<Props> = (props) => {
           containerStyle,
         ]}
       >
-        <Animated.Text style={[{ fontSize: 18, color: '#26292E' }, labelStyle]}>
-          {label}
-        </Animated.Text>
+        {isNow ? (
+          <Animated.Text
+            style={[
+              { fontSize: 22, color: '#fafafa', fontWeight: 'bold' },
+              labelStyle,
+            ]}
+          >
+            {'Now'}
+          </Animated.Text>
+        ) : (
+          <View
+            style={[
+              {
+                height: '100%',
+                alignItems: 'center',
+                justifyContent: 'center',
+              },
+            ]}
+          >
+            <Animated.Text
+              style={[
+                { fontSize: 18, color: '#fafafa', fontWeight: 'bold' },
+                labelStyle,
+              ]}
+            >
+              {timeLabel}
+            </Animated.Text>
+            <Animated.Text
+              style={[
+                { fontSize: 10, color: '#fafafa', fontWeight: 'bold' },
+                labelStyle,
+              ]}
+            >
+              {dateLabel}
+            </Animated.Text>
+          </View>
+        )}
       </Animated.View>
     </Pressable>
   );
 };
+
+export default DateCarosoul;

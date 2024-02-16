@@ -1,7 +1,7 @@
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList, Route } from '../routes';
 import React, { useMemo, useState } from 'react';
-import { StyleSheet, Dimensions, View, Text } from 'react-native';
+import { StyleSheet, SafeAreaView } from 'react-native';
 import MapView from 'react-native-maps';
 import { isleOfWight } from '../../constants';
 import BottomSheet from '@gorhom/bottom-sheet';
@@ -14,16 +14,11 @@ import Animated, {
   useSharedValue,
 } from 'react-native-reanimated';
 import WeatherFabs from '../components/WeatherFabs';
-import Carousel from 'react-native-reanimated-carousel';
-import Index from '../components/Carosoul';
+import DateCarosoul from '../components/Carosoul';
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    height: '100%',
-    width: '100%',
-    alignItems: 'center',
-    justifyContent: 'center',
   },
   map: {
     flex: 1,
@@ -32,11 +27,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  overlay: {
-    position: 'absolute',
-    top: 50,
-    width: '100%',
-    backgroundColor: 'rgba(255, 255, 255, 1)',
+  carsoulContainer: {
+    backgroundColor: 'rgba(0, 0, 0, 0.3)',
+    borderRadius: 12,
   },
 });
 
@@ -57,17 +50,32 @@ const HomeScreen: React.FC<HomeProps> = () => {
     };
   });
 
+  function getNextHours(): Date[] {
+    const result: Date[] = [];
+    const startTime = new Date();
+    startTime.setMinutes(0);
+    startTime.setSeconds(0);
+    startTime.setMilliseconds(0);
+    for (let i = 0; i <= 50; i++) {
+      const nextHour = new Date(startTime.getTime() + i * 3600 * 1000);
+      result.push(nextHour);
+    }
+    return result;
+  }
+
   return (
     <GestureHandlerRootView style={styles.container}>
       <MapView
-        style={styles.map}
+        style={StyleSheet.absoluteFillObject}
         initialRegion={isleOfWight}
         rotateEnabled={false}
-      >
-        <View style={styles.overlay}>
-          <Index></Index>
-        </View>
-      </MapView>
+      ></MapView>
+      <SafeAreaView style={styles.carsoulContainer}>
+        <DateCarosoul
+          dates={getNextHours()}
+          onDateChanged={(date) => console.log(date)}
+        ></DateCarosoul>
+      </SafeAreaView>
       <Animated.View style={inverseBottomSheetSytle} pointerEvents="box-none">
         <WeatherFabs visible={fabsVisible}></WeatherFabs>
       </Animated.View>
