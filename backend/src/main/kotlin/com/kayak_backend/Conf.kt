@@ -20,9 +20,6 @@ import java.nio.file.Path
 data class TideGribConf(
     val gribReader: String,
     val filePath: String,
-    val latVarName: String,
-    val lonVarName: String,
-    val timeVarName: String,
     val uTideVarName: String,
     val vTideVarName: String,
 )
@@ -31,9 +28,6 @@ data class TideGribConf(
 data class WindGribConf(
     val gribReader: String,
     val filePath: String,
-    val latVarName: String,
-    val lonVarName: String,
-    val timeVarName: String,
     val uWindVarName: String,
     val vWindVarName: String,
 )
@@ -87,6 +81,7 @@ fun getGribFetcher(conf: Conf): GribFetcher {
         "OpenSkiron" -> {
             OpenSkironGribFetcher()
         }
+
         else -> throw UnsupportedOperationException("Grib Fetcher Conf not Provided")
     }
 }
@@ -103,6 +98,7 @@ fun getTideTimeService(
             }
             AdmiraltyTideTimeService(apiKey)
         }
+
         else -> throw UnsupportedOperationException("TideTime Conf required")
     }
 }

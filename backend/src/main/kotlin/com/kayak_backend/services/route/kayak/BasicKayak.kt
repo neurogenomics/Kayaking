@@ -8,8 +8,11 @@ class BasicKayak : Kayak {
         dateTime: LocalDateTime,
         location: Location,
         bearing: Double,
-        kayakerSpeed: Double,
     ): Double {
-        return kayakerSpeed
+        return DEFAULT_SPEED
+    }
+
+    companion object {
+        private const val DEFAULT_SPEED = 1.54
     }
 }

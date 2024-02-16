@@ -1,0 +1,82 @@
+[
+  {
+    "title": "Sandown Beach",
+    "description": "Beautiful sandy beach with facilities for families.",
+    "coordinate": {
+      "latitude": 50.6519,
+      "longitude": -1.1554
+    }
+  },
+  {
+    "title": "Compton Bay",
+    "description": "Popular surfing spot with stunning cliffs.",
+    "coordinate": {
+      "latitude": 50.6521,
+      "longitude": -1.4515
+    }
+  },
+  {
+    "title": "Colwell Bay",
+    "description": "Quaint beach with crystal-clear waters and nearby cafes.",
+    "coordinate": {
+      "latitude": 50.6941,
+      "longitude": -1.5303
+    }
+  },
+  {
+    "title": "Yaverland Beach",
+    "description": "Great spot for fossil hunting and coastal walks.",
+    "coordinate": {
+      "latitude": 50.6594,
+      "longitude": -1.1284
+    }
+  },
+  {
+    "title": "Freshwater Bay",
+    "description": "Scenic beach surrounded by towering cliffs.",
+    "coordinate": {
+      "latitude": 50.6788,
+      "longitude": -1.5307
+    }
+  },
+  {
+    "title": "Ventnor Beach",
+    "description": "Charming seaside town with a sandy beach and Victorian architecture.",
+    "coordinate": {
+      "latitude": 50.5946,
+      "longitude": -1.2046
+    }
+  },
+  {
+    "title": "Shanklin Beach",
+    "description": "Family-friendly beach with a traditional promenade.",
+    "coordinate": {
+      "latitude": 50.6293,
+      "longitude": -1.1776
+    }
+  },
+  {
+    "title": "St Helens Beach",
+    "description": "Relaxing beach with views of Bembridge Harbour.",
+    "coordinate": {
+      "latitude": 50.6842,
+      "longitude": -1.1006
+    }
+  },
+  {
+    "title": "Ryde Beach",
+    "description": "Long sandy beach with an amusement pier and seafront attractions.",
+    "coordinate": {
+      "latitude": 50.7307,
+      "longitude": -1.1569
+    }
+  },
+  {
+    "title": "Cowes Beach",
+    "description": "Historic seaside town known for sailing and regattas.",
+    "coordinate": {
+      "latitude": 50.7621,
+      "longitude": -1.2996
+    }
+  }
+]

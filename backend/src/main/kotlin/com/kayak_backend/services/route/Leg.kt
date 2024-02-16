@@ -7,7 +7,8 @@ sealed class Leg {
     abstract val start: Location
     abstract val end: Location
     abstract val locations: List<Location>
-    val bearing: Double by lazy { start.bearing(end) }
+
+    val bearing: Double by lazy { start bearingTo end }
 
     companion object {
         fun create(locations: List<Location>): Leg {

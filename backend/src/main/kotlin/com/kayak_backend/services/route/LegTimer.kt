@@ -14,9 +14,9 @@ class LegTimer(private val kayak: Kayak) {
         dateTime: LocalDateTime,
     ): Long {
         val epoch = dateTime.toEpochSecond(ZoneOffset.UTC)
-        val times = durationCache.getOrPut(leg) { mutableMapOf(epoch to calculateDuration(leg, dateTime)) }
-        val x = times.getOrPut(epoch) { calculateDuration(leg, dateTime) }
-        return x
+
+        val times = durationCache.getOrPut(leg) { mutableMapOf() }
+        return times.getOrPut(epoch) { calculateDuration(leg, dateTime) }
     }
 
     private fun calculateDuration(
@@ -30,17 +30,17 @@ class LegTimer(private val kayak: Kayak) {
                         (leg.start.latitude + leg.start.latitude) / 2,
                         (leg.start.longitude + leg.start.longitude) / 2,
                     )
-                val x = (leg.length / kayak.getSpeed(dateTime, midpoint, leg.bearing)).roundToLong()
-                x
+
+                (leg.length / kayak.getSpeed(dateTime, midpoint, leg.bearing)).roundToLong()
             }
+
             is Leg.MultipleLegs -> {
-                var totalDuration = 0L
-                var currDateTime = dateTime
-                for (subLeg in leg.legs) {
-                    val duration = getDuration(subLeg, currDateTime)
-                    currDateTime = currDateTime.plusSeconds(duration)
-                    totalDuration += duration
-                }
+                val (totalDuration, _) =
+                    leg.legs.fold(0L to dateTime) { (total, currDateTime), subLeg ->
+                        val duration = getDuration(subLeg, currDateTime)
+                        val nextDateTime = currDateTime.plusSeconds(duration)
+                        total + duration to nextDateTime
+                    }
                 totalDuration
             }
         }
