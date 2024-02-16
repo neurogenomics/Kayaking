@@ -67,7 +67,7 @@ class RoutePlanner(
         if (sections.isNotEmpty()) {
             currentLegLocations.addAll(sections.removeFirst().locations)
         }
-        sections.addFirst(Leg.create(currentLegLocations))
+        sections.add(0, Leg.create(currentLegLocations))
         return sections
     }
 

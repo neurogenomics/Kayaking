@@ -8,7 +8,11 @@ import kotlin.math.atan2
 import kotlin.math.cos
 import kotlin.math.sin
 
-class SeaBearingsGetter(private val coastlineService: CoastlineService, private val route: BaseRoute, private val routeBuffer: Double = 100.0) {
+class SeaBearingsGetter(
+    private val coastlineService: CoastlineService,
+    private val route: BaseRoute,
+    private val routeBuffer: Double = 100.0,
+) {
     /*
      * Returns list of bearings between each pair of coordinates in the coastline
      * Requires the coastline service to return the coordinates in a clockwise order.
