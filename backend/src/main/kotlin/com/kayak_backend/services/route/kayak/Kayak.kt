@@ -8,5 +8,6 @@ interface Kayak {
         dateTime: LocalDateTime,
         location: Location,
         bearing: Double,
+        kayakerSpeed: Double,
     ): Double
 }

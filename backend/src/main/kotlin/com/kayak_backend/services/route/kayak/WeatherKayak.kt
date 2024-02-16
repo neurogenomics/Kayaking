@@ -21,8 +21,8 @@ class WeatherKayak(
         dateTime: LocalDateTime,
         location: Location,
         bearing: Double,
+        kayakerSpeed: Double,
     ): Double {
-        val kayakerSpeed = 3.0
         val windinfo = windService.getWind(location, dateTime)
         val tideinfo = tideService.getTide(location, dateTime)
         val goalBearingRad = Math.toRadians(bearing)
