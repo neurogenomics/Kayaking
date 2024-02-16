@@ -12,10 +12,18 @@ import kotlin.test.assertEquals
 
 class RoutePlannerTest {
     private val legTimerMock = mockk<LegTimer>()
+
     private val polygon: Polygon
     private val location = Location(0.0, 0.0)
     private val startTime = LocalDateTime.now()
     private val duration = 50L
+    private val startPos: List<StartPos> =
+        listOf(
+            StartPos(Location(1.5, -1.5), "Start1"),
+            StartPos(Location(1.0, -1.0), "Start2"),
+            StartPos(Location(-1.5, -1.5), "Start3"),
+            StartPos(Location(-1.0, 1.0), "Start4"),
+        )
 
     init {
         val geometryFactory = GeometryFactory()
@@ -32,14 +40,6 @@ class RoutePlannerTest {
 
         polygon = geometryFactory.createPolygon(linearRing)
     }
-
-    private val startPos: List<StartPos> =
-        listOf(
-            StartPos(Location(1.5, -1.5), "Start1"),
-            StartPos(Location(1.0, -1.0), "Start2"),
-            StartPos(Location(-1.5, -1.5), "Start3"),
-            StartPos(Location(-1.0, 1.0), "Start4"),
-        )
 
     @Test
     fun generatesRoutesWhichStartAndEndAtValidPoints() {
