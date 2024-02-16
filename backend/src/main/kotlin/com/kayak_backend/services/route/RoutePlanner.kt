@@ -59,7 +59,8 @@ class RoutePlanner(
         for (location in route) {
             currentLegLocations.add(location)
             if (startPosOnRoute.contains(location)) {
-                sections.add(Leg.create(currentLegLocations))
+                val leg = Leg.create(currentLegLocations)
+                if (leg.locations.isNotEmpty()) sections.add(leg)
                 currentLegLocations = mutableListOf(location)
             }
         }

@@ -45,16 +45,29 @@ class RoutePlannerTest {
         }
     }
 
-    /*
-     * TODO:
-     *  route planner seems to have timing bugs when the start/end point of the polygon is a startpoint
-     * (i only say timing because the test would pass if i went through with the debugger but fail if i just ran it)
-     * the problem might of also included the fact that i had a start point already on the base route?
-     *
-     * */
-
     @Test
-    fun withOnlyOneStartPointDoesNotSplitRouteIntoSections() {}
+    fun routesGeneratedWhenOnlyOneStartPoint() {
+        val location = Location(0.0, 0.0)
+        val startTime = LocalDateTime.now()
+        val duration = 50L
+        val polygon = polygonMaker.createPolygon(polygonMaker.polygon1)
+        val start = StartPos(Location(1.0, 1.0), "test")
+        val routePlanner = RoutePlanner(polygon, listOf(start), 100000000)
+
+        every { legTimerMock.getDuration(any(), any()) } returns 4L
+
+        val result = (
+            routePlanner.generateRoutes(
+                { location distanceTo it.location < 1000000 },
+                { legTimerMock.getDuration(it, startTime) < duration * 60 },
+            ).take(5).toList()
+        )
+
+        for (route in result) {
+            assertEquals(route.locations.first(), start.location)
+            assertEquals(route.locations.last(), start.location)
+        }
+    }
 
     @Test
     fun returnsEmptySequenceWhenNoRoutesPossibleWithinDuration() {}

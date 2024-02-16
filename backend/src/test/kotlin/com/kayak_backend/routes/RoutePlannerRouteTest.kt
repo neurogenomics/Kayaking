@@ -10,7 +10,7 @@ import io.ktor.server.testing.testApplication
 import org.junit.Test
 import kotlin.test.assertEquals
 
-class PlanRouteRouteTest {
+class RoutePlannerRouteTest {
     @Test
     fun returnsGeneratedRoutes() =
         testApplication {
@@ -25,10 +25,6 @@ class PlanRouteRouteTest {
     @Test
     fun requiresLatParameter() =
         testApplication {
-            println("hi")
-            System.getenv().forEach {
-                println("key ${it.key} and val ${it.value}")
-            }
             val response = client.get("/planRoute?lng=20&duration=10.0")
             assertEquals(HttpStatusCode.BadRequest, response.status)
             assertEquals("Missing \"lat\" parameter.", response.bodyAsText())
