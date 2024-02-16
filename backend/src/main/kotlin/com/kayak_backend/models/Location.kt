@@ -6,7 +6,7 @@ import kotlin.math.cos
 import kotlin.math.sin
 import kotlin.math.sqrt
 
-private const val RADIUS: Double = 6371.0
+private const val RADIUS: Double = 6371.0 * 1000
 
 @Serializable
 data class Location(val latitude: Double, val longitude: Double) {
@@ -23,6 +23,24 @@ data class Location(val latitude: Double, val longitude: Double) {
         val c = 2 * atan2(sqrt(a), sqrt(1 - a))
 
         return RADIUS * c
+    }
+
+    infix fun bearingTo(coord2: Location): Double {
+        val lat1 = Math.toRadians(this.latitude)
+        val lon1 = Math.toRadians(this.longitude)
+        val lat2 = Math.toRadians(coord2.latitude)
+        val lon2 = Math.toRadians(coord2.longitude)
+
+        val dLon = lon2 - lon1
+
+        val y = sin(dLon) * cos(lat2)
+        val x = cos(lat1) * sin(lat2) - sin(lat1) * cos(lat2) * cos(dLon)
+
+        var initialBearing = atan2(y, x)
+        initialBearing = Math.toDegrees(initialBearing)
+        initialBearing = (initialBearing + 360) % 360
+
+        return initialBearing
     }
 }
 
