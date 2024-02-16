@@ -11,7 +11,7 @@ export const getRoute = async (
 ): Promise<Route[]> => {
   let url = `planRoute?lat=${startLocation.latitude}&lon=${startLocation.longitude}&duration=${durationInMins}`;
   if (date) {
-    url += `&startDateTime=${format(date, 'yyyy-MM-dd')}`;
+    url += `&startDateTime=${format(date, "yyyy-MM-dd'T'HH:mm:ss")}`;
   }
   return await getData<Route[]>(url);
 };
