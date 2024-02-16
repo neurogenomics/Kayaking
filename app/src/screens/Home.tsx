@@ -1,11 +1,14 @@
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList, Route } from '../routes';
-import React, { useCallback, useMemo, useRef } from 'react';
-import { View, StyleSheet, Text } from 'react-native';
+import React, { useMemo } from 'react';
+import { StyleSheet } from 'react-native';
 import MapView from 'react-native-maps';
 import { isleOfWight } from '../../constants';
 import BottomSheet from '@gorhom/bottom-sheet';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
+import Routes from '../components/Routes';
+import Filters from '../components/Filter';
 
 const styles = StyleSheet.create({
   container: {
@@ -26,16 +29,9 @@ const styles = StyleSheet.create({
 
 type HomeProps = NativeStackScreenProps<RootStackParamList, Route.HOME>;
 const HomeScreen: React.FC<HomeProps> = () => {
-  // ref
-  const bottomSheetRef = useRef<BottomSheet>(null);
+  const snapPoints = useMemo(() => ['15%', '50%', '90%'], []);
 
-  // variables
-  const snapPoints = useMemo(() => ['25%', '50%'], []);
-  console.log('handleSheetChanges');
-  // callbacks
-  const handleSheetChanges = useCallback((index: number) => {
-    console.log('handleSheetChanges', index);
-  }, []);
+  const Tab = createMaterialTopTabNavigator();
   return (
     <GestureHandlerRootView style={styles.container}>
       <MapView
@@ -43,15 +39,11 @@ const HomeScreen: React.FC<HomeProps> = () => {
         initialRegion={isleOfWight}
         rotateEnabled={false}
       ></MapView>
-      <BottomSheet
-        ref={bottomSheetRef}
-        index={1}
-        snapPoints={snapPoints}
-        onChange={handleSheetChanges}
-      >
-        <View style={styles.container}>
-          <Text>Awesome 🎉</Text>
-        </View>
+      <BottomSheet index={1} snapPoints={snapPoints}>
+        <Tab.Navigator>
+          <Tab.Screen name="Filter" component={Filters} />
+          <Tab.Screen name="Routes" component={Routes} />
+        </Tab.Navigator>
       </BottomSheet>
     </GestureHandlerRootView>
   );
