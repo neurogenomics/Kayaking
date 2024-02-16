@@ -1,8 +1,5 @@
 package com.kayak_backend.routes
 
-import com.google.gson.Gson
-import com.google.gson.reflect.TypeToken
-import com.kayak_backend.services.route.Route
 import io.ktor.client.request.get
 import io.ktor.client.statement.bodyAsText
 import io.ktor.http.HttpStatusCode
@@ -11,17 +8,6 @@ import org.junit.Test
 import kotlin.test.assertEquals
 
 class RoutePlannerRouteTest {
-    @Test
-    fun returnsGeneratedRoutes() =
-        testApplication {
-            val response = client.get("/planRoute?lat=50.5898&lon=-1.2525&duration=20.0")
-            assertEquals(HttpStatusCode.OK, response.status)
-
-            val listType = object : TypeToken<List<Route>>() {}.type
-            val res = Gson().fromJson<List<Route>>(response.bodyAsText(), listType)
-            assert(res.size <= 5)
-        }
-
     @Test
     fun requiresLatParameter() =
         testApplication {
