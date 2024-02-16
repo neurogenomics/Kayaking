@@ -9,13 +9,11 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 import Routes from '../components/Routes';
 import Filters from '../components/Filter';
-import { FAB } from 'react-native-paper';
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
 } from 'react-native-reanimated';
-import { COLORS } from '../colors';
-import { IconSource } from 'react-native-paper/lib/typescript/components/Icon';
+import WeatherFabs from '../components/WeatherFabs';
 
 const styles = StyleSheet.create({
   container: {
@@ -25,77 +23,31 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  container2: {
+  map: {
+    flex: 1,
     height: '100%',
     width: '100%',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: 'red',
-  },
-  map: {
-    flex: 1,
-    height: '50%',
-    width: '100%',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  fabGroup: {
-    position: 'absolute',
-    right: 0,
-    bottom: 0, // Adjust as needed
-  },
-  fab: {
-    backgroundColor: COLORS.fabUnselected,
   },
 });
 
 type HomeProps = NativeStackScreenProps<RootStackParamList, Route.HOME>;
 const HomeScreen: React.FC<HomeProps> = () => {
-  const snapPoints = useMemo(() => ['15%', '50%', '90%'], []);
-
-  const [layersOpen, setLayersOpen] = useState(false);
   const [fabsVisible, setFabsVisible] = useState(true);
-
-  //   const [layers, setLayers] = useState({
-  //     wind: false,
-  //     tide: false,
-  //     waveHeight: false,
-  //     sunset: false,
-  //   });
-
-  const icons = ['weather-sunset', 'waves-arrow-up'];
-
-  const [layers, setLayers] = useState([false, false]);
-
-  const actions = [
-    { icon: 'weather-sunset', property: 'sunset' },
-    { icon: 'waves-arrow-up', property: 'tide' },
-    { icon: 'waves-arrow-right', property: 'waveHeight' },
-    { icon: 'weather-windy', property: 'wind' },
-  ];
-
-  const Tab = createMaterialTopTabNavigator();
+  const snapPoints = useMemo(() => ['15%', '50%', '90%'], []);
   const bottomSheetPosition = useSharedValue<number>(0);
+  const Tab = createMaterialTopTabNavigator();
 
-  const viewTextStyle = useAnimatedStyle(() => {
+  const inverseBottomSheetSytle = useAnimatedStyle(() => {
     return {
       position: 'absolute',
       top: 0,
       right: 0,
       width: '100%',
-      height: bottomSheetPosition.value + 30,
+      height: bottomSheetPosition.value,
     };
   });
-
-  const handleActionPress = (index: number) => {
-    const property = actions[index].property;
-    if (property) {
-      setLayers((prevState) => ({
-        ...prevState,
-        [property]: !prevState[property],
-      }));
-    }
-  };
 
   return (
     <GestureHandlerRootView style={styles.container}>
@@ -104,37 +56,16 @@ const HomeScreen: React.FC<HomeProps> = () => {
         initialRegion={isleOfWight}
         rotateEnabled={false}
       ></MapView>
-      <Animated.View style={viewTextStyle} pointerEvents="box-none">
-        <FAB.Group
-          open={layersOpen && fabsVisible}
-          visible={fabsVisible}
-          style={styles.fabGroup}
-          fabStyle={styles.fab}
-          backdropColor={'transparent'}
-          icon="layers"
-          actions={actions.map((action, index) => ({
-            icon: action.icon,
-            onPress: () => handleActionPress(index),
-            style: {
-              backgroundColor: layers[action.property]
-                ? COLORS.fabSelected
-                : COLORS.fabUnselected,
-            },
-          }))}
-          onPress={() => setLayersOpen(!layersOpen)}
-          onStateChange={() => {}}
-        />
+      <Animated.View style={inverseBottomSheetSytle} pointerEvents="box-none">
+        <WeatherFabs visible={fabsVisible}></WeatherFabs>
       </Animated.View>
       <BottomSheet
-        index={1}
+        index={0}
         snapPoints={snapPoints}
         animatedPosition={bottomSheetPosition}
         onChange={(num) => {
-          if (num === 2) {
-            setFabsVisible(false);
-          } else {
-            setFabsVisible(true);
-          }
+          //Hide fabs when the sheet is at the top of the screen
+          setFabsVisible(num !== 2);
         }}
       >
         <Tab.Navigator>
