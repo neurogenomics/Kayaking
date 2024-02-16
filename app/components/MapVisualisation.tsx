@@ -4,11 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { UserInput } from '../src/models/userInputModel';
 import { LocationModel } from '../src/models/locationModel';
 import { isleOfWight } from '../constants';
-import {
-  GridModel,
-  GridType,
-  ResolutionModel,
-} from '../src/models/gridModel';
+import { GridModel, GridType, ResolutionModel } from '../src/models/gridModel';
 import { getGrid } from '../src/services/gridService';
 
 type MapVisualisationProps = {
@@ -43,18 +39,22 @@ export const MapVisualisation: React.FC<MapVisualisationProps> = () => {
     const markers: ArrowCoords[] = [];
     for (let i = 0; i < grid.latIndex.length; i++) {
       for (let j = 0; j < grid.lonIndex.length; j++) {
-        console.log('grid lon index ' + grid.lonIndex[i][j]);
-        console.log('grid lat index ' + grid.latIndex[i][j]);
+        const latitude: number = grid.latIndex[i];
+        const longitude: number = grid.lonIndex[j];
         // TODO: add direction to arrows
         const direction = getBearing(grid.grid[i][j].u, grid.grid[i][j].v);
         const bottom: LocationModel = {
-          longitude: grid.lonIndex[i][j] - gridRes.lonRes / 2,
-          latitude: grid.latIndex[i][j] - gridRes.latRes / 2,
+          longitude: longitude,
+          latitude: latitude - gridRes.latRes / 2,
         };
+        console.log("bottom")
+        console.log(bottom)
         const top: LocationModel = {
-          longitude: grid.lonIndex[i][j] + gridRes.lonRes / 2,
-          latitude: grid.latIndex[i][j] + gridRes.latRes / 2,
+          longitude: longitude,
+          latitude: latitude + gridRes.latRes / 2,
         };
+        console.log("top")
+        console.log(top)
         const x: LocationModel[] = [bottom, top];
         const arrowPoints: ArrowCoords = { coords: x };
         markers.push(arrowPoints);
