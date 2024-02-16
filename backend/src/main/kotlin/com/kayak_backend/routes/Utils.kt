@@ -13,6 +13,6 @@ fun getDateParameter(
         val maybeDateStr = parameters[name] ?: return LocalDateTime.now()
         return kotlinx.datetime.LocalDateTime.parse(maybeDateStr).toJavaLocalDateTime()
     } catch (e: IllegalArgumentException) {
-        throw ParameterConversionException(name, "Date in format YYYY-MM-DD")
+        throw ParameterConversionException(name, "Date in format YYYY-MM-DDTHH:mm:ss")
     }
 }
