@@ -1,7 +1,7 @@
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList, Route } from '../routes';
 import React, { useMemo, useState } from 'react';
-import { StyleSheet } from 'react-native';
+import { StyleSheet, Dimensions, View, Text } from 'react-native';
 import MapView from 'react-native-maps';
 import { isleOfWight } from '../../constants';
 import BottomSheet from '@gorhom/bottom-sheet';
@@ -14,6 +14,8 @@ import Animated, {
   useSharedValue,
 } from 'react-native-reanimated';
 import WeatherFabs from '../components/WeatherFabs';
+import Carousel from 'react-native-reanimated-carousel';
+import Index from '../components/Carosoul';
 
 const styles = StyleSheet.create({
   container: {
@@ -29,6 +31,12 @@ const styles = StyleSheet.create({
     width: '100%',
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  overlay: {
+    position: 'absolute',
+    top: 50,
+    width: '100%',
+    backgroundColor: 'rgba(255, 255, 255, 1)',
   },
 });
 
@@ -55,7 +63,11 @@ const HomeScreen: React.FC<HomeProps> = () => {
         style={styles.map}
         initialRegion={isleOfWight}
         rotateEnabled={false}
-      ></MapView>
+      >
+        <View style={styles.overlay}>
+          <Index></Index>
+        </View>
+      </MapView>
       <Animated.View style={inverseBottomSheetSytle} pointerEvents="box-none">
         <WeatherFabs visible={fabsVisible}></WeatherFabs>
       </Animated.View>
