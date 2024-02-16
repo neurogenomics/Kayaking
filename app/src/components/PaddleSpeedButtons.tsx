@@ -1,5 +1,5 @@
 import React from 'react';
-import { PaddleSpeed } from '../src/models/userInputModel';
+import { PaddleSpeed } from '../models/userInputModel';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 export const PaddleSpeedButtons: React.FC<{

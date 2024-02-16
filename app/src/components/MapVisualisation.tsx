@@ -1,16 +1,16 @@
 import MapView, { Marker } from 'react-native-maps';
 import { StyleSheet, View, Image, ImageSourcePropType } from 'react-native';
 import React, { useState, useEffect } from 'react';
-import { UserInput } from '../src/models/userInputModel';
-import { LocationModel } from '../src/models/locationModel';
-import { isleOfWight } from '../constants';
+import { UserInput } from '../models/userInputModel';
+import { LocationModel } from '../models/locationModel';
+import { isleOfWight } from '../../constants';
 import {
   GridModel,
   GridType,
   ResolutionModel,
   CoordRotation,
-} from '../src/models/gridModel';
-import { getGrid } from '../src/services/gridService';
+} from '../models/gridModel';
+import { getGrid } from '../services/gridService';
 import arrow from '../assets/arrow.png';
 
 type MapVisualisationProps = {
