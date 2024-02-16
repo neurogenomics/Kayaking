@@ -13,17 +13,23 @@ class RoutePlannerTest {
     private val legTimerMock = mockk<LegTimer>()
     private val polygonMaker = PolygonMaker()
 
+    private val startPos: List<StartPos> =
+        listOf(
+            StartPos(Location(1.5, -1.5), "Start1"),
+            StartPos(Location(1.0, -1.0), "Start2"),
+            StartPos(Location(-1.5, -1.5), "Start3"),
+            StartPos(Location(-1.0, 1.0), "Start4"),
+        )
+
     @Test
-    fun generatesRoutes() {
+    fun generatesRoutesWhichStartAndEndAtValidPoints() {
         val location = Location(0.0, 0.0)
         val startTime = LocalDateTime.now()
         val duration = 50L
-
         val polygon = polygonMaker.createPolygon(polygonMaker.polygon1)
-        val startPos = createStartPositions()
         val routePlanner = RoutePlanner(polygon, startPos, 100000000)
 
-        every { legTimerMock.getDuration(any(), any()) } returns 20L
+        every { legTimerMock.getDuration(any(), any()) } returns 4L
 
         val result = (
             routePlanner.generateRoutes(
@@ -31,8 +37,10 @@ class RoutePlannerTest {
                 { legTimerMock.getDuration(it, startTime) < duration * 60 },
             ).take(5).toList()
         )
-        result.forEach {
-            println("this is route length ${it.length} for route $it")
+
+        for (route in result) {
+            assert(startPos.any { it.location == route.locations.first() })
+            assert(startPos.any { it.location == route.locations.last() })
         }
     }
 
@@ -43,36 +51,6 @@ class RoutePlannerTest {
      * the problem might of also included the fact that i had a start point already on the base route?
      *
      * */
-    @Test
-    fun generatesRoutesWithStartOfPolygonStartPoint() {
-        val location = Location(5.0, 5.0)
-        val startTime = LocalDateTime.now()
-        val duration = 50L
-
-        val polygon = polygonMaker.createPolygon(polygonMaker.polygon2)
-        val startPos = createStartPositions()
-        val routePlanner = RoutePlanner(polygon, startPos)
-
-        every { legTimerMock.getDuration(any(), any()) } returns 49L
-
-        val result =
-            routePlanner.generateRoutes(
-                { location distanceTo it.location < 1000000000 },
-                { legTimerMock.getDuration(it, startTime) < duration * 60 },
-            ).take(5).toList()
-        result.forEach {
-            println(it)
-        }
-    }
-
-    private fun createStartPositions(): List<StartPos> {
-        return listOf(
-            StartPos(Location(1.5, -1.5), "Start1"),
-            StartPos(Location(1.0, -1.0), "Start2"),
-            StartPos(Location(-1.5, -1.5), "Start3"),
-            StartPos(Location(-1.0, 1.0), "Start4"),
-        )
-    }
 
     class PolygonMaker() {
         private val geometryFactory = GeometryFactory()
