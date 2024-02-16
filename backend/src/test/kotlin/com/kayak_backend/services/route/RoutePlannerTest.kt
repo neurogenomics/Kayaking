@@ -132,6 +132,38 @@ class RoutePlannerTest {
         }
     }
 
+    // SectionIterator tests
+    @Test
+    fun sectionIteratorHasNext() {
+        val routePlanner = RoutePlanner(polygon, startPos, 10)
+        val sectionIterator = routePlanner.SectionIterator()
+        assert(sectionIterator.hasNext())
+    }
+
+    @Test
+    fun sectionIteratorGetNext() {
+        val routePlanner = RoutePlanner(polygon, startPos, 10)
+        val sectionIterator = routePlanner.SectionIterator()
+
+        val loc1 = Location(-1.5, -1.5)
+        val loc2 = Location(-1.5, 1.5)
+        val loc3 = Location(1.5, 1.5)
+        val loc4 = Location(1.5, -1.5)
+
+        val leg1 = Leg.SingleLeg(loc1, loc2)
+        val leg2 = Leg.SingleLeg(loc2, loc3)
+        // leg to itself because it's the start and end point of the polygon
+        val leg3 = Leg.SingleLeg(loc3, loc3)
+        val leg4 = Leg.SingleLeg(loc3, loc4)
+        val leg5 = Leg.SingleLeg(loc4, loc1)
+
+        val expectedCombinedLeg1 = Leg.MultipleLegs(listOf(leg1, leg2, leg3, leg4))
+        val expectedCombinedLeg2 = Leg.MultipleLegs(listOf(leg5))
+
+        assertEquals(sectionIterator.next(), expectedCombinedLeg1)
+        assertEquals(sectionIterator.next(), expectedCombinedLeg2)
+    }
+
     // SectionCombiner tests
     @Test
     fun sectionCombinerHasNext() {
@@ -155,11 +187,14 @@ class RoutePlannerTest {
         // leg to itself because it's the start and end point of the polygon
         val leg3 = Leg.SingleLeg(loc3, loc3)
         val leg4 = Leg.SingleLeg(loc3, loc4)
+        val leg5 = Leg.SingleLeg(loc4, loc1)
 
         val expectedCombinedLeg = Leg.MultipleLegs(listOf(leg1, leg2, leg3, leg4))
 
-        val actualLeg = sectionCombiner.next()
+        val combinedLeg1 = sectionCombiner.next()
+        val combinedLeg2 = sectionCombiner.next()
 
-        assertEquals(expectedCombinedLeg, actualLeg)
+        assertEquals(expectedCombinedLeg, combinedLeg1)
+        assertEquals(combinedLeg2, Leg.MultipleLegs(listOf(combinedLeg1, Leg.MultipleLegs(listOf(leg5)))))
     }
 }
