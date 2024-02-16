@@ -8,6 +8,7 @@ import org.locationtech.jts.geom.GeometryFactory
 import org.locationtech.jts.geom.Polygon
 import java.time.LocalDateTime
 import kotlin.test.Test
+import kotlin.test.assertEquals
 
 class RoutePlannerTest {
     private val legTimerMock = mockk<LegTimer>()
@@ -51,6 +52,51 @@ class RoutePlannerTest {
      * the problem might of also included the fact that i had a start point already on the base route?
      *
      * */
+
+    @Test
+    fun withOnlyOneStartPointDoesNotSplitRouteIntoSections() {}
+
+    @Test
+    fun returnsEmptySequenceWhenNoRoutesPossibleWithinDuration() {}
+
+    @Test
+    fun returnsEmptySequenceWhenNoStartingPointsCloseEnough() {}
+
+    @Test
+    fun returnsLongestPossibleRoutesOutOfThoseGenerated() {}
+
+    @Test
+    fun sectionCombinerHasNext() {
+        val polygon = polygonMaker.createPolygon(polygonMaker.polygon1)
+        val routePlanner = RoutePlanner(polygon, startPos, 10)
+        val sectionCombiner = routePlanner.SectionCombiner()
+        assert(sectionCombiner.hasNext())
+    }
+
+    // SectionCombiner tests
+    @Test
+    fun sectionCombinerGetNext() {
+        val polygon = polygonMaker.createPolygon(polygonMaker.polygon1)
+        val routePlanner = RoutePlanner(polygon, startPos, 10000)
+        val sectionCombiner = routePlanner.SectionCombiner()
+
+        val loc1 = Location(-1.5, -1.5)
+        val loc2 = Location(-1.5, 1.5)
+        val loc3 = Location(1.5, 1.5)
+        val loc4 = Location(1.5, -1.5)
+
+        val leg1 = Leg.SingleLeg(loc1, loc2)
+        val leg2 = Leg.SingleLeg(loc2, loc3)
+        // leg to itself because it's the start and end point of the polygon
+        val leg3 = Leg.SingleLeg(loc3, loc3)
+        val leg4 = Leg.SingleLeg(loc3, loc4)
+
+        val expectedCombinedLeg = Leg.MultipleLegs(listOf(leg1, leg2, leg3, leg4))
+
+        val actualLeg = sectionCombiner.next()
+
+        assertEquals(expectedCombinedLeg, actualLeg)
+    }
 
     class PolygonMaker() {
         private val geometryFactory = GeometryFactory()
