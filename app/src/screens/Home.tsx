@@ -9,6 +9,11 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 import Routes from '../components/Routes';
 import Filters from '../components/Filter';
+import { FAB } from 'react-native-paper';
+import Animated, {
+  useAnimatedStyle,
+  useSharedValue,
+} from 'react-native-reanimated';
 
 const styles = StyleSheet.create({
   container: {
@@ -18,12 +23,30 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  container2: {
+    height: '100%',
+    width: '100%',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'red',
+  },
   map: {
     flex: 1,
     height: '50%',
     width: '100%',
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  fab: {
+    position: 'absolute',
+    margin: 16,
+    right: 0,
+    bottom: 200, // Adjust as needed
+  },
+  fab2: {
+    position: 'absolute',
+    right: 20,
+    bottom: 20, // Adjust as needed
   },
 });
 
@@ -32,6 +55,17 @@ const HomeScreen: React.FC<HomeProps> = () => {
   const snapPoints = useMemo(() => ['15%', '50%', '90%'], []);
 
   const Tab = createMaterialTopTabNavigator();
+  const bottomSheetPosition = useSharedValue<number>(0);
+
+  const viewTextStyle = useAnimatedStyle(() => {
+    return {
+      position: 'absolute',
+      top: 0,
+      right: 0,
+      height: bottomSheetPosition.value,
+    };
+  });
+
   return (
     <GestureHandlerRootView style={styles.container}>
       <MapView
@@ -39,7 +73,14 @@ const HomeScreen: React.FC<HomeProps> = () => {
         initialRegion={isleOfWight}
         rotateEnabled={false}
       ></MapView>
-      <BottomSheet index={1} snapPoints={snapPoints}>
+      <Animated.View style={viewTextStyle}>
+        <FAB style={styles.fab2} icon="plus"></FAB>
+      </Animated.View>
+      <BottomSheet
+        index={1}
+        snapPoints={snapPoints}
+        animatedPosition={bottomSheetPosition}
+      >
         <Tab.Navigator>
           <Tab.Screen name="Filter" component={Filters} />
           <Tab.Screen name="Routes" component={Routes} />
