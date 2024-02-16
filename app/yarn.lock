@@ -10862,6 +10862,11 @@ ts-interface-checker@^0.1.9:
   resolved "https://registry.yarnpkg.com/ts-interface-checker/-/ts-interface-checker-0.1.13.tgz#784fd3d679722bc103b1b4b8030bcddb5db2a699"
   integrity sha512-Y/arvbn+rrz3JCKl9C4kVNfTfSm2/mEp5FSz5EsZSANGPSlQrpRI5M4PKF+mJnE52jOO90PnPSc3Ur3bTQw0gA==
 
+ts-matrix@^1.3.2:
+  version "1.3.2"
+  resolved "https://registry.yarnpkg.com/ts-matrix/-/ts-matrix-1.3.2.tgz#a37ee7bf10583bf56348107454bc8d2bdaeb4a59"
+  integrity sha512-71NJc7aHSmzWa1xzgLpq0eusWK3YRhBiRJ3sJ1WdaDyQ0q0O0ABELB9iYN1lRIrdTRLAKfsUqaFdXQoV//tDCQ==
+
 tsconfig-paths@^3.15.0:
   version "3.15.0"
   resolved "https://registry.yarnpkg.com/tsconfig-paths/-/tsconfig-paths-3.15.0.tgz#5299ec605e55b1abb23ec939ef15edaf483070d4"

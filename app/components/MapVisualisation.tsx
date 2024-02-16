@@ -6,7 +6,7 @@ import { LocationModel } from '../src/models/locationModel';
 import { isleOfWight } from '../constants';
 import { GridModel, GridType, ResolutionModel } from '../src/models/gridModel';
 import { getGrid } from '../src/services/gridService';
-import * as math from 'mathjs';
+import { Vector, Matrix } from 'ts-matrix';
 
 type MapVisualisationProps = {
   navigation;
@@ -72,33 +72,34 @@ export const MapVisualisation: React.FC<MapVisualisationProps> = () => {
   };
 
   const rotateAroundPoint = (
-    loc: math.Matrix,
-    origin: math.Matrix,
+    loc: Vector,
+    origin: Vector,
     thetaRad: number,
   ): LocationModel => {
-    const diff = math.subtract(loc, origin);
+    const diff = loc.subtract(origin);
+    const diffMat = new Matrix(2, 1, [diff.values]);
 
     // Clockwise rotation matrix
-    const rotationMat = math.matrix([
+    const rotationMat = new Matrix(2, 2, [
       [Math.cos(thetaRad), Math.sin(thetaRad)],
       [-Math.sin(thetaRad), Math.cos(thetaRad)],
     ]);
-
-    const rotated = math.add(math.multiply(rotationMat, diff), origin);
+    const rotated = new Vector(rotationMat.multiply(diffMat).values[0]);
+    const final = rotated.add(diff);
 
     const rotatedModel: LocationModel = {
-      latitude: rotated.get([0]),
-      longitude: rotated.get([1]),
+      latitude: final.values[0],
+      longitude: final.values[1],
     };
 
     return rotatedModel;
   };
 
   function getArrow(
-    left: math.Matrix,
-    right: math.Matrix,
-    top: math.Matrix,
-    origin: math.Matrix,
+    left: Vector,
+    right: Vector,
+    top: Vector,
+    origin: Vector,
     thetaRad: number,
   ): Arrow {
     // Rotating arrow according to angle
@@ -123,9 +124,9 @@ export const MapVisualisation: React.FC<MapVisualisationProps> = () => {
     const intersectLat = perpEquation(intersectLon);
 
     // Create a matrix for the intersection point
-    const intersection = math.matrix([intersectLat, intersectLon]);
+    const intersection = new Vector([intersectLat, intersectLon]);
 
-    const topMat = math.matrix([topModel.latitude, topModel.longitude]);
+    const topMat = new Vector([topModel.latitude, topModel.longitude]);
 
     const bottomModel: LocationModel = rotateAroundPoint(
       topMat,
@@ -149,9 +150,9 @@ export const MapVisualisation: React.FC<MapVisualisationProps> = () => {
         const longitude: number = grid.lonIndex[j];
 
         // Coordinates of right facing arrow
-        const left = math.matrix([latitude, longitude - gridRes.lonRes / 3]);
-        const right = math.matrix([latitude, longitude + gridRes.lonRes / 3]);
-        const top = math.matrix([
+        const left = new Vector([latitude, longitude - gridRes.lonRes / 3]);
+        const right = new Vector([latitude, longitude + gridRes.lonRes / 3]);
+        const top = new Vector([
           latitude + gridRes.latRes / 9,
           longitude + gridRes.lonRes / 6,
         ]);
@@ -160,10 +161,10 @@ export const MapVisualisation: React.FC<MapVisualisationProps> = () => {
         const theta = Math.atan2(grid.grid[i][j].v, grid.grid[i][j].u);
 
         // Origin around which arrow is rotated
-        const origin = math.matrix([latitude, longitude]);
+        const origin = new Vector([latitude, longitude]);
 
         // Magnitude of vector
-        const magnitude: number = math.sqrt(
+        const magnitude: number = Math.sqrt(
           grid.grid[i][j].u ** 2 + grid.grid[i][j].v ** 2,
         );
 
