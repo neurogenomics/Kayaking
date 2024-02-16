@@ -6,6 +6,7 @@ import { LocationModel } from '../src/models/locationModel';
 import { isleOfWight } from '../constants';
 import { GridModel, GridType, ResolutionModel } from '../src/models/gridModel';
 import { getGrid } from '../src/services/gridService';
+import * as math from 'mathjs';
 
 type MapVisualisationProps = {
   navigation;
@@ -41,22 +42,46 @@ export const MapVisualisation: React.FC<MapVisualisationProps> = () => {
       for (let j = 0; j < grid.lonIndex.length; j++) {
         const latitude: number = grid.latIndex[i];
         const longitude: number = grid.lonIndex[j];
-        // TODO: add direction to arrows
-        const direction = getBearing(grid.grid[i][j].u, grid.grid[i][j].v);
-        const bottom: LocationModel = {
-          longitude: longitude,
-          latitude: latitude - gridRes.latRes / 2,
+        const left: LocationModel = {
+          longitude: longitude - gridRes.lonRes / 3,
+          latitude: latitude,
         };
-        console.log("bottom")
-        console.log(bottom)
-        const top: LocationModel = {
-          longitude: longitude,
-          latitude: latitude + gridRes.latRes / 2,
+        const right: LocationModel = {
+          longitude: longitude + gridRes.lonRes / 3,
+          latitude: latitude,
         };
-        console.log("top")
-        console.log(top)
-        const x: LocationModel[] = [bottom, top];
-        const arrowPoints: ArrowCoords = { coords: x };
+
+        const leftVec = math.matrix([latitude, longitude - gridRes.lonRes / 3]);
+        const rightVec = math.matrix([
+          latitude,
+          longitude + gridRes.lonRes / 3,
+        ]);
+        const origin = math.matrix([latitude, longitude - gridRes.lonRes / 3]);
+        const leftDiff = math.subtract(leftVec, origin);
+        const rightDiff = math.subtract(rightVec, origin);
+
+        const theta = getBearing(grid.grid[i][j].u, grid.grid[i][j].v);
+        const rotationMatrix = math.rotationMatrix(theta);
+
+        const newLeftVec = math.add(
+          math.multiply(rotationMatrix, leftDiff),
+          origin,
+        );
+        const newRightVec = math.add(
+          math.multiply(rotationMatrix, rightDiff),
+          origin,
+        );
+        const newLeft: LocationModel = {
+          latitude: newLeftVec.get([0]),
+          longitude: newLeftVec.get([1]),
+        };
+
+        const newRight: LocationModel = {
+          latitude: newRightVec.get([0]),
+          longitude: newRightVec.get([1]),
+        };
+        const z: LocationModel[] = [newLeft, newRight];
+        const arrowPoints: ArrowCoords = { coords: z };
         markers.push(arrowPoints);
       }
     }
@@ -64,19 +89,19 @@ export const MapVisualisation: React.FC<MapVisualisationProps> = () => {
   };
 
   const getArrowGrid = async () => {
+    let grid = null;
     try {
       console.log('hello???');
-      const grid: GridModel = await getGrid(
+      grid = await getGrid(
         GridType.WIND,
         gridStart,
         gridEnd,
         gridResolution,
       );
-      console.log('hello');
-      makeArrowCoordinates(grid, gridResolution);
     } catch (error) {
       console.log('Error getting grid: ', error);
     }
+    makeArrowCoordinates(grid, gridResolution);
   };
 
   const getBearing = (u: number, v: number) => {
@@ -86,11 +111,10 @@ export const MapVisualisation: React.FC<MapVisualisationProps> = () => {
       angleDegrees < 0
         ? Math.round(angleDegrees + 360)
         : Math.round(angleDegrees);
-    return angleDegrees;
+    return angleRadians;
   };
 
   useEffect(() => {
-    console.log('hi');
     getArrowGrid();
   }, []);
 
