@@ -13,9 +13,11 @@ import io.ktor.server.routing.*
 import io.ktor.server.routing.Route
 import io.ktor.server.util.*
 
-fun Route.planRoute() {
+fun Route.planRoute(
+    distanceFromCoast: Double = 500.0,
+    startPositionFilterDistance: Int = 5000,
+) {
     val coast = IsleOfWightCoastline().getCoastline()
-    val distanceFromCoast = 500.0
     val route = BaseRoute().createBaseRoute(coast, distanceFromCoast)
     val slipways = SlipwayService().getAllSlipways()
     val beaches = BeachesService().getAllBeaches()
@@ -34,7 +36,7 @@ fun Route.planRoute() {
             val location = Location(lat, lng)
             val routes =
                 routePlanner.generateRoutes(
-                    { location distanceTo it.location < 5000 },
+                    { location distanceTo it.location < startPositionFilterDistance },
                     { legTimer.getDuration(it, startTime) < duration * 60 },
                 ).take(5).toList()
             call.respond(routes)

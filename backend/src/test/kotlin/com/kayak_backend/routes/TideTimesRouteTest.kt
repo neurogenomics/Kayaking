@@ -8,12 +8,6 @@ import com.kayak_backend.services.tideTimes.AdmiraltyTideTimeService
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
-import io.ktor.serialization.kotlinx.json.*
-import io.ktor.server.config.*
-import io.ktor.server.plugins.*
-import io.ktor.server.plugins.contentnegotiation.*
-import io.ktor.server.plugins.statuspages.*
-import io.ktor.server.response.*
 import io.ktor.server.testing.*
 import io.mockk.every
 import io.mockk.mockk
