@@ -1,7 +1,7 @@
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList, Route } from '../routes';
-import React, { useMemo } from 'react';
-import { StyleSheet } from 'react-native';
+import React, { useMemo, useState } from 'react';
+import { StyleSheet, Text } from 'react-native';
 import MapView from 'react-native-maps';
 import { isleOfWight } from '../../constants';
 import BottomSheet from '@gorhom/bottom-sheet';
@@ -45,14 +45,16 @@ const styles = StyleSheet.create({
   },
   fab2: {
     position: 'absolute',
-    right: 20,
-    bottom: 20, // Adjust as needed
+    right: 0,
+    bottom: 0, // Adjust as needed
   },
 });
 
 type HomeProps = NativeStackScreenProps<RootStackParamList, Route.HOME>;
 const HomeScreen: React.FC<HomeProps> = () => {
   const snapPoints = useMemo(() => ['15%', '50%', '90%'], []);
+
+  const [open, setOpen] = useState(true);
 
   const Tab = createMaterialTopTabNavigator();
   const bottomSheetPosition = useSharedValue<number>(0);
@@ -62,7 +64,8 @@ const HomeScreen: React.FC<HomeProps> = () => {
       position: 'absolute',
       top: 0,
       right: 0,
-      height: bottomSheetPosition.value,
+      width: '100%',
+      height: bottomSheetPosition.value + 30,
     };
   });
 
@@ -74,7 +77,31 @@ const HomeScreen: React.FC<HomeProps> = () => {
         rotateEnabled={false}
       ></MapView>
       <Animated.View style={viewTextStyle}>
-        <FAB style={styles.fab2} icon="plus"></FAB>
+        {/* <FAB style={styles.fab2} icon="plus"></FAB> */}
+        <FAB.Group
+          open={open}
+          visible
+          style={styles.fab2}
+          backdropColor={'transparent'}
+          icon="plus"
+          actions={[
+            { icon: 'plus', onPress: () => setOpen(false) },
+            {
+              icon: 'star',
+              onPress: () => console.log('Pressed star'),
+            },
+            {
+              icon: 'email',
+              onPress: () => console.log('Pressed email'),
+            },
+            {
+              icon: 'bell',
+              onPress: () => console.log('Pressed notifications'),
+            },
+          ]}
+          onPress={() => setOpen(!open)}
+          onStateChange={() => {}}
+        />
       </Animated.View>
       <BottomSheet
         index={1}
