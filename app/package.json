@@ -17,6 +17,7 @@
     "@react-native-community/datetimepicker": "^7.6.2",
     "@react-native-community/geolocation": "^3.1.0",
     "@react-navigation/native": "^6.1.9",
+    "@react-navigation/native-stack": "^6.9.18",
     "@react-navigation/stack": "^6.3.20",
     "@types/react": "~18.2.14",
     "axios": "^1.6.7",
