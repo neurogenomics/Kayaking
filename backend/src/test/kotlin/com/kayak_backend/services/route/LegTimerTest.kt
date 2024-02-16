@@ -19,6 +19,9 @@ class LegTimerTest {
 
     @Test
     fun findsCompoundDurationForMultipleLegs() {
+        val res1 = legTimer.getDuration(Leg.SingleLeg(loc1, loc2), LocalDateTime.now())
+        val res2 = legTimer.getDuration(Leg.SingleLeg(loc2, loc3), LocalDateTime.now())
+        val res3 = legTimer.getDuration(Leg.SingleLeg(loc3, loc4), LocalDateTime.now())
         val res =
             legTimer.getDuration(
                 Leg.MultipleLegs(
@@ -34,6 +37,6 @@ class LegTimerTest {
                 ),
                 LocalDateTime.now(),
             )
-        assertEquals(res, 216612)
+        assertEquals(res, res1 + res2 + res3)
     }
 }
