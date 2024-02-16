@@ -7,6 +7,7 @@ import io.ktor.server.testing.testApplication
 import org.junit.Test
 import kotlin.test.assertEquals
 
+// TODO make this work without admirality api key
 class RoutePlannerRouteTest {
     @Test
     fun requiresLatParameter() =

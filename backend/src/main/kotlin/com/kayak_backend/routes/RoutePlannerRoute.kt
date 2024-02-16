@@ -12,12 +12,13 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.routing.Route
 import io.ktor.server.util.*
+import org.locationtech.jts.geom.Polygon
 
 fun Route.planRoute(
     distanceFromCoast: Double = 500.0,
     startPositionFilterDistance: Int = 5000,
+    coast: Polygon = IsleOfWightCoastline().getCoastline(),
 ) {
-    val coast = IsleOfWightCoastline().getCoastline()
     val route = BaseRoute().createBaseRoute(coast, distanceFromCoast)
     val slipways = SlipwayService().getAllSlipways()
     val beaches = BeachesService().getAllBeaches()
