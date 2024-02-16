@@ -1,4 +1,4 @@
-import MapView, { Polyline } from 'react-native-maps';
+import MapView, { Marker, Polyline } from 'react-native-maps';
 import { StyleSheet, View } from 'react-native';
 import React, { useState, useEffect } from 'react';
 import { UserInput } from '../src/models/userInputModel';
@@ -17,6 +17,7 @@ type MapVisualisationProps = {
 
 type ArrowCoords = {
   coords: LocationModel[];
+  magnitude: number;
 };
 
 export const MapVisualisation: React.FC<MapVisualisationProps> = () => {
@@ -32,8 +33,54 @@ export const MapVisualisation: React.FC<MapVisualisationProps> = () => {
     longitude: 0,
   };
   const gridResolution: ResolutionModel = {
-    latRes: 0.1,
-    lonRes: 0.1,
+    latRes: 0.05,
+    lonRes: 0.05,
+  };
+
+  // TODO: move these to colours file
+  const windColours: string[] = [
+    'rgb(173, 216, 230)',
+    'rgb(135, 206, 250)',
+    'rgb(0, 191, 255)',
+    'rgb(30, 144, 255)',
+    'rgb(0, 0, 255)',
+  ];
+
+  // Colours arrows according to the Beaufort scale
+  const getColour = (magnitude: number) => {
+    if (magnitude <= 1) {
+      return windColours[0];
+    } else if (magnitude <= 3) {
+      return windColours[1];
+    } else if (magnitude <= 6) {
+      return windColours[2];
+    } else if (magnitude <= 10) {
+      return windColours[3];
+    }
+    return windColours[4];
+  };
+
+  const rotateAroundPoint = (
+    loc: math.Matrix,
+    origin: math.Matrix,
+    thetaRad: number,
+  ): LocationModel => {
+    const diff = math.subtract(loc, origin);
+
+    // Clockwise rotation matrix
+    const rotationMat = math.matrix([
+      [Math.cos(thetaRad), Math.sin(thetaRad)],
+      [-Math.sin(thetaRad), Math.cos(thetaRad)],
+    ]);
+
+    const rotated = math.add(math.multiply(rotationMat, diff), origin);
+
+    const rotatedModel: LocationModel = {
+      latitude: rotated.get([0]),
+      longitude: rotated.get([1]),
+    };
+
+    return rotatedModel;
   };
 
   const makeArrowCoordinates = (grid: GridModel, gridRes: ResolutionModel) => {
@@ -42,46 +89,41 @@ export const MapVisualisation: React.FC<MapVisualisationProps> = () => {
       for (let j = 0; j < grid.lonIndex.length; j++) {
         const latitude: number = grid.latIndex[i];
         const longitude: number = grid.lonIndex[j];
-        const left: LocationModel = {
-          longitude: longitude - gridRes.lonRes / 3,
-          latitude: latitude,
-        };
-        const right: LocationModel = {
-          longitude: longitude + gridRes.lonRes / 3,
-          latitude: latitude,
-        };
 
-        const leftVec = math.matrix([latitude, longitude - gridRes.lonRes / 3]);
-        const rightVec = math.matrix([
-          latitude,
-          longitude + gridRes.lonRes / 3,
+        // Coordinates of right facing arrow
+        const left = math.matrix([latitude, longitude - gridRes.lonRes / 3]);
+        const right = math.matrix([latitude, longitude + gridRes.lonRes / 3]);
+        const top = math.matrix([
+          latitude + gridRes.latRes / 9,
+          longitude + gridRes.lonRes / 6,
         ]);
-        const origin = math.matrix([latitude, longitude - gridRes.lonRes / 3]);
-        const leftDiff = math.subtract(leftVec, origin);
-        const rightDiff = math.subtract(rightVec, origin);
+        const bottom = math.matrix([
+          latitude - gridRes.latRes / 9,
+          longitude + gridRes.lonRes / 6,
+        ]);
 
-        const theta = getBearing(grid.grid[i][j].u, grid.grid[i][j].v);
-        const rotationMatrix = math.rotationMatrix(theta);
+        const coordinates = [left, right, top, right, bottom];
 
-        const newLeftVec = math.add(
-          math.multiply(rotationMatrix, leftDiff),
-          origin,
+        // Bearing angle that the arrow needs to be rotated by
+        const theta = Math.atan2(grid.grid[i][j].v, grid.grid[i][j].u);
+
+        // Origin around which arrow is rotated
+        const origin = math.matrix([latitude, longitude]);
+
+        // Magnitude of vector
+        const magnitude: number = math.sqrt(
+          grid.grid[i][j].u ** 2 + grid.grid[i][j].v ** 2,
         );
-        const newRightVec = math.add(
-          math.multiply(rotationMatrix, rightDiff),
-          origin,
-        );
-        const newLeft: LocationModel = {
-          latitude: newLeftVec.get([0]),
-          longitude: newLeftVec.get([1]),
-        };
 
-        const newRight: LocationModel = {
-          latitude: newRightVec.get([0]),
-          longitude: newRightVec.get([1]),
+        const rotatedCoords: LocationModel[] = [];
+        for (let i = 0; i < coordinates.length; i++) {
+          rotatedCoords.push(rotateAroundPoint(coordinates[i], origin, theta));
+        }
+
+        const arrowPoints: ArrowCoords = {
+          coords: rotatedCoords,
+          magnitude: magnitude,
         };
-        const z: LocationModel[] = [newLeft, newRight];
-        const arrowPoints: ArrowCoords = { coords: z };
         markers.push(arrowPoints);
       }
     }
@@ -89,33 +131,21 @@ export const MapVisualisation: React.FC<MapVisualisationProps> = () => {
   };
 
   const getArrowGrid = async () => {
-    let grid = null;
     try {
-      console.log('hello???');
-      grid = await getGrid(
+      const grid = await getGrid(
         GridType.WIND,
         gridStart,
         gridEnd,
         gridResolution,
       );
+      makeArrowCoordinates(grid, gridResolution);
     } catch (error) {
       console.log('Error getting grid: ', error);
     }
-    makeArrowCoordinates(grid, gridResolution);
-  };
-
-  const getBearing = (u: number, v: number) => {
-    const angleRadians = Math.atan2(u, v);
-    let angleDegrees = angleRadians * (180 / Math.PI);
-    angleDegrees =
-      angleDegrees < 0
-        ? Math.round(angleDegrees + 360)
-        : Math.round(angleDegrees);
-    return angleRadians;
   };
 
   useEffect(() => {
-    getArrowGrid();
+    void getArrowGrid();
   }, []);
 
   return (
@@ -124,7 +154,11 @@ export const MapVisualisation: React.FC<MapVisualisationProps> = () => {
         {coords ? (
           coords.map((coord: ArrowCoords, index) => (
             <View key={index}>
-              <Polyline coordinates={coord.coords}></Polyline>
+              <Polyline
+                coordinates={coord.coords}
+                strokeWidth={1.5}
+                strokeColor={getColour(coord.magnitude)}
+              ></Polyline>
             </View>
           ))
         ) : (
