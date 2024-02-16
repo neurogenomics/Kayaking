@@ -132,6 +132,7 @@ class RoutePlannerTest {
         }
     }
 
+    // SectionCombiner tests
     @Test
     fun sectionCombinerHasNext() {
         val routePlanner = RoutePlanner(polygon, startPos, 10)
@@ -139,7 +140,6 @@ class RoutePlannerTest {
         assert(sectionCombiner.hasNext())
     }
 
-    // SectionCombiner tests
     @Test
     fun sectionCombinerGetNext() {
         val routePlanner = RoutePlanner(polygon, startPos, 10000)
