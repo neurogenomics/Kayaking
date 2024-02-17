@@ -1,5 +1,4 @@
 import { Polyline } from 'react-native-maps';
-import { StyleSheet, View } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import { LocationModel } from '../models/locationModel';
 import { GridModel, GridType, ResolutionModel } from '../models/gridModel';
@@ -8,10 +7,7 @@ import { Matrix, Vector } from 'ts-matrix';
 import { tideColorMap, windColorMap } from '../colors';
 
 type MapVisualisationProps = {
-  navigation;
-  route: {
-    params: { display: GridType };
-  };
+  display: GridType;
 };
 
 type Arrow = {
@@ -27,7 +23,7 @@ type ArrowCoords = {
 };
 
 export const MapVisualisation: React.FC<MapVisualisationProps> = ({
-  route,
+  display,
 }) => {
   const [coords, setCoords] = useState<ArrowCoords[]>();
 
@@ -165,12 +161,7 @@ export const MapVisualisation: React.FC<MapVisualisationProps> = ({
 
   const getArrowGrid = async () => {
     try {
-      const grid = await getGrid(
-        route.params.display,
-        gridStart,
-        gridEnd,
-        gridResolution,
-      );
+      const grid = await getGrid(display, gridStart, gridEnd, gridResolution);
       makeArrowCoordinates(grid, gridResolution);
     } catch (error) {
       console.log('Error getting grid: ', error);
@@ -192,30 +183,19 @@ export const MapVisualisation: React.FC<MapVisualisationProps> = ({
   }, []);
 
   return (
-    <View style={styles.mapContainer}>
+    <>
       {coords ? (
-        coords.map((coord: ArrowCoords, index) => (
-          <View key={index}>
-            <Polyline
-              coordinates={coord.coords}
-              strokeWidth={2}
-              strokeColor={getColor(coord.magnitude, route.params.display)}
-            ></Polyline>
-          </View>
+        coords.map((coord, index) => (
+          <Polyline
+            key={index}
+            coordinates={coord.coords}
+            strokeWidth={2}
+            strokeColor={getColor(coord.magnitude, display)}
+          />
         ))
       ) : (
-        <View />
+        <></>
       )}
-    </View>
+    </>
   );
 };
-
-const styles = StyleSheet.create({
-  mapContainer: {
-    flex: 1,
-    height: '100%',
-    width: '100%',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});

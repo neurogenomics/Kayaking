@@ -14,6 +14,8 @@ import Animated, {
   useSharedValue,
 } from 'react-native-reanimated';
 import WeatherFabs from '../components/WeatherFabs';
+import { MapVisualisation } from '../components/MapVisualisation';
+import { GridType } from '../models/gridModel';
 
 const styles = StyleSheet.create({
   container: {
@@ -35,11 +37,12 @@ const styles = StyleSheet.create({
 type HomeProps = NativeStackScreenProps<RootStackParamList, Route.HOME>;
 const HomeScreen: React.FC<HomeProps> = () => {
   const [fabsVisible, setFabsVisible] = useState(true);
+  const [weatherMap, setWeatherMap] = useState<GridType | null>();
   const snapPoints = useMemo(() => ['15%', '50%', '90%'], []);
   const bottomSheetPosition = useSharedValue<number>(0);
   const Tab = createMaterialTopTabNavigator();
 
-  const inverseBottomSheetSytle = useAnimatedStyle(() => {
+  const inverseBottomSheetStyle = useAnimatedStyle(() => {
     return {
       position: 'absolute',
       top: 0,
@@ -56,9 +59,15 @@ const HomeScreen: React.FC<HomeProps> = () => {
         initialRegion={isleOfWight}
         provider={PROVIDER_GOOGLE}
         rotateEnabled={true}
-      ></MapView>
-      <Animated.View style={inverseBottomSheetSytle} pointerEvents="box-none">
-        <WeatherFabs visible={fabsVisible}></WeatherFabs>
+        scrollEnabled={true}
+      >
+        {weatherMap ? <MapVisualisation display={weatherMap} /> : <></>}
+      </MapView>
+      <Animated.View style={inverseBottomSheetStyle} pointerEvents="box-none">
+        <WeatherFabs
+          visible={fabsVisible}
+          setWeatherMap={setWeatherMap}
+        ></WeatherFabs>
       </Animated.View>
       <BottomSheet
         index={0}

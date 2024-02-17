@@ -15,11 +15,3 @@ export type GridModel = {
   latIndex: number[];
   lonIndex: number[];
 };
-
-export type CoordRotation = {
-  coord: {
-    longitude: number;
-    latitude: number;
-  };
-  direction: number;
-};

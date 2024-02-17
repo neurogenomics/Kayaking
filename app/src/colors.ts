@@ -13,8 +13,8 @@ interface WeatherCategory {
 export const windColorMap: WeatherCategory[] = [
   { rating: 'Calm', maxMagnitude: 1, color: 'rgb(173, 216, 230)' }, // Light Blue
   { rating: 'Light Breeze', maxMagnitude: 3, color: 'rgb(135, 206, 250)' }, // Sky Blue
-  { rating: 'Gentle Breeze', maxMagnitude: 6, color: 'rgb(0, 191, 255)' }, // Deep Sky Blue
-  { rating: 'Moderate Breeze', maxMagnitude: 10, color: 'rgb(30, 144, 255)' }, // Dodger Blue
+  { rating: 'Gentle Breeze', maxMagnitude: 4, color: 'rgb(0, 191, 255)' }, // Deep Sky Blue
+  { rating: 'Moderate Breeze', maxMagnitude: 6, color: 'rgb(30, 144, 255)' }, // Dodger Blue
   { rating: 'Fresh Breeze', maxMagnitude: Infinity, color: 'rgb(0, 0, 255)' }, // Blue
 ];
 
