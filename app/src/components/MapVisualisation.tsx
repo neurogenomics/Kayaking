@@ -1,11 +1,12 @@
+import { getWindColour } from '../colors';
 import MapView, { Polyline, PROVIDER_GOOGLE } from 'react-native-maps';
 import { StyleSheet, View } from 'react-native';
 import React, { useEffect, useState } from 'react';
-import { UserInput } from '../src/models/userInputModel';
-import { LocationModel } from '../src/models/locationModel';
-import { isleOfWight } from '../constants';
-import { GridModel, GridType, ResolutionModel } from '../src/models/gridModel';
-import { getGrid } from '../src/services/gridService';
+import { UserInput } from '../models/userInputModel';
+import { LocationModel } from '../models/locationModel';
+import { isleOfWight } from '../../constants';
+import { GridModel, GridType, ResolutionModel } from '../models/gridModel';
+import { getGrid } from '../services/gridService';
 import { Matrix, Vector } from 'ts-matrix';
 
 type MapVisualisationProps = {
@@ -42,33 +43,6 @@ export const MapVisualisation: React.FC<MapVisualisationProps> = () => {
   const gridResolution: ResolutionModel = {
     latRes: 0.05,
     lonRes: 0.05,
-  };
-
-  // TODO: put this in colours file
-  interface ColorMap {
-    [category: string]: string;
-  }
-
-  const windColorMap: ColorMap = {
-    Calm: 'rgb(173, 216, 230)', // Light Blue
-    'Light Breeze': 'rgb(135, 206, 250)', // Sky Blue
-    'Gentle Breeze': 'rgb(0, 191, 255)', // Deep Sky Blue
-    'Moderate Breeze': 'rgb(30, 144, 255)', // Dodger Blue
-    'Fresh Breeze': 'rgb(0, 0, 255)', // Blue
-  };
-
-  // Colours arrows according to the Beaufort scale
-  const getColour = (magnitude: number) => {
-    if (magnitude <= 1) {
-      return windColorMap['Calm'];
-    } else if (magnitude <= 3) {
-      return windColorMap['Light Breeze'];
-    } else if (magnitude <= 6) {
-      return windColorMap['Gentle Breeze'];
-    } else if (magnitude <= 10) {
-      return windColorMap['Moderate Breeze'];
-    }
-    return windColorMap['Fresh Breeze'];
   };
 
   const rotateAroundPoint = (
@@ -151,31 +125,25 @@ export const MapVisualisation: React.FC<MapVisualisationProps> = () => {
         const longitude: number = grid.lonIndex[j];
 
         // Coordinates of right facing arrow
-        const left: Vector = new Vector([
-          latitude,
-          longitude - gridRes.lonRes / 3,
-        ]);
-        const right: Vector = new Vector([
-          latitude,
-          longitude + gridRes.lonRes / 3,
-        ]);
-        const top: Vector = new Vector([
+        const left = new Vector([latitude, longitude - gridRes.lonRes / 3]);
+        const right = new Vector([latitude, longitude + gridRes.lonRes / 3]);
+        const top = new Vector([
           latitude + gridRes.latRes / 9,
           longitude + gridRes.lonRes / 6,
         ]);
 
         // Bearing angle that the arrow needs to be rotated by
-        const theta: number = Math.atan2(grid.grid[i][j].v, grid.grid[i][j].u);
+        const theta = Math.atan2(grid.grid[i][j].v, grid.grid[i][j].u);
 
         // Origin around which arrow is rotated
-        const origin: Vector = new Vector([latitude, longitude]);
+        const origin = new Vector([latitude, longitude]);
 
         // Magnitude of vector
         const magnitude: number = Math.sqrt(
           grid.grid[i][j].u ** 2 + grid.grid[i][j].v ** 2,
         );
 
-        const arrow: Arrow = getArrow(left, right, top, origin, theta);
+        const arrow = getArrow(left, right, top, origin, theta);
 
         const arrowPoints: ArrowCoords = {
           coords: [
@@ -225,7 +193,7 @@ export const MapVisualisation: React.FC<MapVisualisationProps> = () => {
               <Polyline
                 coordinates={coord.coords}
                 strokeWidth={2}
-                strokeColor={getColour(coord.magnitude)}
+                strokeColor={getWindColour(coord.magnitude)}
               ></Polyline>
             </View>
           ))

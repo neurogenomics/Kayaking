@@ -11,11 +11,9 @@ export const getGrid = async (
   date?: Date,
 ): Promise<GridModel> => {
   let url = type === GridType.TIDE ? 'tideGrid' : 'windGrid';
-  console.log(url);
   url += `?latFrom=${fromLocation.latitude}&latTo=${toLocation.latitude}&lonFrom=${fromLocation.longitude}&lonTo=${toLocation.longitude}&latRes=${resolution.latRes}&lonRes=${resolution.lonRes}`;
   if (date) {
     url += `&datetime=${format(date, "yyyy-MM-dd'T'HH:mm:ss")}`;
   }
-  console.log(url);
   return await getData(url);
 };
