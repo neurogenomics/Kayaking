@@ -1,12 +1,12 @@
-import MapView, {Polyline, PROVIDER_GOOGLE} from 'react-native-maps';
-import {StyleSheet, View} from 'react-native';
-import React, {useEffect, useState} from 'react';
-import {UserInput} from '../src/models/userInputModel';
-import {LocationModel} from '../src/models/locationModel';
-import {isleOfWight} from '../constants';
-import {GridModel, GridType, ResolutionModel} from '../src/models/gridModel';
-import {getGrid} from '../src/services/gridService';
-import {Matrix, Vector} from 'ts-matrix';
+import MapView, { Polyline, PROVIDER_GOOGLE } from 'react-native-maps';
+import { StyleSheet, View } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { UserInput } from '../src/models/userInputModel';
+import { LocationModel } from '../src/models/locationModel';
+import { isleOfWight } from '../constants';
+import { GridModel, GridType, ResolutionModel } from '../src/models/gridModel';
+import { getGrid } from '../src/services/gridService';
+import { Matrix, Vector } from 'ts-matrix';
 
 type MapVisualisationProps = {
   navigation;
