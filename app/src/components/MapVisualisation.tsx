@@ -1,18 +1,16 @@
-import { getWindColour } from '../colors';
-import MapView, { Polyline, PROVIDER_GOOGLE } from 'react-native-maps';
+import { Polyline } from 'react-native-maps';
 import { StyleSheet, View } from 'react-native';
 import React, { useEffect, useState } from 'react';
-import { UserInput } from '../models/userInputModel';
 import { LocationModel } from '../models/locationModel';
-import { isleOfWight } from '../../constants';
 import { GridModel, GridType, ResolutionModel } from '../models/gridModel';
 import { getGrid } from '../services/gridService';
 import { Matrix, Vector } from 'ts-matrix';
+import { tideColorMap, windColorMap } from '../colors';
 
 type MapVisualisationProps = {
   navigation;
   route: {
-    params: { user: UserInput };
+    params: { display: GridType };
   };
 };
 
@@ -28,7 +26,9 @@ type ArrowCoords = {
   magnitude: number;
 };
 
-export const MapVisualisation: React.FC<MapVisualisationProps> = () => {
+export const MapVisualisation: React.FC<MapVisualisationProps> = ({
+  route,
+}) => {
   const [coords, setCoords] = useState<ArrowCoords[]>();
 
   // TODO: get constants from server
@@ -40,6 +40,7 @@ export const MapVisualisation: React.FC<MapVisualisationProps> = () => {
     latitude: 51,
     longitude: 0,
   };
+  // TODO: add feature so resolution increases as user zooms
   const gridResolution: ResolutionModel = {
     latRes: 0.05,
     lonRes: 0.05,
@@ -82,6 +83,7 @@ export const MapVisualisation: React.FC<MapVisualisationProps> = () => {
     const rightModel = rotateAroundPoint(right, origin, thetaRad);
     const topModel = rotateAroundPoint(top, origin, thetaRad);
 
+    // Maths to reflect the top vertex of the arrow along the arrow line to get the bottom vertex
     const slope: number =
       (rightModel.latitude - leftModel.latitude) /
       (rightModel.longitude - leftModel.longitude);
@@ -100,9 +102,9 @@ export const MapVisualisation: React.FC<MapVisualisationProps> = () => {
 
     // Create a matrix for the intersection point
     const intersection = new Vector([intersectLat, intersectLon]);
-
     const topMat = new Vector([topModel.latitude, topModel.longitude]);
 
+    // Rotating top point 180 degrees around the intersection point to get the new point
     const bottomModel: LocationModel = rotateAroundPoint(
       topMat,
       intersection,
@@ -138,7 +140,7 @@ export const MapVisualisation: React.FC<MapVisualisationProps> = () => {
         // Origin around which arrow is rotated
         const origin = new Vector([latitude, longitude]);
 
-        // Magnitude of vector
+        // Magnitude of wind/tide vector
         const magnitude: number = Math.sqrt(
           grid.grid[i][j].u ** 2 + grid.grid[i][j].v ** 2,
         );
@@ -164,7 +166,7 @@ export const MapVisualisation: React.FC<MapVisualisationProps> = () => {
   const getArrowGrid = async () => {
     try {
       const grid = await getGrid(
-        GridType.WIND,
+        route.params.display,
         gridStart,
         gridEnd,
         gridResolution,
@@ -175,32 +177,35 @@ export const MapVisualisation: React.FC<MapVisualisationProps> = () => {
     }
   };
 
+  const getColor = (magnitude: number, palette: GridType): string => {
+    const map = palette === GridType.WIND ? windColorMap : tideColorMap;
+    for (const category of map) {
+      if (magnitude <= category.maxMagnitude) {
+        return category.color;
+      }
+    }
+    return 'black';
+  };
+
   useEffect(() => {
     void getArrowGrid();
   }, []);
 
   return (
     <View style={styles.mapContainer}>
-      <MapView
-        style={styles.map}
-        initialRegion={isleOfWight}
-        provider={PROVIDER_GOOGLE}
-        rotateEnabled={true}
-      >
-        {coords ? (
-          coords.map((coord: ArrowCoords, index) => (
-            <View key={index}>
-              <Polyline
-                coordinates={coord.coords}
-                strokeWidth={2}
-                strokeColor={getWindColour(coord.magnitude)}
-              ></Polyline>
-            </View>
-          ))
-        ) : (
-          <View />
-        )}
-      </MapView>
+      {coords ? (
+        coords.map((coord: ArrowCoords, index) => (
+          <View key={index}>
+            <Polyline
+              coordinates={coord.coords}
+              strokeWidth={2}
+              strokeColor={getColor(coord.magnitude, route.params.display)}
+            ></Polyline>
+          </View>
+        ))
+      ) : (
+        <View />
+      )}
     </View>
   );
 };
@@ -209,13 +214,6 @@ const styles = StyleSheet.create({
   mapContainer: {
     flex: 1,
     height: '100%',
-    width: '100%',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  map: {
-    flex: 1,
-    height: '50%',
     width: '100%',
     alignItems: 'center',
     justifyContent: 'center',

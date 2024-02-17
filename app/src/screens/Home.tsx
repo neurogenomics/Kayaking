@@ -2,7 +2,7 @@ import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList, Route } from '../routes';
 import React, { useMemo, useState } from 'react';
 import { StyleSheet } from 'react-native';
-import MapView, {PROVIDER_GOOGLE} from 'react-native-maps';
+import MapView, { PROVIDER_GOOGLE } from 'react-native-maps';
 import { isleOfWight } from '../../constants';
 import BottomSheet from '@gorhom/bottom-sheet';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
@@ -55,6 +55,7 @@ const HomeScreen: React.FC<HomeProps> = () => {
         style={styles.map}
         initialRegion={isleOfWight}
         provider={PROVIDER_GOOGLE}
+        rotateEnabled={true}
       ></MapView>
       <Animated.View style={inverseBottomSheetSytle} pointerEvents="box-none">
         <WeatherFabs visible={fabsVisible}></WeatherFabs>
