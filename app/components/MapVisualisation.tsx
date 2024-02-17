@@ -1,12 +1,12 @@
-import MapView, { Polyline, PROVIDER_GOOGLE } from 'react-native-maps';
-import { StyleSheet, View } from 'react-native';
-import React, { useEffect, useState } from 'react';
-import { UserInput } from '../src/models/userInputModel';
-import { LocationModel } from '../src/models/locationModel';
-import { isleOfWight } from '../constants';
-import { GridModel, GridType, ResolutionModel } from '../src/models/gridModel';
-import { getGrid } from '../src/services/gridService';
-import { Vector, Matrix } from 'ts-matrix';
+import MapView, {Polyline, PROVIDER_GOOGLE} from 'react-native-maps';
+import {StyleSheet, View} from 'react-native';
+import React, {useEffect, useState} from 'react';
+import {UserInput} from '../src/models/userInputModel';
+import {LocationModel} from '../src/models/locationModel';
+import {isleOfWight} from '../constants';
+import {GridModel, GridType, ResolutionModel} from '../src/models/gridModel';
+import {getGrid} from '../src/services/gridService';
+import {Matrix, Vector} from 'ts-matrix';
 
 type MapVisualisationProps = {
   navigation;
@@ -77,22 +77,23 @@ export const MapVisualisation: React.FC<MapVisualisationProps> = () => {
     thetaRad: number,
   ): LocationModel => {
     const diff = loc.subtract(origin);
-    const diffMat = new Matrix(2, 1, [diff.values]);
+    const diffMat = new Matrix(2, 1, [[diff.values[0]], [diff.values[1]]]);
 
     // Clockwise rotation matrix
     const rotationMat = new Matrix(2, 2, [
       [Math.cos(thetaRad), Math.sin(thetaRad)],
       [-Math.sin(thetaRad), Math.cos(thetaRad)],
     ]);
-    const rotated = new Vector(rotationMat.multiply(diffMat).values[0]);
-    const final = rotated.add(diff);
+    const flattenMul = rotationMat
+      .multiply(diffMat)
+      .values.reduce((accumulator, value) => accumulator.concat(value));
+    const rotated: Vector = new Vector(flattenMul);
+    const final: Vector = rotated.add(origin);
 
-    const rotatedModel: LocationModel = {
+    return {
       latitude: final.values[0],
       longitude: final.values[1],
     };
-
-    return rotatedModel;
   };
 
   function getArrow(
@@ -112,7 +113,7 @@ export const MapVisualisation: React.FC<MapVisualisationProps> = () => {
       (rightModel.longitude - leftModel.longitude);
     const perpSlope: number = -1 / slope;
 
-    const perpEquation = (longitude) =>
+    const perpEquation = (longitude: number) =>
       perpSlope * (longitude - topModel.longitude) + topModel.latitude;
 
     const intersectLon =
@@ -150,18 +151,24 @@ export const MapVisualisation: React.FC<MapVisualisationProps> = () => {
         const longitude: number = grid.lonIndex[j];
 
         // Coordinates of right facing arrow
-        const left = new Vector([latitude, longitude - gridRes.lonRes / 3]);
-        const right = new Vector([latitude, longitude + gridRes.lonRes / 3]);
-        const top = new Vector([
+        const left: Vector = new Vector([
+          latitude,
+          longitude - gridRes.lonRes / 3,
+        ]);
+        const right: Vector = new Vector([
+          latitude,
+          longitude + gridRes.lonRes / 3,
+        ]);
+        const top: Vector = new Vector([
           latitude + gridRes.latRes / 9,
           longitude + gridRes.lonRes / 6,
         ]);
 
         // Bearing angle that the arrow needs to be rotated by
-        const theta = Math.atan2(grid.grid[i][j].v, grid.grid[i][j].u);
+        const theta: number = Math.atan2(grid.grid[i][j].v, grid.grid[i][j].u);
 
         // Origin around which arrow is rotated
-        const origin = new Vector([latitude, longitude]);
+        const origin: Vector = new Vector([latitude, longitude]);
 
         // Magnitude of vector
         const magnitude: number = Math.sqrt(
