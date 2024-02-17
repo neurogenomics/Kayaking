@@ -171,4 +171,17 @@ class NetCDFReaderTest {
             )
         }
     }
+
+    @Test
+    fun returnsCorrectTimeRange() {
+        val startTime = LocalDateTime.of(2024, 1, 25, 12, 0, 0)
+        val length = 49
+        val timeRange =
+            netCDFGribReader.getTimeRange(
+                testTideGribConf.filePath,
+            )
+        assertEquals(length, timeRange.size)
+        assertEquals(startTime, timeRange[0])
+        assertEquals(startTime.plusHours(length.toLong() - 1), timeRange.last())
+    }
 }

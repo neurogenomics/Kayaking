@@ -10,6 +10,8 @@ import com.kayak_backend.services.tideTimes.AdmiraltyTideTimeService
 import com.kayak_backend.services.tideTimes.TideTimeService
 import com.kayak_backend.services.tides.GribTideFetcher
 import com.kayak_backend.services.tides.TideService
+import com.kayak_backend.services.times.GribTimeService
+import com.kayak_backend.services.times.TimeService
 import com.kayak_backend.services.wind.GribWindFetcher
 import com.kayak_backend.services.wind.WindService
 import kotlinx.serialization.Serializable
@@ -101,4 +103,17 @@ fun getTideTimeService(
 
         else -> throw UnsupportedOperationException("TideTime Conf required")
     }
+}
+
+fun getTimeService(conf: Conf): TimeService {
+    if (conf.tideService == "grib" && conf.tideGribConf != null) {
+        return with(conf.tideGribConf) {
+            GribTimeService(getGribReader(this.gribReader), this.filePath)
+        }
+    } else if (conf.windService == "grib" && conf.windGribConf != null) {
+        return with(conf.windGribConf) {
+            GribTimeService(getGribReader(this.gribReader), this.filePath)
+        }
+    }
+    throw IllegalStateException("We do not support time services if data is not fetched from grib")
 }
