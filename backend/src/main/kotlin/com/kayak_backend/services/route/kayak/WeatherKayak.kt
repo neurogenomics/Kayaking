@@ -13,22 +13,20 @@ class WeatherKayak(
     private val windService: WindService = getWindService(getConf("./config.yaml")),
     private val tideService: TideService = getTideService(getConf("./config.yaml")),
 ) : Kayak {
-    // factors that wind and tide speed impact kayaker speed
-    private val windMult = 0.2
-    private val tideMult = 0.5
+    // TODO: need a way to change this based on request from frontend?
+    private var kayakerSpeed: Double = 1.54
 
     override fun getSpeed(
         dateTime: LocalDateTime,
         location: Location,
         bearing: Double,
-        kayakerSpeed: Double,
     ): Double {
         val windinfo = windService.getWind(location, dateTime)
         val tideinfo = tideService.getTide(location, dateTime)
         val goalBearingRad = Math.toRadians(bearing)
 
-        val weatherU: Double = windinfo.u * windMult + tideinfo.u * tideMult
-        val weatherV: Double = windinfo.v * windMult + tideinfo.v * tideMult
+        val weatherU: Double = windinfo.u * WIND_MULT + tideinfo.u * TIDE_MULT
+        val weatherV: Double = windinfo.v * WIND_MULT + tideinfo.v * TIDE_MULT
         val weatherBearing = (atan2(weatherU, weatherV) + 2 * PI) % (2 * PI)
         val sqr: (Double) -> Double = { it * it }
         val weatherMag = sqrt(sqr(weatherU) + sqr(weatherV))
@@ -53,6 +51,10 @@ class WeatherKayak(
         return resultSpeed
     }
 
+    fun setKayakerSpeed(speed: Double)  {
+        this.kayakerSpeed = speed
+    }
+
     private fun findThirdSideOfTriangle(
         sideA: Double,
         sideB: Double,
@@ -61,5 +63,11 @@ class WeatherKayak(
         val angleB = asin(sin(angleA) * (sideB / sideA))
         val angleC = PI - angleA - angleB
         return sideA * sin(angleC) / sin(angleA)
+    }
+
+    companion object {
+        // factors that wind and tide speed impact kayaker speed
+        private const val WIND_MULT = 0.2
+        private const val TIDE_MULT = 0.5
     }
 }

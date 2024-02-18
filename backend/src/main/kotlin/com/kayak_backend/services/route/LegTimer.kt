@@ -1,7 +1,6 @@
 package com.kayak_backend.services.route
 
 import com.kayak_backend.models.Location
-import com.kayak_backend.services.route.kayak.DEFAULT_KAYAK_SPEED
 import com.kayak_backend.services.route.kayak.Kayak
 import java.time.LocalDateTime
 import java.time.ZoneOffset
@@ -32,7 +31,7 @@ class LegTimer(private val kayak: Kayak) {
                         (leg.start.longitude + leg.start.longitude) / 2,
                     )
 
-                (leg.length / kayak.getSpeed(dateTime, midpoint, leg.bearing, DEFAULT_KAYAK_SPEED)).roundToLong()
+                (leg.length / kayak.getSpeed(dateTime, midpoint, leg.bearing)).roundToLong()
             }
 
             is Leg.MultipleLegs -> {
