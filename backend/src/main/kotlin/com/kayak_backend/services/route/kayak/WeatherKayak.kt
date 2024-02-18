@@ -34,6 +34,11 @@ class WeatherKayak(
         val resultSpeed: Double
 
         val dif = abs(weatherBearing - goalBearingRad)
+
+        /*
+        We use the sine rule to resolve the velocities and find the speed in the wanted direction based on a triangle
+        If else used to filter out the case the difference in angle is 0 or 180 degrees (so no triangle)
+         */
         if (dif == PI || dif == 0.0) {
             resultSpeed = kayakerSpeed + if (dif == 0.0) weatherMag else -weatherMag
         } else {
