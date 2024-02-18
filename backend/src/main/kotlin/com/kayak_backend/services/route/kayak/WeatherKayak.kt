@@ -14,8 +14,6 @@ class WeatherKayak(
     private val tideService: TideService = getTideService(getConf("./config.yaml")),
     private val kayakerSpeed: Double,
 ) : Kayak {
-    // TODO: need a way to change kayakerSpeed based on request from frontend?
-
     override fun getSpeed(
         dateTime: LocalDateTime,
         location: Location,
