@@ -61,7 +61,7 @@ const HomeScreen: React.FC<HomeProps> = () => {
   return (
     <GestureHandlerRootView style={styles.container}>
       <MapView
-        style={StyleSheet.absoluteFillObject}
+        style={styles.map}
         initialRegion={isleOfWight}
         rotateEnabled={false}
       ></MapView>
