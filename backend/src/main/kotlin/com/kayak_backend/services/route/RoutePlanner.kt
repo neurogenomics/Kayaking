@@ -30,8 +30,8 @@ class RoutePlanner(
 
         // Find valid startPositions along the route and connect them to the startPositions
         for (startPos in inStartPositions) {
-            val closestPoint = baseRoute.minWith(compareBy { it.distance(startPos.location) })
-            if (closestPoint.distance(startPos.location) < maxStartDistance) {
+            val closestPoint = baseRoute.minWith(compareBy { it distanceTo startPos.location })
+            if (closestPoint distanceTo startPos.location < maxStartDistance) {
                 mutableRouteToStarts.getOrPut(closestPoint) { mutableListOf() }.add(startPos)
                 mutableStartToRoute[startPos] = closestPoint
             }
@@ -56,13 +56,15 @@ class RoutePlanner(
     ): List<Leg> {
         val sections = mutableListOf<Leg>()
         var currentLegLocations = mutableListOf<Location>()
-        route.forEach { location ->
+        for (location in route) {
             currentLegLocations.add(location)
             if (startPosOnRoute.contains(location)) {
-                sections.add(Leg.create(currentLegLocations))
+                val leg = Leg.create(currentLegLocations)
+                if (leg.locations.isNotEmpty()) sections.add(leg)
                 currentLegLocations = mutableListOf(location)
             }
         }
+
         // Connect first and last section
         if (sections.isNotEmpty()) {
             currentLegLocations.addAll(sections.removeFirst().locations)
@@ -82,7 +84,7 @@ class RoutePlanner(
         }
     }
 
-    // Combines a section with all the sections from previous itterations
+    // Combines a section with all the sections from previous iterations
     inner class SectionCombiner(private var currentIndex: Int = 0, private var step: Int = 1) : Iterator<Leg> {
         private val sectionIterator = SectionIterator(currentIndex, step)
         private var current: Leg? = null
