@@ -6,7 +6,7 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 
 fun Route.times(timeService: TimeService) {
-    route("/timeRange") {
+    route("/times") {
         get {
             call.respond(timeService.getTimes().map { it.toString() })
         }

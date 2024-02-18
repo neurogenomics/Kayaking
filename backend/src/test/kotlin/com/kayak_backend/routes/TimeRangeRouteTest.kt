@@ -27,7 +27,7 @@ class TimeRangeRouteTest {
         testApplication {
             commonSetup { times(timeServiceMock) }
             every { timeServiceMock.getTimes() } returns mockResponse
-            val response = client.get("/timeRange")
+            val response = client.get("/times")
             assertEquals(response.status, HttpStatusCode.OK)
             assertEquals(Json.encodeToString<List<String>>(expected), response.bodyAsText())
         }

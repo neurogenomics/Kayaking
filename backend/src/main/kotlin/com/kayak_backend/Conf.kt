@@ -35,12 +35,20 @@ data class WindGribConf(
 )
 
 @Serializable
+data class GribTimeServiceConf(
+    val gribReader: String,
+    val filePaths: List<String>,
+)
+
+@Serializable
 data class Conf(
     val tideService: String,
     val windService: String,
+    val timeService: String,
     val tideTimeService: String,
     val tideGribConf: TideGribConf? = null,
     val windGribConf: WindGribConf? = null,
+    val gribTimeServiceConf: GribTimeServiceConf? = null,
     val gribFetcher: String,
 )
 
@@ -106,14 +114,16 @@ fun getTideTimeService(
 }
 
 fun getTimeService(conf: Conf): TimeService {
-    if (conf.tideService == "grib" && conf.tideGribConf != null) {
-        return with(conf.tideGribConf) {
-            GribTimeService(getGribReader(this.gribReader), this.filePath)
+    return when (conf.timeService) {
+        "grib" -> {
+            with(conf.gribTimeServiceConf) {
+                this ?: throw IllegalStateException("Grib file time service but no conf provided")
+                GribTimeService(getGribReader(this.gribReader), this.filePaths)
+            }
         }
-    } else if (conf.windService == "grib" && conf.windGribConf != null) {
-        return with(conf.windGribConf) {
-            GribTimeService(getGribReader(this.gribReader), this.filePath)
+
+        else -> {
+            throw IllegalStateException("Time service provided not supported")
         }
     }
-    throw IllegalStateException("We do not support time services if data is not fetched from grib")
 }
