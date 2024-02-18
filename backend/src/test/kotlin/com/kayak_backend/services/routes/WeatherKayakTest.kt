@@ -15,7 +15,8 @@ import kotlin.test.assertEquals
 class WeatherKayakTest {
     private val windServiceMock: WindService = mockk<WindService>()
     private val tideServiceMock: TideService = mockk<TideService>()
-    private val kayak: WeatherKayak = WeatherKayak(windServiceMock, tideServiceMock)
+    private val kayakerSpeed = 3.0
+    private val kayak: WeatherKayak = WeatherKayak(windServiceMock, tideServiceMock, kayakerSpeed)
 
     // make sure these match those in WeatherKayak.kt
     private val windMult = 0.2
@@ -26,10 +27,6 @@ class WeatherKayakTest {
 
     private val loc = Location(0.0, 0.0)
     private val date = LocalDateTime.of(2024, 10, 10, 10, 10)
-
-    init {
-        kayak.setKayakerSpeed(3.0)
-    }
 
     @Test
     fun weatherOppositeToGoalBearing() {

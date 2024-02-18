@@ -12,9 +12,9 @@ import kotlin.math.*
 class WeatherKayak(
     private val windService: WindService = getWindService(getConf("./config.yaml")),
     private val tideService: TideService = getTideService(getConf("./config.yaml")),
+    private val kayakerSpeed: Double,
 ) : Kayak {
-    // TODO: need a way to change this based on request from frontend?
-    private var kayakerSpeed: Double = 1.54
+    // TODO: need a way to change kayakerSpeed based on request from frontend?
 
     override fun getSpeed(
         dateTime: LocalDateTime,
@@ -49,10 +49,6 @@ class WeatherKayak(
 
         println(resultSpeed)
         return resultSpeed
-    }
-
-    fun setKayakerSpeed(speed: Double)  {
-        this.kayakerSpeed = speed
     }
 
     private fun findThirdSideOfTriangle(
