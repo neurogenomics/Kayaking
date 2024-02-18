@@ -38,8 +38,8 @@ export const MapVisualisation: React.FC<MapVisualisationProps> = ({
   };
   // TODO: add feature so resolution increases as user zooms
   const gridResolution: ResolutionModel = {
-    latRes: 0.05,
-    lonRes: 0.05,
+    latRes: 0.1,
+    lonRes: 0.1,
   };
 
   const rotateAroundPoint = (
@@ -179,8 +179,12 @@ export const MapVisualisation: React.FC<MapVisualisationProps> = ({
   };
 
   useEffect(() => {
-    void getArrowGrid();
-  }, []);
+    //
+    setCoords([]);
+    if (display !== null) {
+      void getArrowGrid();
+    }
+  }, [display]);
 
   return (
     <>

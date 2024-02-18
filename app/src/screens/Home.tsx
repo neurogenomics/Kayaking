@@ -1,7 +1,7 @@
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList, Route } from '../routes';
 import React, { useMemo, useState } from 'react';
-import { StyleSheet } from 'react-native';
+import { StyleSheet, Text } from 'react-native';
 import MapView, { PROVIDER_GOOGLE } from 'react-native-maps';
 import { isleOfWight } from '../../constants';
 import BottomSheet from '@gorhom/bottom-sheet';
@@ -37,7 +37,7 @@ const styles = StyleSheet.create({
 type HomeProps = NativeStackScreenProps<RootStackParamList, Route.HOME>;
 const HomeScreen: React.FC<HomeProps> = () => {
   const [fabsVisible, setFabsVisible] = useState(true);
-  const [weatherMap, setWeatherMap] = useState<GridType | null>();
+  const [weatherMap, setWeatherMap] = useState<GridType>();
   const snapPoints = useMemo(() => ['15%', '50%', '90%'], []);
   const bottomSheetPosition = useSharedValue<number>(0);
   const Tab = createMaterialTopTabNavigator();
@@ -61,7 +61,11 @@ const HomeScreen: React.FC<HomeProps> = () => {
         rotateEnabled={true}
         scrollEnabled={true}
       >
-        {weatherMap ? <MapVisualisation display={weatherMap} /> : <></>}
+        {weatherMap !== undefined ? (
+          <MapVisualisation display={weatherMap} />
+        ) : (
+          <></>
+        )}
       </MapView>
       <Animated.View style={inverseBottomSheetStyle} pointerEvents="box-none">
         <WeatherFabs
