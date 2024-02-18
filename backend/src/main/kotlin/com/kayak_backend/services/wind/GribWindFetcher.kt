@@ -64,7 +64,11 @@ class GribWindFetcher(
         val grid =
             interpolatedUData.zip(interpolatedVData) { us, vs ->
                 us.zip(vs) { u, v ->
-                    WindInfo(u, v)
+                    if (u.isNaN() || v.isNaN()) {
+                        null
+                    } else {
+                        WindInfo(u, v)
+                    }
                 }
             }
         return WindGrid(grid, newLatIndexU, newLonIndexU)
