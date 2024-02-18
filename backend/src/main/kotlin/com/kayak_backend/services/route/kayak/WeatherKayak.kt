@@ -47,7 +47,6 @@ class WeatherKayak(
             resultSpeed = findThirdSideOfTriangle(kayakerSpeed, weatherMag, angle)
         }
 
-        println(resultSpeed)
         return resultSpeed
     }
 

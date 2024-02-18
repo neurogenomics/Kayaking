@@ -73,7 +73,6 @@ class SeaBearingGetterTest {
 
         assert(result.size == 2)
         for (i in expectedBearings.indices) {
-            println(result[i])
             assert(abs(expectedBearings[i] - result[i].bearing) < ALLOWED_ROUNDING_ERROR)
         }
     }
