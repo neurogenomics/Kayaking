@@ -6,6 +6,10 @@ import com.kayak_backend.gribFetcher.OpenSkironGribFetcher
 import com.kayak_backend.gribReader.GribReader
 import com.kayak_backend.gribReader.NetCDFGribReader
 import com.kayak_backend.interpolator.SimpleInterpolator
+import com.kayak_backend.services.coastline.IsleOfWightCoastline
+import com.kayak_backend.services.route.*
+import com.kayak_backend.services.slipways.BeachesService
+import com.kayak_backend.services.slipways.SlipwayService
 import com.kayak_backend.services.tideTimes.AdmiraltyTideTimeService
 import com.kayak_backend.services.tideTimes.TideTimeService
 import com.kayak_backend.services.tides.GribTideFetcher
@@ -126,4 +130,28 @@ fun getTimeService(conf: Conf): TimeService {
             throw IllegalStateException("Time service provided not supported")
         }
     }
+}
+
+// Once we have the weather kayak, may want to use conf to determine which kayak
+fun getLegTimer(): LegTimer {
+    return LegTimer(BasicKayak())
+}
+
+fun getRoutePlanner(): RoutePlanner {
+    val distanceFromCoast = 500.0
+    val coast = IsleOfWightCoastline().getCoastline()
+    val route = BaseRoute().createBaseRoute(coast, distanceFromCoast)
+    val slipways = SlipwayService().getAllSlipways()
+    val beaches = BeachesService().getAllBeaches()
+    val slipwayStarts = slipways.mapIndexed { index, location -> StartPos(location, "Slipway $index") }
+    val beachStarts =
+        beaches.map { beachInfo ->
+            StartPos(
+                beachInfo.avergeLocation,
+                beachInfo.name ?: "Unnamed beach",
+            )
+        }
+    val startPositions = slipwayStarts.plus(beachStarts)
+
+    return RoutePlanner(route, startPositions)
 }

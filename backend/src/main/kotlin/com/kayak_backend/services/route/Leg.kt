@@ -20,7 +20,7 @@ sealed class Leg {
     }
 
     data class SingleLeg(override val start: Location, override val end: Location) : Leg() {
-        override val length: Double by lazy { start.distance(end) }
+        override val length: Double by lazy { start distanceTo end }
         override val locations by lazy { listOf(start, end) }
     }
 
