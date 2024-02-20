@@ -126,6 +126,7 @@ export const MapVisualisation: React.FC<MapVisualisationProps> = ({
           const longitude: number = grid.lonIndex[j];
 
           // Coordinates of right facing arrow
+          // Constants chosen to prevent arrow from filling entire grid
           const left = new Vector([latitude, longitude - gridRes.lonRes / 3]);
           const right = new Vector([latitude, longitude + gridRes.lonRes / 3]);
           const top = new Vector([
