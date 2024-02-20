@@ -38,8 +38,8 @@ export const MapVisualisation: React.FC<MapVisualisationProps> = ({
   };
   // TODO: add feature so resolution increases as user zooms
   const gridResolution: ResolutionModel = {
-    latRes: 0.1,
-    lonRes: 0.1,
+    latRes: 0.05,
+    lonRes: 0.05,
   };
 
   const rotateAroundPoint = (
@@ -119,41 +119,43 @@ export const MapVisualisation: React.FC<MapVisualisationProps> = ({
     const markers: ArrowCoords[] = [];
     for (let i = 0; i < grid.latIndex.length; i++) {
       for (let j = 0; j < grid.lonIndex.length; j++) {
-        const latitude: number = grid.latIndex[i];
-        const longitude: number = grid.lonIndex[j];
+        if (grid.grid[i][j] && grid.latIndex[i] && grid.lonIndex[j]) {
+          const latitude: number = grid.latIndex[i];
+          const longitude: number = grid.lonIndex[j];
 
-        // Coordinates of right facing arrow
-        const left = new Vector([latitude, longitude - gridRes.lonRes / 3]);
-        const right = new Vector([latitude, longitude + gridRes.lonRes / 3]);
-        const top = new Vector([
-          latitude + gridRes.latRes / 9,
-          longitude + gridRes.lonRes / 6,
-        ]);
+          // Coordinates of right facing arrow
+          const left = new Vector([latitude, longitude - gridRes.lonRes / 3]);
+          const right = new Vector([latitude, longitude + gridRes.lonRes / 3]);
+          const top = new Vector([
+            latitude + gridRes.latRes / 9,
+            longitude + gridRes.lonRes / 6,
+          ]);
 
-        // Bearing angle that the arrow needs to be rotated by
-        const theta = Math.atan2(grid.grid[i][j].v, grid.grid[i][j].u);
+          // Bearing angle that the arrow needs to be rotated by
+          const theta = Math.atan2(grid.grid[i][j].v, grid.grid[i][j].u);
 
-        // Origin around which arrow is rotated
-        const origin = new Vector([latitude, longitude]);
+          // Origin around which arrow is rotated
+          const origin = new Vector([latitude, longitude]);
 
-        // Magnitude of wind/tide vector
-        const magnitude: number = Math.sqrt(
-          grid.grid[i][j].u ** 2 + grid.grid[i][j].v ** 2,
-        );
+          // Magnitude of wind/tide vector
+          const magnitude: number = Math.sqrt(
+            grid.grid[i][j].u ** 2 + grid.grid[i][j].v ** 2,
+          );
 
-        const arrow = getArrow(left, right, top, origin, theta);
+          const arrow = getArrow(left, right, top, origin, theta);
 
-        const arrowPoints: ArrowCoords = {
-          coords: [
-            arrow.left,
-            arrow.right,
-            arrow.top,
-            arrow.right,
-            arrow.bottom,
-          ],
-          magnitude: magnitude,
-        };
-        markers.push(arrowPoints);
+          const arrowPoints: ArrowCoords = {
+            coords: [
+              arrow.left,
+              arrow.right,
+              arrow.top,
+              arrow.right,
+              arrow.bottom,
+            ],
+            magnitude: magnitude,
+          };
+          markers.push(arrowPoints);
+        }
       }
     }
     setCoords(markers);
@@ -183,6 +185,8 @@ export const MapVisualisation: React.FC<MapVisualisationProps> = ({
     setCoords([]);
     if (display !== null) {
       void getArrowGrid();
+      console.log('coords');
+      console.log(coords);
     }
   }, [display]);
 

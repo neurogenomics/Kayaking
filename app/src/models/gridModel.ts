@@ -1,4 +1,4 @@
-import { Vector } from './vectorModel';
+import { NullVector, Vector } from './vectorModel';
 
 export type ResolutionModel = {
   latRes: number;
