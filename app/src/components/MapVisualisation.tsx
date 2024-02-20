@@ -185,8 +185,6 @@ export const MapVisualisation: React.FC<MapVisualisationProps> = ({
     setCoords([]);
     if (display !== null) {
       void getArrowGrid();
-      console.log('coords');
-      console.log(coords);
     }
   }, [display]);
 

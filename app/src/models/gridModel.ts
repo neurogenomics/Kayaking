@@ -1,4 +1,4 @@
-import { NullVector, Vector } from './vectorModel';
+import { Vector } from './vectorModel';
 
 export type ResolutionModel = {
   latRes: number;
@@ -6,8 +6,8 @@ export type ResolutionModel = {
 };
 
 export enum GridType {
-  WIND,
-  TIDE,
+  WIND = 'Wind',
+  TIDE = 'Tide',
 }
 
 export type GridModel = {

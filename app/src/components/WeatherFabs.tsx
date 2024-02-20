@@ -16,7 +16,7 @@ const styles = StyleSheet.create({
 
 type WeatherFabsProps = {
   visible: boolean;
-  setWeatherMap: React.Dispatch<React.SetStateAction<GridType | null>>;
+  setWeatherMap: React.Dispatch<React.SetStateAction<GridType | undefined>>;
 };
 
 const WeatherFabs: React.FC<WeatherFabsProps> = ({
@@ -30,11 +30,19 @@ const WeatherFabs: React.FC<WeatherFabsProps> = ({
     'waves-arrow-right',
     'weather-windy',
   ];
-  const names = ['Sunset', 'Wave Height', 'Tide', 'Wind'];
+  const names = ['Sunset', 'Wave Height', GridType.TIDE, GridType.WIND];
   const [layers, setLayers] = useState(new Array(icons.length).fill(false));
 
   const handleWeatherPress = (weather: GridType) => {
-    setWeatherMap((prevWeather) => (prevWeather === weather ? null : weather));
+    setWeatherMap((prevWeather) => {
+      if (prevWeather && prevWeather !== weather) {
+        setLayers((prevState) => ({
+          ...prevState,
+          [names.findIndex((name) => name === (prevWeather as string))]: false,
+        }));
+      }
+      return prevWeather === weather ? undefined : weather;
+    });
   };
 
   return (
