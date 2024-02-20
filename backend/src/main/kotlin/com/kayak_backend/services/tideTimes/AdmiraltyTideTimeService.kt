@@ -49,8 +49,8 @@ class AdmiraltyTideTimeService(
             stations = tideStationService.getTideStations()
         }
         return stations.reduce { closest, current ->
-            val distanceToClosest = location.distance(closest.location)
-            val distanceToCurrent = location.distance(current.location)
+            val distanceToClosest = location distanceTo closest.location
+            val distanceToCurrent = location distanceTo current.location
             if (distanceToCurrent < distanceToClosest) {
                 current
             } else {

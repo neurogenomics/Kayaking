@@ -8,6 +8,7 @@ import { tideColorMap, windColorMap } from '../colors';
 
 type MapVisualisationProps = {
   display: GridType;
+  date: Date;
 };
 
 type Arrow = {
@@ -24,6 +25,7 @@ type ArrowCoords = {
 
 export const MapVisualisation: React.FC<MapVisualisationProps> = ({
   display,
+  date,
 }) => {
   const [coords, setCoords] = useState<ArrowCoords[]>();
 
@@ -161,9 +163,15 @@ export const MapVisualisation: React.FC<MapVisualisationProps> = ({
     setCoords(markers);
   };
 
-  const getArrowGrid = async () => {
+  const getArrowGrid = async (date: Date) => {
     try {
-      const grid = await getGrid(display, gridStart, gridEnd, gridResolution);
+      const grid = await getGrid(
+        display,
+        gridStart,
+        gridEnd,
+        gridResolution,
+        date,
+      );
       makeArrowCoordinates(grid, gridResolution);
     } catch (error) {
       console.log('Error getting grid: ', error);
@@ -181,12 +189,10 @@ export const MapVisualisation: React.FC<MapVisualisationProps> = ({
   };
 
   useEffect(() => {
-    //
-    setCoords([]);
     if (display !== null) {
-      void getArrowGrid();
+      void getArrowGrid(date);
     }
-  }, [display]);
+  }, [display, date]);
 
   return (
     <>

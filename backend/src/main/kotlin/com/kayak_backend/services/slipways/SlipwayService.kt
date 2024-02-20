@@ -21,8 +21,8 @@ class SlipwayService(private val client: OkHttpClient = OkHttpClient()) {
             slipways = slipwayGetter.getSlipways()
         }
         return slipways.reduce { closest, current ->
-            val distanceToClosest = coords.distance(closest)
-            val distanceToCurrent = coords.distance(current)
+            val distanceToClosest = coords distanceTo closest
+            val distanceToCurrent = coords distanceTo current
 
             if (distanceToCurrent < distanceToClosest) {
                 current
