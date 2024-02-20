@@ -25,7 +25,7 @@ type DateCarosoulItemProps = {
   onPress?: () => void;
 };
 
-const DateCarosoulItem: React.FC<DateCarosoulItemProps> = (props) => {
+const DateCarouselItem: React.FC<DateCarosoulItemProps> = (props) => {
   const { animationValue, date, onPress } = props;
 
   const animatedContainerStyle = useAnimatedStyle(() => {
@@ -85,4 +85,4 @@ const DateCarosoulItem: React.FC<DateCarosoulItemProps> = (props) => {
   );
 };
 
-export default DateCarosoulItem;
+export default DateCarouselItem;

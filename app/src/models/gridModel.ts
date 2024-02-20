@@ -6,20 +6,12 @@ export type ResolutionModel = {
 };
 
 export enum GridType {
-  WIND,
-  TIDE,
+  WIND = 'Wind',
+  TIDE = 'Tide',
 }
 
 export type GridModel = {
   grid: Vector[][];
   latIndex: number[];
   lonIndex: number[];
-};
-
-export type CoordRotation = {
-  coord: {
-    longitude: number;
-    latitude: number;
-  };
-  direction: number;
 };

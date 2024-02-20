@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Dimensions, StyleSheet } from 'react-native';
 import Carousel, { ICarouselInstance } from 'react-native-reanimated-carousel';
-import DateCarosoulItem from './DateCarosoulItem';
+import DateCarouselItem from './DateCarouselItem';
 
 const styles = StyleSheet.create({
   carousel: {
@@ -15,7 +15,7 @@ type DateCarosoulProps = {
   dates: Date[];
   onDateChanged: (date: Date) => void;
 };
-const DateCarosoul: React.FC<DateCarosoulProps> = ({
+const DateCarousel: React.FC<DateCarosoulProps> = ({
   dates,
   onDateChanged,
 }: DateCarosoulProps) => {
@@ -33,7 +33,7 @@ const DateCarosoul: React.FC<DateCarosoulProps> = ({
         data={dates}
         onSnapToItem={(index) => onDateChanged(dates[index])}
         renderItem={({ item, animationValue }) => (
-          <DateCarosoulItem
+          <DateCarouselItem
             animationValue={animationValue}
             date={item}
             // Scroll to item when you click it
@@ -43,11 +43,11 @@ const DateCarosoul: React.FC<DateCarosoulProps> = ({
                 animated: true,
               })
             }
-          ></DateCarosoulItem>
+          ></DateCarouselItem>
         )}
       />
     </View>
   );
 };
 
-export default DateCarosoul;
+export default DateCarousel;

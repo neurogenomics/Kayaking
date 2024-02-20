@@ -14,14 +14,16 @@ import Animated, {
   useSharedValue,
 } from 'react-native-reanimated';
 import WeatherFabs from '../components/WeatherFabs';
-import DateCarosoul from '../components/DateCarosoul/DateCarosoul';
+import { MapVisualisation } from '../components/MapVisualisation';
+import { GridType } from '../models/gridModel';
+import DateCarousel from '../components/DateCarousel/DateCarousel';
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
   map: StyleSheet.absoluteFillObject,
-  carsoulContainer: {
+  carouselContainer: {
     backgroundColor: 'rgba(0, 0, 0, 0.3)',
     borderRadius: 12,
   },
@@ -30,11 +32,13 @@ const styles = StyleSheet.create({
 type HomeProps = NativeStackScreenProps<RootStackParamList, Route.HOME>;
 const HomeScreen: React.FC<HomeProps> = () => {
   const [fabsVisible, setFabsVisible] = useState(true);
+  const [weatherMap, setWeatherMap] = useState<GridType>();
   const snapPoints = useMemo(() => ['15%', '50%', '90%'], []);
+  const [mapDate, setMapDate] = useState<Date>(new Date());
   const bottomSheetPosition = useSharedValue<number>(0);
   const Tab = createMaterialTopTabNavigator();
 
-  const inverseBottomSheetSytle = useAnimatedStyle(() => {
+  const inverseBottomSheetStyle = useAnimatedStyle(() => {
     return {
       position: 'absolute',
       top: 0,
@@ -63,18 +67,27 @@ const HomeScreen: React.FC<HomeProps> = () => {
       <MapView
         style={styles.map}
         initialRegion={isleOfWight}
-        rotateEnabled={false}
-      ></MapView>
-      <SafeAreaView style={styles.carsoulContainer}>
-        <DateCarosoul
+        rotateEnabled={true}
+        scrollEnabled={true}
+        provider="google"
+      >
+        {weatherMap !== undefined ? (
+          <MapVisualisation display={weatherMap} date={mapDate} />
+        ) : (
+          <></>
+        )}
+      </MapView>
+      <SafeAreaView style={styles.carouselContainer}>
+        <DateCarousel
           dates={getNextHours()}
-          onDateChanged={(date) =>
-            console.log('Showing weather data from:', date)
-          }
-        ></DateCarosoul>
+          onDateChanged={(date) => setMapDate(date)}
+        ></DateCarousel>
       </SafeAreaView>
-      <Animated.View style={inverseBottomSheetSytle} pointerEvents="box-none">
-        <WeatherFabs visible={fabsVisible}></WeatherFabs>
+      <Animated.View style={inverseBottomSheetStyle} pointerEvents="box-none">
+        <WeatherFabs
+          visible={fabsVisible}
+          setWeatherMap={setWeatherMap}
+        ></WeatherFabs>
       </Animated.View>
       <BottomSheet
         index={0}

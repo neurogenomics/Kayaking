@@ -1,27 +1,33 @@
-import MapView, { Marker } from 'react-native-maps';
-import { StyleSheet, View, Image, ImageSourcePropType } from 'react-native';
-import React, { useState, useEffect } from 'react';
-import { UserInput } from '../models/userInputModel';
+import { Polyline } from 'react-native-maps';
+import React, { useEffect, useState } from 'react';
 import { LocationModel } from '../models/locationModel';
-import { isleOfWight } from '../../constants';
-import {
-  GridModel,
-  GridType,
-  ResolutionModel,
-  CoordRotation,
-} from '../models/gridModel';
+import { GridModel, GridType, ResolutionModel } from '../models/gridModel';
 import { getGrid } from '../services/gridService';
-import arrow from '../assets/arrow.png';
+import { Matrix, Vector } from 'ts-matrix';
+import { tideColorMap, windColorMap } from '../colors';
 
 type MapVisualisationProps = {
-  navigation;
-  route: {
-    params: { user: UserInput };
-  };
+  display: GridType;
+  date: Date;
 };
 
-export const MapVisualisation: React.FC<MapVisualisationProps> = () => {
-  const [coords, setCoords] = useState<CoordRotation[]>();
+type Arrow = {
+  left: LocationModel;
+  right: LocationModel;
+  top: LocationModel;
+  bottom: LocationModel;
+};
+
+type ArrowCoords = {
+  coords: LocationModel[];
+  magnitude: number;
+};
+
+export const MapVisualisation: React.FC<MapVisualisationProps> = ({
+  display,
+  date,
+}) => {
+  const [coords, setCoords] = useState<ArrowCoords[]>();
 
   // TODO: get constants from server
   const gridStart: LocationModel = {
@@ -32,101 +38,177 @@ export const MapVisualisation: React.FC<MapVisualisationProps> = () => {
     latitude: 51,
     longitude: 0,
   };
+  // TODO: add feature so resolution increases as user zooms
   const gridResolution: ResolutionModel = {
-    latRes: 0.1,
-    lonRes: 0.1,
+    latRes: 0.05,
+    lonRes: 0.05,
   };
 
-  const getArrowGrid = async () => {
-    try {
-      const grid: GridModel = await getGrid(
-        GridType.WIND,
-        gridStart,
-        gridEnd,
-        gridResolution,
-      );
-      setArrowCoords(grid);
-    } catch (error) {
-      console.log('Error getting grid: ', error);
-    }
+  const rotateAroundPoint = (
+    loc: Vector,
+    origin: Vector,
+    thetaRad: number,
+  ): LocationModel => {
+    const diff = loc.subtract(origin);
+    const diffMat = new Matrix(2, 1, [[diff.values[0]], [diff.values[1]]]);
+
+    // Clockwise rotation matrix
+    const rotationMat = new Matrix(2, 2, [
+      [Math.cos(thetaRad), Math.sin(thetaRad)],
+      [-Math.sin(thetaRad), Math.cos(thetaRad)],
+    ]);
+    const flattenMul = rotationMat
+      .multiply(diffMat)
+      .values.reduce((accumulator, value) => accumulator.concat(value));
+    const rotated: Vector = new Vector(flattenMul);
+    const final: Vector = rotated.add(origin);
+
+    return {
+      latitude: final.values[0],
+      longitude: final.values[1],
+    };
   };
 
-  const getBearing = (u: number, v: number) => {
-    const angleRadians = Math.atan2(u, v);
-    let angleDegrees = angleRadians * (180 / Math.PI);
-    angleDegrees =
-      angleDegrees < 0
-        ? Math.round(angleDegrees + 360)
-        : Math.round(angleDegrees);
-    return angleDegrees;
-  };
+  function getArrow(
+    left: Vector,
+    right: Vector,
+    top: Vector,
+    origin: Vector,
+    thetaRad: number,
+  ): Arrow {
+    // Rotating arrow according to angle
+    const leftModel = rotateAroundPoint(left, origin, thetaRad);
+    const rightModel = rotateAroundPoint(right, origin, thetaRad);
+    const topModel = rotateAroundPoint(top, origin, thetaRad);
 
-  const setArrowCoords = (grid: GridModel) => {
-    const markers: CoordRotation[] = [];
+    // Maths to reflect the top vertex of the arrow along the arrow line to get the bottom vertex
+    const slope: number =
+      (rightModel.latitude - leftModel.latitude) /
+      (rightModel.longitude - leftModel.longitude);
+    const perpSlope: number = -1 / slope;
+
+    const perpEquation = (longitude: number) =>
+      perpSlope * (longitude - topModel.longitude) + topModel.latitude;
+
+    const intersectLon =
+      (1 / (slope - perpSlope)) *
+      (slope * leftModel.longitude -
+        leftModel.latitude -
+        perpSlope * topModel.longitude +
+        topModel.latitude);
+    const intersectLat = perpEquation(intersectLon);
+
+    // Create a matrix for the intersection point
+    const intersection = new Vector([intersectLat, intersectLon]);
+    const topMat = new Vector([topModel.latitude, topModel.longitude]);
+
+    // Rotating top point 180 degrees around the intersection point to get the new point
+    const bottomModel: LocationModel = rotateAroundPoint(
+      topMat,
+      intersection,
+      Math.PI,
+    );
+
+    return {
+      left: leftModel,
+      right: rightModel,
+      top: topModel,
+      bottom: bottomModel,
+    };
+  }
+
+  const makeArrowCoordinates = (grid: GridModel, gridRes: ResolutionModel) => {
+    const markers: ArrowCoords[] = [];
     for (let i = 0; i < grid.latIndex.length; i++) {
       for (let j = 0; j < grid.lonIndex.length; j++) {
-        const direction = getBearing(grid.grid[i][j].u, grid.grid[i][j].v);
-        const coordRotation: CoordRotation = {
-          coord: {
-            latitude: grid.latIndex[i],
-            longitude: grid.lonIndex[j],
-          },
-          direction: direction,
-        };
-        markers.push(coordRotation);
+        if (grid.grid[i][j] && grid.latIndex[i] && grid.lonIndex[j]) {
+          const latitude: number = grid.latIndex[i];
+          const longitude: number = grid.lonIndex[j];
+
+          // Coordinates of right facing arrow
+          // Constants chosen to prevent arrow from filling entire grid
+          const left = new Vector([latitude, longitude - gridRes.lonRes / 3]);
+          const right = new Vector([latitude, longitude + gridRes.lonRes / 3]);
+          const top = new Vector([
+            latitude + gridRes.latRes / 9,
+            longitude + gridRes.lonRes / 6,
+          ]);
+
+          // Bearing angle that the arrow needs to be rotated by
+          const theta = Math.atan2(grid.grid[i][j].v, grid.grid[i][j].u);
+
+          // Origin around which arrow is rotated
+          const origin = new Vector([latitude, longitude]);
+
+          // Magnitude of wind/tide vector
+          const magnitude: number = Math.sqrt(
+            grid.grid[i][j].u ** 2 + grid.grid[i][j].v ** 2,
+          );
+
+          const arrow = getArrow(left, right, top, origin, theta);
+
+          const arrowPoints: ArrowCoords = {
+            coords: [
+              arrow.left,
+              arrow.right,
+              arrow.top,
+              arrow.right,
+              arrow.bottom,
+            ],
+            magnitude: magnitude,
+          };
+          markers.push(arrowPoints);
+        }
       }
     }
     setCoords(markers);
   };
 
+  const getArrowGrid = async (date: Date) => {
+    try {
+      const grid = await getGrid(
+        display,
+        gridStart,
+        gridEnd,
+        gridResolution,
+        date,
+      );
+      makeArrowCoordinates(grid, gridResolution);
+    } catch (error) {
+      console.log('Error getting grid: ', error);
+    }
+  };
+
+  const getColor = (magnitude: number, palette: GridType): string => {
+    const map = palette === GridType.WIND ? windColorMap : tideColorMap;
+    for (const category of map) {
+      if (magnitude <= category.maxMagnitude) {
+        return category.color;
+      }
+    }
+    return 'black';
+  };
+
   useEffect(() => {
-    void getArrowGrid();
-  }, []);
+    if (display !== null) {
+      void getArrowGrid(date);
+    }
+  }, [display, date]);
 
   return (
-    <View style={styles.mapContainer}>
-      <MapView
-        style={styles.map}
-        initialRegion={isleOfWight}
-        rotateEnabled={false}
-      >
-        {coords ? (
-          coords.map((coord, index) => (
-            <View key={index}>
-              <Marker coordinate={coord.coord}>
-                <Image
-                  source={arrow as ImageSourcePropType}
-                  style={{
-                    width: 30,
-                    height: 30,
-                    objectFit: 'contain',
-                    transform: [{ rotate: `${coord.direction}deg` }],
-                  }}
-                />
-              </Marker>
-            </View>
-          ))
-        ) : (
-          <View />
-        )}
-      </MapView>
-    </View>
+    <>
+      {coords ? (
+        coords.map((coord, index) => (
+          <Polyline
+            key={index}
+            coordinates={coord.coords}
+            strokeWidth={2}
+            strokeColor={getColor(coord.magnitude, display)}
+          />
+        ))
+      ) : (
+        <></>
+      )}
+    </>
   );
 };
-
-const styles = StyleSheet.create({
-  mapContainer: {
-    flex: 1,
-    height: '100%',
-    width: '100%',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  map: {
-    flex: 1,
-    height: '50%',
-    width: '100%',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
