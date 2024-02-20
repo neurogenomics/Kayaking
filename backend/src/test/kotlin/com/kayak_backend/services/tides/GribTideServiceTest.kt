@@ -24,6 +24,13 @@ class GribTideServiceTest {
     private val mockLatIndex = listOf(50.0, 51.0)
     private val mockLonIndex = listOf(-1.2, -1.1)
 
+    private val corner1 = Location(50.0, -1.2)
+    private val corner2 = Location(51.0, -1.1)
+    val time: LocalDateTime = LocalDateTime.of(2024, 2, 1, 12, 0)
+    private val indices = Pair(listOf(50.0, 51.0), listOf(-1.2, -1.1))
+    private val ranges = Pair(Range(50.0, 51.0), Range(-1.2, -1.1))
+    private val resolutions = Pair(1.0, 0.1)
+
     private val expectedGrid =
         TideGrid(
             listOf(listOf(TideInfo(1.0, 4.0), TideInfo(1.0, 4.0)), listOf(TideInfo(2.0, 4.0), TideInfo(2.0, 4.0))),
@@ -42,12 +49,6 @@ class GribTideServiceTest {
 
     @Test
     fun gribTideGridServiceTest() {
-        val corner1 = Location(50.0, -1.2)
-        val corner2 = Location(51.0, -1.1)
-        val time = LocalDateTime.of(2024, 2, 1, 12, 0)
-        val indices = Pair(listOf(50.0, 51.0), listOf(-1.2, -1.1))
-        val ranges = Pair(Range(50.0, 51.0), Range(-1.2, -1.1))
-        val resolutions = Pair(1.0, 0.1)
         every {
             gribReader.getVarGrid(
                 any(),
@@ -81,5 +82,49 @@ class GribTideServiceTest {
             )
         val response = gribTideFetcher.getTideGrid(corner1, corner2, time, resolutions)
         assertEquals(expectedGrid, response)
+    }
+
+    @Test
+    fun tideGridServiceReplacesNaNs() {
+        val mockGrid1 = listOf(listOf(1.0, Double.NaN))
+        val mockGrid2 = listOf(listOf(Double.NaN, 4.0))
+        val mockLatIndex = listOf(50.0)
+        val mockLonIndex = listOf(-1.0, -1.1)
+        every {
+            gribReader.getVarGrid(
+                any(),
+                any(),
+                time,
+                testTideGribConf.uTideVarName,
+                any(),
+            )
+        } returns Triple(mockGrid1, mockLatIndex, mockLonIndex)
+
+        every {
+            gribReader.getVarGrid(
+                any(),
+                any(),
+                time,
+                testTideGribConf.vTideVarName,
+                any(),
+            )
+        } returns Triple(mockGrid2, mockLatIndex, mockLonIndex)
+        every { interpolator.interpolate(mockGrid1, any(), any(), any()) } returns
+            Triple(
+                mockGrid1,
+                mockLatIndex,
+                mockLonIndex,
+            )
+        every { interpolator.interpolate(mockGrid2, any(), any(), any()) } returns
+            Triple(
+                mockGrid2,
+                mockLatIndex,
+                mockLonIndex,
+            )
+
+        val expectedGrid: List<List<TideInfo?>> = listOf(listOf(null, null))
+        val expectedResponse = TideGrid(expectedGrid, mockLatIndex, mockLonIndex)
+        val response = gribTideFetcher.getTideGrid(corner1, corner2, time, resolutions)
+        assertEquals(expectedResponse, response)
     }
 }

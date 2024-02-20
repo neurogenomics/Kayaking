@@ -64,7 +64,11 @@ class GribTideFetcher(
         val grid =
             interpolatedUData.zip(interpolatedVData) { us, vs ->
                 us.zip(vs) { u, v ->
-                    TideInfo(u, v)
+                    if (u.isNaN() || v.isNaN()) {
+                        null
+                    } else {
+                        TideInfo(u, v)
+                    }
                 }
             }
         return TideGrid(grid, newLatIndexU, newLonIndexU)

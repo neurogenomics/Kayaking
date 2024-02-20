@@ -24,6 +24,13 @@ class GribWindServiceTest {
     private val mockLatIndex = listOf(50.0, 51.0)
     private val mockLonIndex = listOf(-1.2, -1.1)
 
+    private val corner1 = Location(50.0, -1.2)
+    private val corner2 = Location(51.0, -1.1)
+    val time: LocalDateTime = LocalDateTime.of(2024, 2, 1, 12, 0)
+    private val indices = Pair(listOf(50.0, 51.0), listOf(-1.2, -1.1))
+    private val ranges = Pair(Range(50.0, 51.0), Range(-1.2, -1.1))
+    private val resolutions = Pair(1.0, 0.1)
+
     private val expectedGrid =
         WindGrid(
             listOf(listOf(WindInfo(1.0, 4.0), WindInfo(1.0, 4.0)), listOf(WindInfo(2.0, 4.0), WindInfo(2.0, 4.0))),
@@ -42,12 +49,6 @@ class GribWindServiceTest {
 
     @Test
     fun gribWindGridServiceTest() {
-        val corner1 = Location(50.0, -1.2)
-        val corner2 = Location(51.0, -1.1)
-        val time = LocalDateTime.of(2024, 2, 1, 12, 0)
-        val indices = Pair(listOf(50.0, 51.0), listOf(-1.2, -1.1))
-        val ranges = Pair(Range(50.0, 51.0), Range(-1.2, -1.1))
-        val resolutions = Pair(1.0, 0.1)
         every {
             gribReader.getVarGrid(
                 any(),
@@ -81,5 +82,49 @@ class GribWindServiceTest {
             )
         val response = gribWindFetcher.getWindGrid(corner1, corner2, time, resolutions)
         assertEquals(expectedGrid, response)
+    }
+
+    @Test
+    fun windGridServiceReplacesNaNs() {
+        val mockGrid1 = listOf(listOf(1.0, Double.NaN))
+        val mockGrid2 = listOf(listOf(Double.NaN, 4.0))
+        val mockLatIndex = listOf(50.0)
+        val mockLonIndex = listOf(-1.0, -1.1)
+        every {
+            gribReader.getVarGrid(
+                any(),
+                any(),
+                time,
+                testWindGribConf.uWindVarName,
+                any(),
+            )
+        } returns Triple(mockGrid1, mockLatIndex, mockLonIndex)
+
+        every {
+            gribReader.getVarGrid(
+                any(),
+                any(),
+                time,
+                testWindGribConf.vWindVarName,
+                any(),
+            )
+        } returns Triple(mockGrid2, mockLatIndex, mockLonIndex)
+        every { interpolator.interpolate(mockGrid1, any(), any(), any()) } returns
+            Triple(
+                mockGrid1,
+                mockLatIndex,
+                mockLonIndex,
+            )
+        every { interpolator.interpolate(mockGrid2, any(), any(), any()) } returns
+            Triple(
+                mockGrid2,
+                mockLatIndex,
+                mockLonIndex,
+            )
+
+        val expectedGrid: List<List<WindInfo?>> = listOf(listOf(null, null))
+        val expectedResponse = WindGrid(expectedGrid, mockLatIndex, mockLonIndex)
+        val response = gribWindFetcher.getWindGrid(corner1, corner2, time, resolutions)
+        assertEquals(expectedResponse, response)
     }
 }
