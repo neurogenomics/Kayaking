@@ -3,6 +3,12 @@ import DateTimePicker, {
   DateTimePickerEvent,
 } from '@react-native-community/datetimepicker';
 import React, { useState } from 'react';
+import {
+  PaddleSpeed,
+  RouteDifficulty,
+  RouteType,
+} from '../models/userInputModel';
+import { SelectButtons, generateOptions } from './SelectionButtons';
 
 export const Filters: React.FC<{
   startTime: Date;
@@ -29,29 +35,63 @@ export const Filters: React.FC<{
     setEndTime(currentEnd);
   };
 
+  const [paddleSpeed, setPaddleSpeed] = useState<PaddleSpeed>(
+    PaddleSpeed.Normal,
+  );
+  const [routeType, setRouteType] = useState<RouteType>(RouteType.PointToPoint);
+  const [routeDifficulty, setRouteDifficulty] = useState<RouteDifficulty>(
+    RouteDifficulty.Medium,
+  );
+
+  const paddleSpeedOptions = generateOptions(PaddleSpeed);
+  const routeTypeOptions = generateOptions(RouteType);
+  const routeDifficultyOptions = generateOptions(RouteDifficulty);
+
   return (
-    <View style={styles.timePickerContainer}>
-      <View style={styles.pickerContainer}>
-        <Text style={styles.label}>Enter Start Time</Text>
-        <DateTimePicker
-          value={startTime}
-          mode="time"
-          is24Hour={true}
-          minimumDate={new Date()}
-          onChange={onStartTimeChange}
-        ></DateTimePicker>
+    <View>
+      <View style={styles.timePickerContainer}>
+        <View style={styles.pickerContainer}>
+          <Text style={styles.label}>Enter Start Time</Text>
+          <DateTimePicker
+            value={startTime}
+            mode="time"
+            is24Hour={true}
+            minimumDate={new Date()}
+            onChange={onStartTimeChange}
+          ></DateTimePicker>
+        </View>
+        <View style={styles.pickerContainer}>
+          <Text style={styles.label}>Enter End Time</Text>
+          <DateTimePicker
+            value={endTime}
+            mode="time"
+            is24Hour={true}
+            minimumDate={startTime}
+            disabled={!showEndTimePicker}
+            onChange={onEndTimeChange}
+          ></DateTimePicker>
+        </View>
       </View>
-      <View style={styles.pickerContainer}>
-        <Text style={styles.label}>Enter End Time</Text>
-        <DateTimePicker
-          value={endTime}
-          mode="time"
-          is24Hour={true}
-          minimumDate={startTime}
-          disabled={!showEndTimePicker}
-          onChange={onEndTimeChange}
-        ></DateTimePicker>
-      </View>
+      <SelectButtons
+        label={'Select paddle speed'}
+        options={paddleSpeedOptions}
+        selectedOption={paddleSpeed}
+        onSelect={setPaddleSpeed}
+      />
+      <View style={{ height: 20 }} />
+      <SelectButtons
+        label={'Select route difficulty'}
+        options={routeDifficultyOptions}
+        selectedOption={routeDifficulty}
+        onSelect={setRouteDifficulty}
+      />
+      <View style={{ height: 20 }} />
+      <SelectButtons
+        label={'Select route type'}
+        options={routeTypeOptions}
+        selectedOption={routeType}
+        onSelect={setRouteType}
+      />
     </View>
   );
 };
