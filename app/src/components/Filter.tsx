@@ -47,6 +47,16 @@ export const Filters: React.FC<{
   const routeTypeOptions = generateOptions(RouteType);
   const routeDifficultyOptions = generateOptions(RouteDifficulty);
 
+  const [breakDuration, setBreakDuration] = useState(new Date(0));
+
+  const onBreakDurationChange = (
+    _event: DateTimePickerEvent,
+    selectedBreakDuration: Date,
+  ) => {
+    const currentBreak: Date = selectedBreakDuration || breakDuration;
+    setBreakDuration(currentBreak);
+  };
+
   return (
     <View>
       <View style={styles.timePickerContainer}>
@@ -92,6 +102,16 @@ export const Filters: React.FC<{
         selectedOption={routeType}
         onSelect={setRouteType}
       />
+      <View style={{ height: 20 }} />
+      <View style={styles.pickerContainer}>
+        <Text style={styles.label}>Break time duration</Text>
+        <DateTimePicker
+          value={breakDuration}
+          mode="time"
+          is24Hour={true}
+          onChange={onBreakDurationChange}
+        />
+      </View>
     </View>
   );
 };
