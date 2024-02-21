@@ -9,6 +9,12 @@ export enum RouteType {
   Circular = 'circular',
 }
 
+export enum RouteDifficulty {
+  Easy = 'easy',
+  Medium = 'medium',
+  Hard = 'hard',
+}
+
 export type UserInput = {
   latitude: number;
   longitude: number;
@@ -17,4 +23,5 @@ export type UserInput = {
   paddleSpeed: PaddleSpeed;
   breakTime: number;
   routeType: RouteType;
+  routeDifficulty: RouteDifficulty;
 };
