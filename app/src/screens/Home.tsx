@@ -42,6 +42,7 @@ const HomeScreen: React.FC<HomeProps> = () => {
   const Tab = createMaterialTopTabNavigator();
   const [userInput, setUserInput] = useState<UserInput>();
   const [routes, setRoutes] = useState<RouteModel[]>();
+  const [selectedRouteIndex, setSelectedRouteIndex] = useState(0);
 
   const inverseBottomSheetStyle = useAnimatedStyle(() => {
     return {
@@ -76,21 +77,18 @@ const HomeScreen: React.FC<HomeProps> = () => {
         scrollEnabled={true}
         provider="google"
       >
-        {/*TODO CLEAN UP*/}
         {weatherMap !== undefined ? (
           <WeatherVisualisation display={weatherMap} date={mapDate} />
-        ) : (
-          <></>
-        )}
+        ) : null}
         {userInput !== undefined ? (
           <RouteVisualisation
             userInput={userInput}
             routes={routes}
             setRoutes={setRoutes}
+            selectedRouteIndex={selectedRouteIndex}
+            setSelectedRouteIndex={setSelectedRouteIndex}
           />
-        ) : (
-          <></>
-        )}
+        ) : null}
       </MapView>
       <SafeAreaView style={styles.carouselContainer}>
         <DateCarousel
@@ -118,7 +116,12 @@ const HomeScreen: React.FC<HomeProps> = () => {
             {() => <Filters setUserInput={setUserInput} />}
           </Tab.Screen>
           <Tab.Screen name="Routes">
-            {() => <Routes routes={routes} />}
+            {() => (
+              <Routes
+                routes={routes}
+                setSelectedRouteIndex={setSelectedRouteIndex}
+              />
+            )}
           </Tab.Screen>
         </Tab.Navigator>
       </BottomSheet>

@@ -197,18 +197,16 @@ export const WeatherVisualisation: React.FC<WeatherVisualisationProps> = ({
 
   return (
     <>
-      {coords ? (
-        coords.map((coord, index) => (
-          <Polyline
-            key={index}
-            coordinates={coord.coords}
-            strokeWidth={2}
-            strokeColor={getColor(coord.magnitude, display)}
-          />
-        ))
-      ) : (
-        <></>
-      )}
+      {coords
+        ? coords.map((coord, index) => (
+            <Polyline
+              key={index}
+              coordinates={coord.coords}
+              strokeWidth={2}
+              strokeColor={getColor(coord.magnitude, display)}
+            />
+          ))
+        : null}
     </>
   );
 };

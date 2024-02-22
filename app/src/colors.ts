@@ -25,3 +25,8 @@ export const tideColorMap: WeatherCategory[] = [
   { rating: 'Fast', maxMagnitude: 4, color: 'rgb(75, 0, 130)' }, // Indigo
   { rating: 'Very Fast', maxMagnitude: Infinity, color: 'rgb(72, 61, 139)' }, // Dark Slate Blue
 ];
+
+export const routeColors = {
+  selected: '#FF0000',
+  unselected: '#999999',
+};

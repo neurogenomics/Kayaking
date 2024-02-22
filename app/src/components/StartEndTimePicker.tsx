@@ -10,15 +10,12 @@ export const StartEndTimePicker: React.FC<{
   endTime: Date;
   setEndTime: React.Dispatch<React.SetStateAction<Date>>;
 }> = ({ startTime, setStartTime, endTime, setEndTime }) => {
-  const [showEndTimePicker, setShowEndTimePicker] = useState(false);
-
   const onStartTimeChange = (
     _event: DateTimePickerEvent,
     selectedStartTime: Date,
   ) => {
     const currentStart: Date = selectedStartTime || startTime;
     setStartTime(currentStart);
-    setShowEndTimePicker(true);
   };
 
   const onEndTimeChange = (
@@ -48,7 +45,6 @@ export const StartEndTimePicker: React.FC<{
           mode="time"
           is24Hour={true}
           minimumDate={startTime}
-          disabled={!showEndTimePicker}
           onChange={onEndTimeChange}
         ></DateTimePicker>
       </View>
