@@ -68,4 +68,23 @@ class WeatherKayak(
         private const val WIND_MULT = 0.2
         private const val TIDE_MULT = 0.5
     }
+
+    /*
+     * Weather kayak logic:
+     * 1) take in kayaker speed with no wind
+     * 2) find kayaker power from this P = Fv where F is water drag force
+     * 3) find wind drag force F = 1/2 CpAvv
+     * where C is drag coefficient - changes based on angle wind hits
+     * p is the air density 1.225 kg/mmm sea level
+     * A is the surface area of the kayak (front to wind)
+     * v is velocity against wind - which we don't know yet?
+     *
+     * 4) now find how much power you have left over for going forward
+     * 5) solve for v?
+     *
+     *
+     *
+     * tides:
+     * https://www.ukseakayakguidebook.co.uk/time_and_tide/art_time_and_tide.htm#:~:text=One%20knot%20is%20near%20enough,paddling%20speed%20is%203NM%2Fhour.
+     * */
 }
