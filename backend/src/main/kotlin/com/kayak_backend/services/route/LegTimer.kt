@@ -6,7 +6,28 @@ import java.time.ZoneOffset
 import kotlin.math.roundToLong
 
 class LegTimer(private val kayak: Kayak) {
+    // TODO change duration cache to have 15 minute periods
+    // TODO find way to remove old entries after a period
     private val durationCache = mutableMapOf<Leg, MutableMap<Long, Long>>()
+
+    // TODO will probably need start and end points when backwards routes are working
+    // map of coordinates to the single leg they are the end of
+    private val endToLeg = mutableMapOf<Location, Leg>()
+
+    fun getCheckpoints(
+        route: Route,
+        dateTime: LocalDateTime,
+    ): Map<Location, Long> {
+        var timer = 0L
+        val checkpoints =
+            route.locations.drop(1).associateWith { loc ->
+                val leg = durationCache.getOrDefault(endToLeg[loc], emptyMap())
+                timer += leg.getOrDefault(dateTime.toEpochSecond(ZoneOffset.UTC), 0L)
+                timer
+            }.toMutableMap()
+        checkpoints[route.locations[0]] = 0L
+        return checkpoints
+    }
 
     fun getDuration(
         leg: Leg,
@@ -28,6 +49,7 @@ class LegTimer(private val kayak: Kayak) {
                         (leg.start.latitude + leg.start.latitude) / 2,
                         (leg.start.longitude + leg.start.longitude) / 2,
                     )
+                endToLeg[leg.end] = leg
                 (leg.length / kayak.getSpeed(dateTime, midpoint, leg.bearing)).roundToLong()
             }
 
