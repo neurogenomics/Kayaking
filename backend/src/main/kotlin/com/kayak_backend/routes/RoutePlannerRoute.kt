@@ -21,7 +21,7 @@ fun Route.planRoute(
             val duration = call.parameters.getOrFail<Double>("duration")
             val startTime = getDateParameter(call.parameters, "startDateTime")
             val location = Location(lat, lng)
-            val routes: List<com.kayak_backend.services.route.Route> =
+            val routes =
                 routePlanner.generateRoutes(
                     { location distanceTo it.location < startPositionFilterDistance },
                     { legTimer.getDuration(it, startTime) < duration * 60 },
