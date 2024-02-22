@@ -204,6 +204,7 @@ export const WeatherVisualisation: React.FC<WeatherVisualisationProps> = ({
               coordinates={coord.coords}
               strokeWidth={2}
               strokeColor={getColor(coord.magnitude, display)}
+              zIndex={0}
             />
           ))
         : null}

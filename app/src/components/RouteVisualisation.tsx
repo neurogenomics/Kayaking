@@ -29,9 +29,6 @@ export const RouteVisualisation: React.FC<RouteVisualisationProps> = ({
         userInput.startTime,
       );
       setRoutes(routes);
-      console.log('length');
-      console.log(routes.length);
-      setRoutes(routes);
     } catch (error) {
       console.log('Error getting routes: ', error);
     }
@@ -39,20 +36,21 @@ export const RouteVisualisation: React.FC<RouteVisualisationProps> = ({
 
   useEffect(() => {
     void getRoutes(userInput);
-  }, [userInput]);
+    console.log(selectedRouteIndex);
+  }, [userInput, selectedRouteIndex]);
 
   return (
     <>
-      {routes
+      {routes !== undefined && selectedRouteIndex < routes.length ? (
+        <Marker
+          title={`Route ${selectedRouteIndex + 1}`}
+          description={`Distance covered: ${(routes[selectedRouteIndex].length / 1000).toFixed(2)}km`}
+          coordinate={routes[selectedRouteIndex].locations[0]}
+        ></Marker>
+      ) : null}
+      {routes !== undefined
         ? routes.map((route, index) => (
             <View key={`polyline-${index}`}>
-              {index === selectedRouteIndex ? (
-                <Marker
-                  title={`Route ${index + 1}`}
-                  description={`Distance covered: ${Math.round(route.length / 1000)}km`}
-                  coordinate={route.locations[0]}
-                ></Marker>
-              ) : null}
               <Polyline
                 coordinates={route.locations}
                 strokeWidth={index === selectedRouteIndex ? 5 : 2}
@@ -61,6 +59,8 @@ export const RouteVisualisation: React.FC<RouteVisualisationProps> = ({
                     ? routeColors.selected
                     : routeColors.unselected
                 }
+                zIndex={index === selectedRouteIndex ? 3 : 2}
+                tappable={true}
                 onPress={() => setSelectedRouteIndex(index)}
               />
             </View>
