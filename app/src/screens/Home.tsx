@@ -1,5 +1,5 @@
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { RootStackParamList, Route } from '../routes';
+import { RootStackParamList } from '../routes';
 import React, { useMemo, useState } from 'react';
 import { StyleSheet, SafeAreaView } from 'react-native';
 import MapView from 'react-native-maps';
@@ -17,6 +17,8 @@ import WeatherFabs from '../components/WeatherFabs';
 import { MapVisualisation } from '../components/MapVisualisation';
 import { GridType } from '../models/gridModel';
 import DateCarousel from '../components/DateCarousel/DateCarousel';
+import RouteInformation from '../components/RouteInformation';
+import { Route } from '../models/routeModel';
 
 const styles = StyleSheet.create({
   container: {
@@ -62,6 +64,14 @@ const HomeScreen: React.FC<HomeProps> = () => {
     return result;
   };
 
+  const routeProps: Route = {
+    difficulty: 0, // Example value for difficulty
+    length: 0, // Example value for length
+    locations: [],
+    startTime: new Date(),
+    endTime: new Date(new Date().getTime() + 4 * 60 * 60 * 1000),
+  };
+
   return (
     <GestureHandlerRootView style={styles.container}>
       <MapView
@@ -99,7 +109,10 @@ const HomeScreen: React.FC<HomeProps> = () => {
         }}
       >
         <Tab.Navigator>
-          <Tab.Screen name="Filter" component={Filters} />
+          <Tab.Screen
+            name="Filter"
+            component={() => <RouteInformation {...routeProps} />}
+          />
           <Tab.Screen name="Routes" component={Routes} />
         </Tab.Navigator>
       </BottomSheet>
