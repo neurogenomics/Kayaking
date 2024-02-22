@@ -62,6 +62,9 @@ const HomeScreen: React.FC<HomeProps> = () => {
     return result;
   };
 
+  const [startTime, setStartTime] = useState(new Date());
+  const [endTime, setEndTime] = useState(new Date());
+
   return (
     <GestureHandlerRootView style={styles.container}>
       <MapView
@@ -99,7 +102,16 @@ const HomeScreen: React.FC<HomeProps> = () => {
         }}
       >
         <Tab.Navigator>
-          <Tab.Screen name="Filter" component={Filters} />
+          <Tab.Screen name="Filter" options={{ tabBarLabel: 'Filter' }}>
+            {() => (
+              <Filters
+                startTime={startTime}
+                setStartTime={setStartTime}
+                endTime={endTime}
+                setEndTime={setEndTime}
+              />
+            )}
+          </Tab.Screen>
           <Tab.Screen name="Routes" component={Routes} />
         </Tab.Navigator>
       </BottomSheet>

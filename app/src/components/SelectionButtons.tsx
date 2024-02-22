@@ -1,29 +1,48 @@
 import React from 'react';
-import { PaddleSpeed } from '../models/userInputModel';
+//import { PaddleSpeed } from '../models/userInputModel';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
-export const PaddleSpeedButtons: React.FC<{
-  paddleSpeed: PaddleSpeed;
-  setPaddleSpeed: React.Dispatch<React.SetStateAction<PaddleSpeed>>;
-}> = ({ paddleSpeed, setPaddleSpeed }) => {
-  const paddleSpeedOptions = [
-    { type: PaddleSpeed.Slow, name: 'Slow' },
-    { type: PaddleSpeed.Normal, name: 'Normal' },
-    { type: PaddleSpeed.Fast, name: 'Fast' },
-  ];
+// Define the Option interface
+interface Option<T> {
+  type: T;
+  name: string;
+}
+
+// Define Props as a generic type accepting any enum
+interface Props<T> {
+  label: string;
+  options: Option<T>[];
+  selectedOption: T;
+  onSelect: React.Dispatch<React.SetStateAction<T>>;
+}
+
+// Utility function to generate options array from enum values
+export function generateOptions<T>(enumObject: Record<string, T>): Option<T>[] {
+  return Object.keys(enumObject).map((key) => ({
+    type: enumObject[key],
+    name: key,
+  }));
+}
+
+export const SelectButtons: React.FC<Props<string>> = ({
+  label,
+  options,
+  selectedOption,
+  onSelect,
+}) => {
   return (
     <View style={styles.paddleButtonContainer}>
-      <Text style={styles.label}>Select Paddle Speed</Text>
+      <Text style={styles.label}>{label}</Text>
       <View style={styles.buttonContainer}>
-        {paddleSpeedOptions.map((option) => (
+        {options.map((option) => (
           <TouchableOpacity
             key={option.name}
             style={[
               styles.button,
-              paddleSpeed === option.type && styles.selectedButton,
+              selectedOption === option.type && styles.selectedButton,
             ]}
             onPress={() => {
-              setPaddleSpeed(option.type);
+              onSelect(option.type);
             }}
           >
             <Text style={styles.buttonText}>{option.name}</Text>
