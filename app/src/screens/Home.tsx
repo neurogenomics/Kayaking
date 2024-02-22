@@ -19,6 +19,7 @@ import DateCarousel from '../components/DateCarousel/DateCarousel';
 import { UserInput } from '../models/userInputModel';
 import { WeatherVisualisation } from '../components/WeatherVisualisation';
 import { RouteVisualisation } from '../components/RouteVisualisation';
+import { RouteModel } from '../models/routeModel';
 
 const styles = StyleSheet.create({
   container: {
@@ -40,6 +41,7 @@ const HomeScreen: React.FC<HomeProps> = () => {
   const bottomSheetPosition = useSharedValue<number>(0);
   const Tab = createMaterialTopTabNavigator();
   const [userInput, setUserInput] = useState<UserInput>();
+  const [routes, setRoutes] = useState<RouteModel[]>();
 
   const inverseBottomSheetStyle = useAnimatedStyle(() => {
     return {
@@ -74,13 +76,18 @@ const HomeScreen: React.FC<HomeProps> = () => {
         scrollEnabled={true}
         provider="google"
       >
+        {/*TODO CLEAN UP*/}
         {weatherMap !== undefined ? (
           <WeatherVisualisation display={weatherMap} date={mapDate} />
         ) : (
           <></>
         )}
         {userInput !== undefined ? (
-          <RouteVisualisation userInput={userInput} />
+          <RouteVisualisation
+            userInput={userInput}
+            routes={routes}
+            setRoutes={setRoutes}
+          />
         ) : (
           <></>
         )}
@@ -107,10 +114,12 @@ const HomeScreen: React.FC<HomeProps> = () => {
         }}
       >
         <Tab.Navigator>
-          <Tab.Screen name="Filter" options={{ tabBarLabel: 'Filter' }}>
+          <Tab.Screen name="Filter">
             {() => <Filters setUserInput={setUserInput} />}
           </Tab.Screen>
-          <Tab.Screen name="Routes" component={Routes} />
+          <Tab.Screen name="Routes">
+            {() => <Routes routes={routes} />}
+          </Tab.Screen>
         </Tab.Navigator>
       </BottomSheet>
     </GestureHandlerRootView>

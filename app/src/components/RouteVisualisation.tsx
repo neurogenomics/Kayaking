@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { getDuration, UserInput } from '../models/userInputModel';
 import { Marker, Polyline } from 'react-native-maps';
 import { RouteModel } from '../models/routeModel';
@@ -6,12 +6,15 @@ import { getRoute } from '../services/routeService';
 
 type RouteVisualisationProps = {
   userInput: UserInput;
+  routes: RouteModel[] | undefined;
+  setRoutes: React.Dispatch<React.SetStateAction<RouteModel[] | undefined>>;
 };
 
 export const RouteVisualisation: React.FC<RouteVisualisationProps> = ({
   userInput,
+  routes,
+  setRoutes,
 }: RouteVisualisationProps) => {
-  const [routes, setRoutes] = useState<RouteModel[]>();
   const colors = ['red', 'yellow', 'green', 'blue', 'pink'];
 
   const getRoutes = async (userInput: UserInput) => {
@@ -22,6 +25,8 @@ export const RouteVisualisation: React.FC<RouteVisualisationProps> = ({
         userInput.startTime,
       );
       setRoutes(routes);
+      console.log('length');
+      console.log(routes.length);
     } catch (error) {
       console.log('Error getting routes: ', error);
     }
@@ -37,6 +42,7 @@ export const RouteVisualisation: React.FC<RouteVisualisationProps> = ({
         routes.map((route, index) => (
           <>
             <Marker
+              key={index + 1}
               title={`Route ${index + 1}`}
               description={`Distance covered: ${Math.round(route.length / 1000)}km`}
               coordinate={route.locations[0]}

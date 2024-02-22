@@ -11,7 +11,7 @@ import {
 } from '../models/userInputModel';
 import { generateOptions, SelectButtons } from './SelectionButtons';
 import { StartEndTimePicker } from './StartEndTimePicker';
-import { isleOfWight } from '../../constants';
+import { eastCowes } from '../../constants';
 
 type FiltersProps = {
   setUserInput: React.Dispatch<React.SetStateAction<UserInput>>;
@@ -44,19 +44,16 @@ export const Filters: React.FC<FiltersProps> = ({
   const routeDifficultyOptions = generateOptions(RouteDifficulty);
 
   useEffect(() => {
-    const user: UserInput = {
-      location: {
-        latitude: isleOfWight.latitude,
-        longitude: isleOfWight.longitude,
-      },
+    setUserInput((prevUserInput) => ({
+      ...prevUserInput,
+      location: eastCowes, // TODO: change this once we have location from map
       startTime: startTime,
       endTime: endTime,
       paddleSpeed: paddleSpeed,
       routeType: routeType,
       routeDifficulty: routeDifficulty,
       breakTime: breakDuration,
-    };
-    setUserInput(user);
+    }));
   }, [
     startTime,
     endTime,
@@ -80,21 +77,18 @@ export const Filters: React.FC<FiltersProps> = ({
         selectedOption={paddleSpeed}
         onSelect={setPaddleSpeed}
       />
-      <View style={{ height: 20 }} />
       <SelectButtons
         label={'Select route difficulty'}
         options={routeDifficultyOptions}
         selectedOption={routeDifficulty}
         onSelect={setRouteDifficulty}
       />
-      <View style={{ height: 20 }} />
       <SelectButtons
         label={'Select route type'}
         options={routeTypeOptions}
         selectedOption={routeType}
         onSelect={setRouteType}
       />
-      <View style={{ height: 20 }} />
       <View style={styles.pickerContainer}>
         <Text style={styles.label}>Break time duration</Text>
         <DateTimePicker
