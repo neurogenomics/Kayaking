@@ -14,17 +14,18 @@ class LegTimer(private val kayak: Kayak) {
     // map of coordinates to the single leg they are the end of
     private val endToLeg = mutableMapOf<Location, Leg>()
 
-    // Works on the assumption getDuration has already been called for all the single legs on this route
     // TODO should this have an error/ debug message if not?
+    // ONLY Works on the assumption getDuration has already been called for all the single legs on this route
     fun getCheckpoints(
         route: Route,
         dateTime: LocalDateTime,
     ): List<Pair<Location, Long>> {
         var timer = 0L
+        val time = dateTime.toEpochSecond(ZoneOffset.UTC)
         val checkpoints =
             route.locations.drop(1).map { loc ->
                 val leg = durationCache.getOrDefault(endToLeg[loc], emptyMap())
-                timer += leg.getOrDefault(dateTime.toEpochSecond(ZoneOffset.UTC) + timer, 0L)
+                timer += leg.getOrDefault(time + timer, 0L)
                 loc to timer
             }.toMutableList()
         checkpoints.add(0, route.locations[0] to 0L)
