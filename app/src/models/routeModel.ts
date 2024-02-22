@@ -1,6 +1,6 @@
 import { LocationModel } from './locationModel';
 
-export type Route = {
+export type RouteModel = {
   length: number;
   locations: LocationModel[];
 };

@@ -1,7 +1,7 @@
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList, Route } from '../routes';
 import React, { useMemo, useState } from 'react';
-import { StyleSheet, SafeAreaView } from 'react-native';
+import { SafeAreaView, StyleSheet } from 'react-native';
 import MapView from 'react-native-maps';
 import { isleOfWight } from '../../constants';
 import BottomSheet from '@gorhom/bottom-sheet';
@@ -14,9 +14,10 @@ import Animated, {
   useSharedValue,
 } from 'react-native-reanimated';
 import WeatherFabs from '../components/WeatherFabs';
-import { MapVisualisation } from '../components/MapVisualisation';
 import { GridType } from '../models/gridModel';
 import DateCarousel from '../components/DateCarousel/DateCarousel';
+import { PaddleSpeed, RouteType, UserInput } from '../models/userInputModel';
+import { RouteVisualisation } from '../components/RouteVisualisation';
 
 const styles = StyleSheet.create({
   container: {
@@ -37,6 +38,7 @@ const HomeScreen: React.FC<HomeProps> = () => {
   const [mapDate, setMapDate] = useState<Date>(new Date());
   const bottomSheetPosition = useSharedValue<number>(0);
   const Tab = createMaterialTopTabNavigator();
+  const [userInput, setUserInput] = useState<UserInput>();
 
   const inverseBottomSheetStyle = useAnimatedStyle(() => {
     return {
@@ -62,6 +64,26 @@ const HomeScreen: React.FC<HomeProps> = () => {
     return result;
   };
 
+  // TODO: get rid of this once filter merged
+  const start = new Date();
+  start.setHours(13, 0, 0, 0);
+
+  const end = new Date();
+  end.setHours(15, 0, 0, 0);
+
+  const input: UserInput = {
+    startTime: start,
+    endTime: end,
+    location: {
+      latitude: isleOfWight.latitude,
+      longitude: isleOfWight.longitude,
+    },
+    paddleSpeed: PaddleSpeed.Normal,
+    breakTime: 0,
+    routeType: RouteType.PointToPoint,
+  };
+  setUserInput(input);
+
   return (
     <GestureHandlerRootView style={styles.container}>
       <MapView
@@ -71,8 +93,13 @@ const HomeScreen: React.FC<HomeProps> = () => {
         scrollEnabled={true}
         provider="google"
       >
-        {weatherMap !== undefined ? (
-          <MapVisualisation display={weatherMap} date={mapDate} />
+        {/*{weatherMap !== undefined ? (*/}
+        {/*  <WeatherVisualisation display={weatherMap} date={mapDate} />*/}
+        {/*) : (*/}
+        {/*  <></>*/}
+        {/*)}*/}
+        {userInput !== undefined ? (
+          <RouteVisualisation userInput={userInput} />
         ) : (
           <></>
         )}

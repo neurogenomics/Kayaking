@@ -6,7 +6,7 @@ import { getGrid } from '../services/gridService';
 import { Matrix, Vector } from 'ts-matrix';
 import { tideColorMap, windColorMap } from '../colors';
 
-type MapVisualisationProps = {
+type WeatherVisualisationProps = {
   display: GridType;
   date: Date;
 };
@@ -23,7 +23,7 @@ type ArrowCoords = {
   magnitude: number;
 };
 
-export const MapVisualisation: React.FC<MapVisualisationProps> = ({
+export const WeatherVisualisation: React.FC<WeatherVisualisationProps> = ({
   display,
   date,
 }) => {
