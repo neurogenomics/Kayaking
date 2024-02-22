@@ -8,7 +8,7 @@ import BottomSheet from '@gorhom/bottom-sheet';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 import Routes from '../components/Routes';
-import Filters from '../components/Filter';
+import Filters from '../components/Filters';
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
@@ -16,7 +16,8 @@ import Animated, {
 import WeatherFabs from '../components/WeatherFabs';
 import { GridType } from '../models/gridModel';
 import DateCarousel from '../components/DateCarousel/DateCarousel';
-import { PaddleSpeed, RouteType, UserInput } from '../models/userInputModel';
+import { UserInput } from '../models/userInputModel';
+import { WeatherVisualisation } from '../components/WeatherVisualisation';
 import { RouteVisualisation } from '../components/RouteVisualisation';
 
 const styles = StyleSheet.create({
@@ -64,26 +65,6 @@ const HomeScreen: React.FC<HomeProps> = () => {
     return result;
   };
 
-  // TODO: get rid of this once filter merged
-  const start = new Date();
-  start.setHours(13, 0, 0, 0);
-
-  const end = new Date();
-  end.setHours(15, 0, 0, 0);
-
-  const input: UserInput = {
-    startTime: start,
-    endTime: end,
-    location: {
-      latitude: isleOfWight.latitude,
-      longitude: isleOfWight.longitude,
-    },
-    paddleSpeed: PaddleSpeed.Normal,
-    breakTime: 0,
-    routeType: RouteType.PointToPoint,
-  };
-  setUserInput(input);
-
   return (
     <GestureHandlerRootView style={styles.container}>
       <MapView
@@ -93,11 +74,11 @@ const HomeScreen: React.FC<HomeProps> = () => {
         scrollEnabled={true}
         provider="google"
       >
-        {/*{weatherMap !== undefined ? (*/}
-        {/*  <WeatherVisualisation display={weatherMap} date={mapDate} />*/}
-        {/*) : (*/}
-        {/*  <></>*/}
-        {/*)}*/}
+        {weatherMap !== undefined ? (
+          <WeatherVisualisation display={weatherMap} date={mapDate} />
+        ) : (
+          <></>
+        )}
         {userInput !== undefined ? (
           <RouteVisualisation userInput={userInput} />
         ) : (
@@ -126,7 +107,9 @@ const HomeScreen: React.FC<HomeProps> = () => {
         }}
       >
         <Tab.Navigator>
-          <Tab.Screen name="Filter" component={Filters} />
+          <Tab.Screen name="Filter" options={{ tabBarLabel: 'Filter' }}>
+            {() => <Filters setUserInput={setUserInput} />}
+          </Tab.Screen>
           <Tab.Screen name="Routes" component={Routes} />
         </Tab.Navigator>
       </BottomSheet>
