@@ -17,15 +17,16 @@ class LegTimer(private val kayak: Kayak) {
     fun getCheckpoints(
         route: Route,
         dateTime: LocalDateTime,
-    ): Map<Location, Long> {
+    ): List<Pair<Location, Long>> {
         var timer = 0L
         val checkpoints =
-            route.locations.drop(1).associateWith { loc ->
+            route.locations.drop(1).map { loc ->
                 val leg = durationCache.getOrDefault(endToLeg[loc], emptyMap())
                 timer += leg.getOrDefault(dateTime.toEpochSecond(ZoneOffset.UTC), 0L)
-                timer
-            }.toMutableMap()
-        checkpoints[route.locations[0]] = 0L
+                loc to timer
+            }.toMutableList()
+        checkpoints.add(0, route.locations[0] to 0L)
+
         return checkpoints
     }
 
