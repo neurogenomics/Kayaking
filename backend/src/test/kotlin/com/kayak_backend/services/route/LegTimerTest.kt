@@ -85,4 +85,14 @@ class LegTimerTest {
         assertEquals(result.size, 1)
         assertEquals(result[0], Pair(loc1, 0L))
     }
+
+    @Test
+    fun findsZeroTimeForRouteWhereLegsNotInDurationCache() {
+        val time = LocalDateTime.now()
+        val route = Route(0.0, listOf(loc1, loc2))
+        val result = legTimer.getCheckpoints(route, time)
+        assertEquals(result.size, 2)
+        assertEquals(result[0], Pair(loc1, 0L))
+        assertEquals(result[1], Pair(loc2, 0L))
+    }
 }
