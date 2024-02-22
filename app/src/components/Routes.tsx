@@ -1,7 +1,6 @@
 import React, { useCallback } from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet, FlatList } from 'react-native';
 import { RouteModel } from '../models/routeModel';
-import { BottomSheetFlatList } from '@gorhom/bottom-sheet';
 
 const styles = StyleSheet.create({
   itemContainer: {
@@ -29,21 +28,18 @@ const Routes: React.FC<RoutesProps> = ({ routes }: RoutesProps) => {
 
   return (
     <View>
-      <Text>Route stuff goes here</Text>
-      {routes?.map((item, index) => (
-        <View style={styles.itemContainer} key={index}>
-          <Text>Route {index + 1}</Text>
-          <Text>{`Distance covered: ${Math.round(item.length / 1000)}km`}</Text>
-        </View>
-      ))}
-      <BottomSheetFlatList
-        data={routes}
-        keyExtractor={(item, index) => index.toString()}
-        renderItem={renderItem}
-        contentContainerStyle={{
-          backgroundColor: 'white',
-        }}
-      />
+      {routes === undefined ? (
+        <Text>Enter filters to get a route</Text>
+      ) : (
+        <FlatList
+          data={routes}
+          keyExtractor={(item, index) => index.toString()}
+          renderItem={renderItem}
+          contentContainerStyle={{
+            backgroundColor: 'white',
+          }}
+        />
+      )}
     </View>
   );
 };
