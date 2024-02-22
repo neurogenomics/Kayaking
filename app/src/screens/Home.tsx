@@ -102,10 +102,8 @@ const HomeScreen: React.FC<HomeProps> = () => {
         }}
       >
         <Tab.Navigator>
-          <Tab.Screen
-            name="Filter"
-            options={{ tabBarLabel: 'Filter' }}
-            component={() => (
+          <Tab.Screen name="Filter" options={{ tabBarLabel: 'Filter' }}>
+            {() => (
               <Filters
                 startTime={startTime}
                 setStartTime={setStartTime}
@@ -113,7 +111,7 @@ const HomeScreen: React.FC<HomeProps> = () => {
                 setEndTime={setEndTime}
               />
             )}
-          />
+          </Tab.Screen>
           <Tab.Screen name="Routes" component={Routes} />
         </Tab.Navigator>
       </BottomSheet>
