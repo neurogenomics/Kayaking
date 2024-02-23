@@ -64,6 +64,9 @@ const HomeScreen: React.FC<HomeProps> = () => {
     return result;
   };
 
+  const [startTime, setStartTime] = useState(new Date());
+  const [endTime, setEndTime] = useState(new Date());
+
   const routeProps: Route = {
     difficulty: 3, // Example value for difficulty
     length: 0, // Example value for length
