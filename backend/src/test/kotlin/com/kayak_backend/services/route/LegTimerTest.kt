@@ -39,4 +39,60 @@ class LegTimerTest {
             )
         assertEquals(res, res1 + res2 + res3)
     }
+
+    @Test
+    fun findsCheckPointsForASingleLegRoute() {
+        val time = LocalDateTime.now()
+        val route = Route(0.0, listOf(loc1, loc2))
+        legTimer.getDuration(Leg.SingleLeg(loc1, loc2), time)
+        val result = legTimer.getCheckpoints(route, time)
+        assertEquals(2, result.size)
+        assertEquals(result[0], Pair(loc1, 0L))
+        assertEquals(result[1], Pair(loc2, 72204L))
+    }
+
+    @Test
+    fun findsCheckPointsForAMultipleLegRoute() {
+        val time = LocalDateTime.now()
+        val route = Route(0.0, listOf(loc1, loc2, loc3, loc4))
+        legTimer.getDuration(
+            Leg.MultipleLegs(
+                listOf(
+                    Leg.SingleLeg(loc1, loc2),
+                    Leg.MultipleLegs(
+                        listOf(
+                            Leg.SingleLeg(loc2, loc3),
+                            Leg.SingleLeg(loc3, loc4),
+                        ),
+                    ),
+                ),
+            ),
+            time,
+        )
+        val result = legTimer.getCheckpoints(route, time)
+        assertEquals(4, result.size)
+        assertEquals(result[0], Pair(loc1, 0L))
+        assertEquals(result[1], Pair(loc2, 72204L))
+        assertEquals(result[2], Pair(loc3, 72204L * 2))
+        assertEquals(result[3], Pair(loc4, 72204L * 3))
+    }
+
+    @Test
+    fun findsSingleCheckPointForRouteOfOnePoint() {
+        val time = LocalDateTime.now()
+        val route = Route(0.0, listOf(loc1))
+        val result = legTimer.getCheckpoints(route, time)
+        assertEquals(result.size, 1)
+        assertEquals(result[0], Pair(loc1, 0L))
+    }
+
+    @Test
+    fun findsZeroTimeForRouteWhereLegsNotInDurationCache() {
+        val time = LocalDateTime.now()
+        val route = Route(0.0, listOf(loc1, loc2))
+        val result = legTimer.getCheckpoints(route, time)
+        assertEquals(result.size, 2)
+        assertEquals(result[0], Pair(loc1, 0L))
+        assertEquals(result[1], Pair(loc2, 0L))
+    }
 }

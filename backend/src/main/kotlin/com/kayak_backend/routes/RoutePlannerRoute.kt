@@ -3,11 +3,11 @@ package com.kayak_backend.routes
 import com.kayak_backend.models.Location
 import com.kayak_backend.services.route.LegTimer
 import com.kayak_backend.services.route.RoutePlanner
+import com.kayak_backend.services.route.TimedRoute
 import io.ktor.server.application.call
 import io.ktor.server.response.respond
 import io.ktor.server.routing.*
 import io.ktor.server.util.getOrFail
-import kotlin.text.get
 
 fun Route.planRoute(
     routePlanner: RoutePlanner,
@@ -26,7 +26,8 @@ fun Route.planRoute(
                     { location distanceTo it.location < startPositionFilterDistance },
                     { legTimer.getDuration(it, startTime) < duration * 60 },
                 ).take(5).toList()
-            call.respond(routes)
+
+            call.respond(routes.map { route -> TimedRoute(route.length, legTimer.getCheckpoints(route, startTime)) })
         }
     }
 }

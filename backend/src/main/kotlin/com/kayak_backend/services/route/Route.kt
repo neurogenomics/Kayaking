@@ -8,10 +8,18 @@ import org.locationtech.jts.geom.Polygon
 import org.locationtech.jts.simplify.TopologyPreservingSimplifier
 
 @Serializable
-data class Route(
+open class Route(
     val length: Double,
     val locations: List<Location>,
 )
+
+// TODO potentially duplicating information - could define own serialize function?
+// can only automatically serialize if constructor only takes in fields
+@Serializable
+data class TimedRoute(
+    val timedLength: Double,
+    val timedLocations: List<Pair<Location, Long>>,
+) : Route(timedLength, timedLocations.map { it.first })
 
 class BaseRoute {
     fun createBaseRoute(
