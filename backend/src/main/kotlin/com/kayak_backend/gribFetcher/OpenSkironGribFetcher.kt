@@ -1,5 +1,6 @@
 package com.kayak_backend.gribFetcher
 
+import com.kayak_backend.services.GRIB_FILE_PATH
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import org.apache.commons.compress.compressors.bzip2.BZip2CompressorInputStream
@@ -13,8 +14,7 @@ import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 
 class OpenSkironGribFetcher(private val client: OkHttpClient = OkHttpClient()) : GribFetcher {
-    private val filePath = "./gribFiles/Cherbourg_4km_WRF_WAM.grb"
-    private val filePathBz2 = "$filePath.bz2"
+    private val filePathBz2 = "$GRIB_FILE_PATH.bz2"
     private val baseUrl = "https://openskiron.org/gribs_wrf_4km/Cherbourg_4km_WRF_WAM_%s-%s.grb.bz2"
 
     private fun formatBaseString(
@@ -67,7 +67,7 @@ class OpenSkironGribFetcher(private val client: OkHttpClient = OkHttpClient()) :
     }
 
     private fun isUptoDate(dateTime: LocalDateTime): Boolean {
-        val file = File(filePath)
+        val file = File(GRIB_FILE_PATH)
         if (file.exists()) {
             val lastModifiedInstant = Instant.ofEpochMilli(file.lastModified())
             val lastModifiedDateTime = LocalDateTime.ofInstant(lastModifiedInstant, ZoneId.systemDefault())
@@ -79,7 +79,7 @@ class OpenSkironGribFetcher(private val client: OkHttpClient = OkHttpClient()) :
     override fun fetchGrib(): Boolean {
         val dateTime = LocalDateTime.now()
         val bz2GribPath = formatBaseString(filePathBz2, dateTime)
-        val gribPath = formatBaseString(filePath, dateTime)
+        val gribPath = formatBaseString(GRIB_FILE_PATH, dateTime)
         if (isUptoDate(dateTime)) {
             return false
         }
