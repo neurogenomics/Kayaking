@@ -3,21 +3,21 @@ import { View, Text } from 'react-native';
 import { getDistance, RouteModel } from '../../models/routeModel';
 
 export type RouteDetailsProps = {
-  selectedRoute: RouteModel | undefined;
+  routes: RouteModel[] | undefined;
   selectedRouteIndex: number;
 };
 
 const RouteDetails: React.FC<RouteDetailsProps> = ({
-  selectedRoute,
+  routes,
   selectedRouteIndex,
 }: RouteDetailsProps) => {
-  if (!selectedRoute) {
+  if (routes === undefined) {
     return null;
   }
   return (
     <View>
       <Text>{`Route ${selectedRouteIndex + 1}`}</Text>
-      <Text>{`Distance covered: ${getDistance(selectedRoute)}km`}</Text>
+      <Text>{`Distance covered: ${getDistance(routes[selectedRouteIndex])}km`}</Text>
     </View>
   );
 };

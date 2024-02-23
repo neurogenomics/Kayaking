@@ -5,11 +5,11 @@ import {
   StackNavigationProp,
 } from '@react-navigation/stack';
 import RoutesList from './RoutesList';
-import RouteDetails from './RouteDetails';
+import RouteDetails, { RouteDetailsProps } from './RouteDetails';
 
 type RootStackParamList = {
   RouteList: undefined;
-  RouteDetails: { selectedRoute: RouteModel };
+  RouteDetails: { props: RouteDetailsProps };
 };
 
 export type RouteListNavigationProp = StackNavigationProp<
@@ -47,7 +47,7 @@ const Routes: React.FC<RoutesProps> = ({
       <Stack.Screen name="RouteDetails">
         {() => (
           <RouteDetails
-            selectedRoute={routes[selectedRouteIndex]}
+            routes={routes}
             selectedRouteIndex={selectedRouteIndex}
           />
         )}

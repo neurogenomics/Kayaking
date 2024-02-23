@@ -8,6 +8,7 @@ import {
 import { getDistance, RouteModel } from '../../models/routeModel';
 import React, { useCallback } from 'react';
 import { RouteListNavigationProp } from './Routes';
+import { RouteDetailsProps } from './RouteDetails';
 
 const styles = StyleSheet.create({
   itemContainer: {
@@ -48,9 +49,14 @@ const RoutesList: React.FC<RoutesListProps> = ({
   );
 
   const selectRouteFromList = (index: number) => {
-    setSelectedRouteIndex(index);
-    const selectedRoute = routes[selectedRouteIndex];
-    navigation.navigate('RouteDetails', { selectedRoute, selectedRouteIndex });
+    if (routes !== undefined) {
+      setSelectedRouteIndex(index);
+      const props: RouteDetailsProps = {
+        routes: routes,
+        selectedRouteIndex: selectedRouteIndex,
+      };
+      navigation.navigate('RouteDetails', { props });
+    }
   };
 
   return (
