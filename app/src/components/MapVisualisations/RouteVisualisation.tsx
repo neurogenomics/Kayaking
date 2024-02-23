@@ -59,6 +59,7 @@ export const RouteVisualisation: React.FC<RouteVisualisationProps> = ({
           title={`Route ${selectedRouteIndex + 1}`}
           description={`Distance covered: ${getDistance(routes[selectedRouteIndex])}km`}
           coordinate={routes[selectedRouteIndex].locations[0]}
+          isPreselected={true}
         ></Marker>
       ) : null}
       {routes !== undefined

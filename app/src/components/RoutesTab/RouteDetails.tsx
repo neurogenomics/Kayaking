@@ -1,22 +1,29 @@
 import React from 'react';
-import { View, Text } from 'react-native';
+import { View, Text, Button } from 'react-native';
 import { getDistance, RouteModel } from '../../models/routeModel';
+import { RouteListNavigationProp } from './Routes';
+import { ArrowLeft } from 'react-feather';
 
 export type RouteDetailsProps = {
   routes: RouteModel[] | undefined;
   selectedRouteIndex: number;
+  navigation: RouteListNavigationProp;
 };
 
 const RouteDetails: React.FC<RouteDetailsProps> = ({
   routes,
   selectedRouteIndex,
+  navigation,
 }: RouteDetailsProps) => {
   if (routes === undefined) {
     return null;
   }
   return (
     <View>
-      <Text>{`Route ${selectedRouteIndex + 1}`}</Text>
+      <Button
+        title={'Back'}
+        onPress={() => navigation.navigate('RouteList')}
+      ></Button>
       <Text>{`Distance covered: ${getDistance(routes[selectedRouteIndex])}km`}</Text>
     </View>
   );

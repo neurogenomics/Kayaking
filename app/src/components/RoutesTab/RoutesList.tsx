@@ -54,6 +54,7 @@ const RoutesList: React.FC<RoutesListProps> = ({
       const props: RouteDetailsProps = {
         routes: routes,
         selectedRouteIndex: selectedRouteIndex,
+        navigation: navigation,
       };
       navigation.navigate('RouteDetails', { props });
     }

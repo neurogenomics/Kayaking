@@ -33,7 +33,7 @@ const Routes: React.FC<RoutesProps> = ({
   navigation,
 }) => {
   return (
-    <Stack.Navigator>
+    <Stack.Navigator initialRouteName={'RouteList'}>
       <Stack.Screen name="RouteList" options={{ headerShown: false }}>
         {() => (
           <RoutesList
@@ -44,11 +44,17 @@ const Routes: React.FC<RoutesProps> = ({
           />
         )}
       </Stack.Screen>
-      <Stack.Screen name="RouteDetails">
+      <Stack.Screen
+        name="RouteDetails"
+        options={{
+          headerShown: false,
+        }}
+      >
         {() => (
           <RouteDetails
             routes={routes}
             selectedRouteIndex={selectedRouteIndex}
+            navigation={navigation}
           />
         )}
       </Stack.Screen>
