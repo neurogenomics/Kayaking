@@ -2,7 +2,6 @@ import React from 'react';
 import { View, Text, Button } from 'react-native';
 import { getDistance, RouteModel } from '../../models/routeModel';
 import { RouteListNavigationProp } from './Routes';
-import { ArrowLeft } from 'react-feather';
 
 export type RouteDetailsProps = {
   routes: RouteModel[] | undefined;
