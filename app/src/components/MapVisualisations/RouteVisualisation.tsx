@@ -1,10 +1,23 @@
 import React, { useEffect } from 'react';
-import { getDuration, UserInput } from '../models/userInputModel';
+import { getDuration, UserInput } from '../../models/userInputModel';
 import { Marker, Polyline } from 'react-native-maps';
-import { RouteModel } from '../models/routeModel';
-import { getRoute } from '../services/routeService';
-import { routeColors } from '../colors';
-import { View } from 'react-native';
+import { getDistance, RouteModel } from '../../models/routeModel';
+import { getRoute } from '../../services/routeService';
+import { routeColors } from '../../colors';
+import { StyleSheet, View } from 'react-native';
+
+const styles = StyleSheet.create({
+  selected: {
+    strokeWidth: 5,
+    strokeColor: routeColors.selected,
+    zIndex: 3,
+  },
+  unselected: {
+    strokeWidth: 2,
+    strokeColor: routeColors.unselected,
+    zIndex: 2,
+  },
+});
 
 type RouteVisualisationProps = {
   userInput: UserInput;
@@ -36,15 +49,15 @@ export const RouteVisualisation: React.FC<RouteVisualisationProps> = ({
 
   useEffect(() => {
     void getRoutes(userInput);
-    console.log(selectedRouteIndex);
   }, [userInput, selectedRouteIndex]);
 
   return (
     <>
       {routes !== undefined && selectedRouteIndex < routes.length ? (
+        // Plots a marker at the head of the selected route
         <Marker
           title={`Route ${selectedRouteIndex + 1}`}
-          description={`Distance covered: ${(routes[selectedRouteIndex].length / 1000).toFixed(2)}km`}
+          description={`Distance covered: ${getDistance(routes[selectedRouteIndex])}km`}
           coordinate={routes[selectedRouteIndex].locations[0]}
         ></Marker>
       ) : null}
@@ -53,13 +66,21 @@ export const RouteVisualisation: React.FC<RouteVisualisationProps> = ({
             <View key={`polyline-${index}`}>
               <Polyline
                 coordinates={route.locations}
-                strokeWidth={index === selectedRouteIndex ? 5 : 2}
+                strokeWidth={
+                  index === selectedRouteIndex
+                    ? styles.selected.strokeWidth
+                    : styles.unselected.strokeWidth
+                }
                 strokeColor={
                   index === selectedRouteIndex
-                    ? routeColors.selected
-                    : routeColors.unselected
+                    ? styles.selected.strokeColor
+                    : styles.unselected.strokeColor
                 }
-                zIndex={index === selectedRouteIndex ? 3 : 2}
+                zIndex={
+                  index === selectedRouteIndex
+                    ? styles.selected.zIndex
+                    : styles.unselected.zIndex
+                }
                 tappable={true}
                 onPress={() => setSelectedRouteIndex(index)}
               />

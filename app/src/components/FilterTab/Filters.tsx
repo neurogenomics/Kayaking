@@ -8,10 +8,10 @@ import {
   RouteDifficulty,
   RouteType,
   UserInput,
-} from '../models/userInputModel';
+} from '../../models/userInputModel';
 import { generateOptions, SelectButtons } from './SelectionButtons';
 import { StartEndTimePicker } from './StartEndTimePicker';
-import { eastCowes } from '../../constants';
+import { eastCowes } from '../../../constants';
 
 type FiltersProps = {
   setUserInput: React.Dispatch<React.SetStateAction<UserInput>>;

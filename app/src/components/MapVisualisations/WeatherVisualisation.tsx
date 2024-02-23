@@ -1,10 +1,10 @@
 import { Polyline } from 'react-native-maps';
 import React, { useEffect, useState } from 'react';
-import { LocationModel } from '../models/locationModel';
-import { GridModel, GridType, ResolutionModel } from '../models/gridModel';
-import { getGrid } from '../services/gridService';
+import { LocationModel } from '../../models/locationModel';
+import { GridModel, GridType, ResolutionModel } from '../../models/gridModel';
+import { getGrid } from '../../services/gridService';
 import { Matrix, Vector } from 'ts-matrix';
-import { tideColorMap, windColorMap } from '../colors';
+import { tideColorMap, windColorMap } from '../../colors';
 
 type WeatherVisualisationProps = {
   display: GridType;

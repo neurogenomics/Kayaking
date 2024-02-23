@@ -7,8 +7,8 @@ import { isleOfWight } from '../../constants';
 import BottomSheet from '@gorhom/bottom-sheet';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
-import Routes from '../components/Routes';
-import Filters from '../components/Filters';
+import Routes from '../components/RoutesTab/Routes';
+import Filters from '../components/FilterTab/Filters';
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
@@ -17,9 +17,10 @@ import WeatherFabs from '../components/WeatherFabs';
 import { GridType } from '../models/gridModel';
 import DateCarousel from '../components/DateCarousel/DateCarousel';
 import { UserInput } from '../models/userInputModel';
-import { WeatherVisualisation } from '../components/WeatherVisualisation';
-import { RouteVisualisation } from '../components/RouteVisualisation';
+import { WeatherVisualisation } from '../components/MapVisualisations/WeatherVisualisation';
+import { RouteVisualisation } from '../components/MapVisualisations/RouteVisualisation';
 import { RouteModel } from '../models/routeModel';
+import { useNavigation } from '@react-navigation/native';
 
 const styles = StyleSheet.create({
   container: {
@@ -41,7 +42,7 @@ const HomeScreen: React.FC<HomeProps> = () => {
   const bottomSheetPosition = useSharedValue<number>(0);
   const Tab = createMaterialTopTabNavigator();
   const [userInput, setUserInput] = useState<UserInput>();
-  const [routes, setRoutes] = useState<RouteModel[]>();
+  const [routes, setRoutes] = useState<RouteModel[] | undefined>();
   const [selectedRouteIndex, setSelectedRouteIndex] = useState(0);
 
   const inverseBottomSheetStyle = useAnimatedStyle(() => {
@@ -119,7 +120,9 @@ const HomeScreen: React.FC<HomeProps> = () => {
             {() => (
               <Routes
                 routes={routes}
+                selectedRouteIndex={selectedRouteIndex}
                 setSelectedRouteIndex={setSelectedRouteIndex}
+                navigation={useNavigation()}
               />
             )}
           </Tab.Screen>
