@@ -65,7 +65,7 @@ const HomeScreen: React.FC<HomeProps> = () => {
   };
 
   const routeProps: Route = {
-    difficulty: 0, // Example value for difficulty
+    difficulty: 3, // Example value for difficulty
     length: 0, // Example value for length
     locations: [],
     startTime: new Date(),
