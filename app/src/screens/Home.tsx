@@ -21,6 +21,10 @@ import { WeatherVisualisation } from '../components/MapVisualisations/WeatherVis
 import { RouteVisualisation } from '../components/MapVisualisations/RouteVisualisation';
 import { RouteModel } from '../models/routeModel';
 import { useNavigation } from '@react-navigation/native';
+import { MapVisualisation } from '../components/MapVisualisation';
+import DateCarousel from '../components/DateCarousel/DateCarousel';
+import { GridType } from '../models/gridModel';
+import { DataDisplay } from '../components/DataDisplay';
 
 const styles = StyleSheet.create({
   container: {
@@ -37,6 +41,8 @@ type HomeProps = NativeStackScreenProps<RootStackParamList, Route.HOME>;
 const HomeScreen: React.FC<HomeProps> = () => {
   const [fabsVisible, setFabsVisible] = useState(true);
   const [weatherMap, setWeatherMap] = useState<GridType>();
+  const [sunsetOn, setSunsetOn] = useState(false);
+  const [tideHeightOn, setTideTimesOn] = useState(false);
   const snapPoints = useMemo(() => ['15%', '50%', '90%'], []);
   const [mapDate, setMapDate] = useState<Date>(new Date());
   const bottomSheetPosition = useSharedValue<number>(0);
@@ -97,10 +103,23 @@ const HomeScreen: React.FC<HomeProps> = () => {
           onDateChanged={(date) => setMapDate(date)}
         ></DateCarousel>
       </SafeAreaView>
+      <DataDisplay
+        sunsetOn={sunsetOn}
+        tideTimesOn={tideHeightOn}
+        // TODO get from map?
+        location={{
+          longitude: isleOfWight.longitude,
+          latitude: isleOfWight.latitude,
+        }}
+        date={mapDate}
+      />
+      {/*<Text style={{ fontSize: 100 }}>put here</Text>*/}
       <Animated.View style={inverseBottomSheetStyle} pointerEvents="box-none">
         <WeatherFabs
           visible={fabsVisible}
           setWeatherMap={setWeatherMap}
+          setSunsetOn={setSunsetOn}
+          setTideTimesOn={setTideTimesOn}
         ></WeatherFabs>
       </Animated.View>
       <BottomSheet
