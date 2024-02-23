@@ -28,7 +28,7 @@ class LegTimer(private val kayak: Kayak) {
                 timer += leg.getOrDefault(time + timer, 0L)
                 timer
             }.toMutableList()
-        checkpoints.addFirst(0)
+        checkpoints.add(0, 0)
         return checkpoints
     }
 
