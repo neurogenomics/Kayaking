@@ -1,7 +1,10 @@
 package com.kayak_backend.services.route
 
 import com.kayak_backend.models.Location
+import com.kayak_backend.serialization.LegSerializer
+import kotlinx.serialization.Serializable
 
+@Serializable(with = LegSerializer::class)
 sealed class Leg {
     abstract val length: Double
     abstract val start: Location
