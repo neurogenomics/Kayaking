@@ -8,9 +8,18 @@ import org.locationtech.jts.geom.Polygon
 import org.locationtech.jts.simplify.TopologyPreservingSimplifier
 
 @Serializable
-data class Route(
+open class Route(
+    val name: String,
     val length: Double,
     val locations: List<Location>,
+)
+
+@Serializable
+data class TimedRoute(
+    val name: String,
+    val length: Double,
+    val locations: List<Location>,
+    val checkpoints: List<Long>,
 )
 
 class BaseRoute {
