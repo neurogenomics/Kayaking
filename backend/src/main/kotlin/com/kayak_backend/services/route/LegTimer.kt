@@ -26,7 +26,7 @@ class LegTimer(private val kayak: Kayak) {
         return when (leg) {
             is Leg.SingleLeg -> {
                 val duration = getDuration(leg, time.plusSeconds(accumulator))
-                checkpoints.add(accumulator + duration) // matches index of end location in locations
+                checkpoints.add(accumulator + duration) // matches index of leg end location in coordinate list
                 Pair(accumulator + duration, checkpoints)
             }
 
