@@ -27,7 +27,9 @@ fun Route.planRoute(
                     { legTimer.getDuration(it, startTime) < duration * 60 },
                 ).take(5).toList()
 
-            call.respond(routes.map { route -> TimedRoute(route.length, legTimer.getCheckpoints(route, startTime)) })
+            call.respond(
+                routes.map { route -> TimedRoute(route.name, route.length, route.locations, legTimer.getCheckpoints(route, startTime)) },
+            )
         }
     }
 }

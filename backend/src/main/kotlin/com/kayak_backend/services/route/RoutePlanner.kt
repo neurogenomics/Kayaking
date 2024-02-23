@@ -124,29 +124,32 @@ class RoutePlanner(
     }
 
     // Given a leg, create a longer leg that connects to the start and end slipways
-    private fun connectToStart(leg: Leg): Leg {
+    private fun connectToStart(leg: Leg): Pair<Leg, String> {
         // TODO allow route to connect to multiple start locations
         val start = routeToStarts[leg.start]!![0]
         val end = routeToStarts[leg.end]!![0]
-        return Leg.MultipleLegs(
-            listOf(
-                Leg.SingleLeg(start.location, leg.start),
-                leg,
-                Leg.SingleLeg(leg.end, end.location),
-            ),
-        )
+        val combinedLeg =
+            Leg.MultipleLegs(
+                listOf(
+                    Leg.SingleLeg(start.location, leg.start),
+                    leg,
+                    Leg.SingleLeg(leg.end, end.location),
+                ),
+            )
+        val name = "${start.name} to ${end.name}"
+        return Pair(combinedLeg, name)
     }
 
     // Given the start locations, generate a sequence of routes that all abide by condition
     private fun routeGenerator(
         condition: (Leg) -> Boolean,
         routeLocations: List<Location>,
-    ): Sequence<Leg> {
+    ): Sequence<Pair<Leg, String>> {
         val forwardRoutes =
             routeLocations.map { routeLocation ->
                 SectionCombiner(
                     routeToNextSectionIndex[routeLocation]!!,
-                ).asSequence().map { connectToStart(it) }.takeWhile(condition)
+                ).asSequence().map { connectToStart(it) }.takeWhile { condition(it.first) }
             }
 
         // TODO combines these
@@ -168,6 +171,6 @@ class RoutePlanner(
     ): Sequence<Route> {
         val validStarts = startToRoute.filter { startPositionFilter(it.key) }
         val generator = routeGenerator(condition, validStarts.values.toList())
-        return generator.take(maxGenerated).map { Route(it.length, it.locations) }.sortedByDescending { it.length }
+        return generator.take(maxGenerated).map { Route(it.second, it.first.length, it.first.locations) }.sortedByDescending { it.length }
     }
 }

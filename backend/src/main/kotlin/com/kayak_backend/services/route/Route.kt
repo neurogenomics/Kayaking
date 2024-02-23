@@ -9,6 +9,7 @@ import org.locationtech.jts.simplify.TopologyPreservingSimplifier
 
 @Serializable
 open class Route(
+    val name: String,
     val length: Double,
     val locations: List<Location>,
 )
@@ -17,9 +18,11 @@ open class Route(
 // can only automatically serialize if constructor only takes in fields
 @Serializable
 data class TimedRoute(
-    val timedLength: Double,
-    val timedLocations: List<Pair<Location, Long>>,
-) : Route(timedLength, timedLocations.map { it.first })
+    val name: String,
+    val length: Double,
+    val locations: List<Location>,
+    val checkpoints: List<Long>,
+)
 
 class BaseRoute {
     fun createBaseRoute(
