@@ -21,9 +21,6 @@ import { WeatherVisualisation } from '../components/MapVisualisations/WeatherVis
 import { RouteVisualisation } from '../components/MapVisualisations/RouteVisualisation';
 import { RouteModel } from '../models/routeModel';
 import { useNavigation } from '@react-navigation/native';
-import { MapVisualisation } from '../components/MapVisualisation';
-import DateCarousel from '../components/DateCarousel/DateCarousel';
-import { GridType } from '../models/gridModel';
 import { DataDisplay } from '../components/DataDisplay';
 
 const styles = StyleSheet.create({
