@@ -40,7 +40,7 @@ const RoutesList: React.FC<RoutesListProps> = ({
     ({ item, index }: { item: RouteModel; index: number }) => (
       <TouchableOpacity onPress={() => selectRouteFromList(index)}>
         <View style={styles.itemContainer}>
-          <Text>Route {index + 1}</Text>
+          <Text>{item.name}</Text>
           <Text>{`Distance covered: ${getDistance(item)}km`}</Text>
         </View>
       </TouchableOpacity>

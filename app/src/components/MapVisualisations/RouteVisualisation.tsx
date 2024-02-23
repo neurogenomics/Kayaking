@@ -56,7 +56,7 @@ export const RouteVisualisation: React.FC<RouteVisualisationProps> = ({
       {routes !== undefined && selectedRouteIndex < routes.length ? (
         // Plots a marker at the head of the selected route
         <Marker
-          title={`Route ${selectedRouteIndex + 1}`}
+          title={routes[selectedRouteIndex].name}
           description={`Distance covered: ${getDistance(routes[selectedRouteIndex])}km`}
           coordinate={routes[selectedRouteIndex].locations[0]}
           isPreselected={true}
