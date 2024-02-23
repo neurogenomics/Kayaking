@@ -14,8 +14,6 @@ open class Route(
     val locations: List<Location>,
 )
 
-// TODO potentially duplicating information - could define own serialize function?
-// can only automatically serialize if constructor only takes in fields
 @Serializable
 data class TimedRoute(
     val name: String,
