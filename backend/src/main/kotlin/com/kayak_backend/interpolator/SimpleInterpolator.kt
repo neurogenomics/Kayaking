@@ -1,7 +1,6 @@
 package com.kayak_backend.interpolator
 
 import com.kayak_backend.models.Range
-import kotlin.math.max
 
 class SimpleInterpolator : Interpolator {
     override fun interpolate(
@@ -26,10 +25,10 @@ class SimpleInterpolator : Interpolator {
 
         val result =
             newIndex1.map {
-                while (currentIndex1 < index1.size - 1 && it >= index1[max(currentIndex1, 1)]) currentIndex1++
+                while (currentIndex1 < index1.size - 1 && it >= index1[currentIndex1 + 1]) currentIndex1++
                 var currentIndex2 = 0
                 newIndex2.map { it2 ->
-                    while (currentIndex2 < index2.size - 1 && it2 >= index2[max(currentIndex2, 1)]) currentIndex2++
+                    while (currentIndex2 < index2.size - 1 && it2 >= index2[currentIndex2 + 1]) currentIndex2++
                     data[currentIndex1][currentIndex2]
                 }
             }
