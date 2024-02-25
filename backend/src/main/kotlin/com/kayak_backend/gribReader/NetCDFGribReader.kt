@@ -234,7 +234,7 @@ class NetCDFGribReader : GribReader {
         val newShape = intArrayOf(shape[latDim], shape[lonDim])
 
         // converts library arraytype to kotlin list
-        return List(newShape[0]) { List(newShape[1]) { it2 -> res.getDouble((it * shape[latDim]) + it2) } }
+        return List(newShape[0]) { List(newShape[1]) { it2 -> res.getDouble((it * shape[lonDim]) + it2) } }
     }
 
     private fun getDimensionsIndex(variable: Variable): Triple<Int, Int, Int> {
