@@ -3,6 +3,7 @@ package com.kayak_backend
 import com.kayak_backend.gribReader.NetCDFGribReader
 import com.kayak_backend.services.tideTimes.TideTimeService
 import com.kayak_backend.services.tides.GribTideFetcher
+import com.kayak_backend.services.times.GribTimeService
 import com.kayak_backend.services.wind.GribWindFetcher
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -25,13 +26,21 @@ val testWindGribConf =
         vWindVarName = "(.+/)(v[_|-].*wind.*)",
     )
 
+val testGribTimeServiceConf =
+    GribTimeServiceConf(
+        gribReader = "NetCDFGribReader",
+        filePaths = listOf("file1", "file2"),
+    )
+
 val testConfig =
     Conf(
         tideService = "grib",
         windService = "grib",
+        timeService = "grib",
         gribFetcher = "OpenSkiron",
         tideGribConf = testTideGribConf,
         windGribConf = testWindGribConf,
+        gribTimeServiceConf = testGribTimeServiceConf,
         tideTimeService = "admiralty",
     )
 
@@ -106,5 +115,10 @@ class ConfTest {
     fun getTideTimeServiceThrowIllegalArgumentWhenNoApiKeyProvided() {
         val env = mapOf(Pair("ADMIRALTY_API_KEY", ""))
         assertFailsWith<IllegalStateException> { getTideTimeService(testConfig, env) }
+    }
+
+    @Test
+    fun getTimeServiceReturnsCorrectType() {
+        assertIs<GribTimeService>(getTimeService(testConfig))
     }
 }

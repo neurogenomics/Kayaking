@@ -28,4 +28,6 @@ interface GribReader {
         variableName: String,
         filePath: String,
     ): Triple<List<List<Double>>, List<Double>, List<Double>>
+
+    fun getTimeRange(filePath: String): List<LocalDateTime>
 }

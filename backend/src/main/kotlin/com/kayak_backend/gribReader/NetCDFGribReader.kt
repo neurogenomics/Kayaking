@@ -9,6 +9,8 @@ import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
 class NetCDFGribReader : GribReader {
+    private val timeRegex = ".+/time"
+
     override fun getSingleVar(
         lat: Double,
         lon: Double,
@@ -78,6 +80,15 @@ class NetCDFGribReader : GribReader {
         return Triple(data, latIndex, lonIndex)
     }
 
+    override fun getTimeRange(filePath: String): List<LocalDateTime> {
+        val file = NetcdfDataset.openFile(filePath, null)
+        val timeVar = getVariable(file, timeRegex)
+        val refTime = getRefTime(timeVar)
+        val timeData = timeVar.read()
+        file.close()
+        return List(timeData.shape.max()) { refTime.plusHours(timeData.getDouble(it).toLong()) }
+    }
+
     private fun getVariable(
         file: NetcdfFile,
         name: String,
@@ -145,7 +156,8 @@ class NetCDFGribReader : GribReader {
         return Pair(latIndex, lonIndex)
     }
 
-    private fun processDateString(input: String): LocalDateTime {
+    private fun getRefTime(timeVar: Variable): LocalDateTime {
+        val input = timeVar.unitsString
         val pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'"
         val formatter = DateTimeFormatter.ofPattern(pattern)
         val dateTimeString = input.substringAfter("since ").trim()
@@ -159,7 +171,7 @@ class NetCDFGribReader : GribReader {
         val group = variable.group
 
         val timeVar = group.findVariable("time") ?: throw GribFileError("Time variable not found")
-        val reftime = processDateString(timeVar.unitsString)
+        val reftime = getRefTime(timeVar)
         val duration = Duration.between(reftime, time)
         val firstTime = timeVar.read().getDouble(0).toInt()
 
@@ -222,7 +234,7 @@ class NetCDFGribReader : GribReader {
         val newShape = intArrayOf(shape[latDim], shape[lonDim])
 
         // converts library arraytype to kotlin list
-        return List(newShape[0]) { List(newShape[1]) { it2 -> res.getDouble((it * shape[latDim]) + it2) } }
+        return List(newShape[0]) { List(newShape[1]) { it2 -> res.getDouble((it * shape[lonDim]) + it2) } }
     }
 
     private fun getDimensionsIndex(variable: Variable): Triple<Int, Int, Int> {
