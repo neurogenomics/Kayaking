@@ -1,12 +1,12 @@
 import { Polyline } from 'react-native-maps';
 import React, { useEffect, useState } from 'react';
-import { LocationModel } from '../models/locationModel';
-import { GridModel, GridType, ResolutionModel } from '../models/gridModel';
-import { getGrid } from '../services/gridService';
+import { LocationModel } from '../../models/locationModel';
+import { GridModel, GridType, ResolutionModel } from '../../models/gridModel';
+import { getGrid } from '../../services/gridService';
 import { Matrix, Vector } from 'ts-matrix';
-import { tideColorMap, windColorMap } from '../colors';
+import { tideColorMap, windColorMap } from '../../colors';
 
-type MapVisualisationProps = {
+type WeatherVisualisationProps = {
   display: GridType;
   date: Date;
 };
@@ -23,7 +23,7 @@ type ArrowCoords = {
   magnitude: number;
 };
 
-export const MapVisualisation: React.FC<MapVisualisationProps> = ({
+export const WeatherVisualisation: React.FC<WeatherVisualisationProps> = ({
   display,
   date,
 }) => {
@@ -147,17 +147,19 @@ export const MapVisualisation: React.FC<MapVisualisationProps> = ({
 
           const arrow = getArrow(left, right, top, origin, theta);
 
-          const arrowPoints: ArrowCoords = {
-            coords: [
-              arrow.left,
-              arrow.right,
-              arrow.top,
-              arrow.right,
-              arrow.bottom,
-            ],
-            magnitude: magnitude,
-          };
-          markers.push(arrowPoints);
+          if (!isNaN(arrow.bottom.latitude) && !isNaN(arrow.bottom.longitude)) {
+            const arrowPoints: ArrowCoords = {
+              coords: [
+                arrow.left,
+                arrow.right,
+                arrow.top,
+                arrow.right,
+                arrow.bottom,
+              ],
+              magnitude: magnitude,
+            };
+            markers.push(arrowPoints);
+          }
         }
       }
     }
@@ -173,6 +175,7 @@ export const MapVisualisation: React.FC<MapVisualisationProps> = ({
         gridResolution,
         date,
       );
+      console.log(grid);
       makeArrowCoordinates(grid, gridResolution);
     } catch (error) {
       console.log('Error getting grid: ', error);
@@ -197,18 +200,17 @@ export const MapVisualisation: React.FC<MapVisualisationProps> = ({
 
   return (
     <>
-      {coords ? (
-        coords.map((coord, index) => (
-          <Polyline
-            key={index}
-            coordinates={coord.coords}
-            strokeWidth={2}
-            strokeColor={getColor(coord.magnitude, display)}
-          />
-        ))
-      ) : (
-        <></>
-      )}
+      {coords
+        ? coords.map((coord, index) => (
+            <Polyline
+              key={index}
+              coordinates={coord.coords}
+              strokeWidth={2}
+              strokeColor={getColor(coord.magnitude, display)}
+              zIndex={0}
+            />
+          ))
+        : null}
     </>
   );
 };

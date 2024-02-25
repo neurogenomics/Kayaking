@@ -62,6 +62,7 @@ const styles = StyleSheet.create({
   paddleButtonContainer: {
     flexDirection: 'column',
     alignItems: 'center',
+    marginBottom: 20,
   },
   buttonContainer: {
     flexDirection: 'row',

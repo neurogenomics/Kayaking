@@ -1,22 +1,26 @@
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList, Route } from '../routes';
 import React, { useMemo, useState } from 'react';
-import { StyleSheet, SafeAreaView } from 'react-native';
+import { SafeAreaView, StyleSheet } from 'react-native';
 import MapView from 'react-native-maps';
 import { isleOfWight } from '../../constants';
 import BottomSheet from '@gorhom/bottom-sheet';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
-import Routes from '../components/Routes';
-import Filters from '../components/Filter';
+import Routes from '../components/RoutesTab/Routes';
+import Filters from '../components/FilterTab/Filters';
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
 } from 'react-native-reanimated';
 import WeatherFabs from '../components/WeatherFabs';
-import { MapVisualisation } from '../components/MapVisualisation';
-import DateCarousel from '../components/DateCarousel/DateCarousel';
 import { GridType } from '../models/gridModel';
+import DateCarousel from '../components/DateCarousel/DateCarousel';
+import { UserInput } from '../models/userInputModel';
+import { WeatherVisualisation } from '../components/MapVisualisations/WeatherVisualisation';
+import { RouteVisualisation } from '../components/MapVisualisations/RouteVisualisation';
+import { RouteModel } from '../models/routeModel';
+import { useNavigation } from '@react-navigation/native';
 import { DataDisplay } from '../components/DataDisplay';
 
 const styles = StyleSheet.create({
@@ -40,6 +44,9 @@ const HomeScreen: React.FC<HomeProps> = () => {
   const [mapDate, setMapDate] = useState<Date>(new Date());
   const bottomSheetPosition = useSharedValue<number>(0);
   const Tab = createMaterialTopTabNavigator();
+  const [userInput, setUserInput] = useState<UserInput>();
+  const [routes, setRoutes] = useState<RouteModel[] | undefined>();
+  const [selectedRouteIndex, setSelectedRouteIndex] = useState(0);
 
   const inverseBottomSheetStyle = useAnimatedStyle(() => {
     return {
@@ -65,9 +72,6 @@ const HomeScreen: React.FC<HomeProps> = () => {
     return result;
   };
 
-  const [startTime, setStartTime] = useState(new Date());
-  const [endTime, setEndTime] = useState(new Date());
-
   return (
     <GestureHandlerRootView style={styles.container}>
       <MapView
@@ -78,10 +82,17 @@ const HomeScreen: React.FC<HomeProps> = () => {
         provider="google"
       >
         {weatherMap !== undefined ? (
-          <MapVisualisation display={weatherMap} date={mapDate} />
-        ) : (
-          <></>
-        )}
+          <WeatherVisualisation display={weatherMap} date={mapDate} />
+        ) : null}
+        {userInput !== undefined ? (
+          <RouteVisualisation
+            userInput={userInput}
+            routes={routes}
+            setRoutes={setRoutes}
+            selectedRouteIndex={selectedRouteIndex}
+            setSelectedRouteIndex={setSelectedRouteIndex}
+          />
+        ) : null}
       </MapView>
       <SafeAreaView style={styles.carouselContainer}>
         <DateCarousel
@@ -118,17 +129,19 @@ const HomeScreen: React.FC<HomeProps> = () => {
         }}
       >
         <Tab.Navigator>
-          <Tab.Screen name="Filter" options={{ tabBarLabel: 'Filter' }}>
+          <Tab.Screen name="Filter">
+            {() => <Filters setUserInput={setUserInput} />}
+          </Tab.Screen>
+          <Tab.Screen name="Routes">
             {() => (
-              <Filters
-                startTime={startTime}
-                setStartTime={setStartTime}
-                endTime={endTime}
-                setEndTime={setEndTime}
+              <Routes
+                routes={routes}
+                selectedRouteIndex={selectedRouteIndex}
+                setSelectedRouteIndex={setSelectedRouteIndex}
+                navigation={useNavigation()}
               />
             )}
           </Tab.Screen>
-          <Tab.Screen name="Routes" component={Routes} />
         </Tab.Navigator>
       </BottomSheet>
     </GestureHandlerRootView>
