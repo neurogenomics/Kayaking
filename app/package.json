@@ -10,7 +10,8 @@
     "web": "expo start --web",
     "lint": "eslint --ext .tsx --ext .ts .",
     "lint:fix": "eslint --ext .tsx --ext .ts . --fix",
-    "test": "jest"
+    "test": "jest",
+    "predeploy": "expo export -p web"
   },
   "dependencies": {
     "@expo/webpack-config": "^19.0.0",
