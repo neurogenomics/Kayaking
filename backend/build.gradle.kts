@@ -8,6 +8,7 @@ plugins {
     id("io.ktor.plugin") version "2.3.7"
     id("org.jetbrains.kotlin.plugin.serialization") version "1.9.22"
     id("com.adarshr.test-logger") version "4.0.0"
+    id("org.jlleitschuh.gradle.ktlint") version "12.1.0"
 }
 
 group = "com.kayak_backend"
@@ -25,6 +26,7 @@ repositories {
 }
 
 dependencies {
+    implementation("org.apache.commons:commons-compress:1.21")
     implementation("com.squareup.okhttp3:okhttp:4.12.0")
     implementation("org.json:json:20231013")
     implementation("io.ktor:ktor-server-core-jvm")
@@ -32,6 +34,7 @@ dependencies {
     implementation("io.ktor:ktor-serialization-kotlinx-json-jvm")
     implementation("io.ktor:ktor-server-netty-jvm")
     implementation("edu.ucar:grib:4.5.5")
+    implementation("com.charleskorn.kaml:kaml:0.57.0")
     implementation("ch.qos.logback:logback-classic:$logback_version")
     implementation("io.ktor:ktor-server-request-validation:$ktor_version")
     implementation("io.ktor:ktor-server-status-pages:$ktor_version")
@@ -40,8 +43,22 @@ dependencies {
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version")
     implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.5.0")
     implementation("io.ktor:ktor-server-data-conversion")
-    testImplementation("io.mockk:mockk:${mockkVersion}")
+    implementation("org.locationtech.jts:jts-core:1.19.0")
+    testImplementation("io.mockk:mockk:$mockkVersion")
 }
 tasks {
     create("stage").dependsOn("installDist")
+}
+
+ktlint {
+    additionalEditorconfig.set(
+        mapOf(
+            "ktlint_standard_no-wildcard-imports" to "disabled",
+            "ktlint_standard_package-name" to "disabled",
+        ),
+    )
+
+    filter {
+        exclude { element -> element.file.path.contains("build.gradle.kts") }
+    }
 }

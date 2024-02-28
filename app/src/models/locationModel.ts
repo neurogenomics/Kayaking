@@ -6,4 +6,3 @@ export type LocationModel = {
 export const locationToString = (location: LocationModel): string => {
   return `Latitude: ${location.latitude}, Longitude: ${location.longitude}`;
 };
-
