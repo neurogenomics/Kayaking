@@ -2,7 +2,7 @@ import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { getDistance, RouteModel } from '../../models/routeModel';
 import { RouteListNavigationProp } from './Routes';
-import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
+// import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { faArrowLeft } from '@fortawesome/free-solid-svg-icons';
 
 export type RouteDetailsProps = {
@@ -54,7 +54,7 @@ const RouteDetails: React.FC<RouteDetailsProps> = ({
         style={styles.arrowContainer}
         onPress={() => navigation.navigate('RouteList')}
       >
-        <FontAwesomeIcon icon={faArrowLeft} style={styles.icon} />
+        {/* <FontAwesomeIcon icon={faArrowLeft} style={styles.icon} /> */}
       </TouchableOpacity>
       <View style={styles.textContainer}>
         <Text style={styles.routeName}>{routes[selectedRouteIndex].name}</Text>
