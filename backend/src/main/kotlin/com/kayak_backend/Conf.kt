@@ -6,10 +6,16 @@ import com.kayak_backend.gribFetcher.OpenSkironGribFetcher
 import com.kayak_backend.gribReader.GribReader
 import com.kayak_backend.gribReader.NetCDFGribReader
 import com.kayak_backend.interpolator.SimpleInterpolator
+import com.kayak_backend.services.coastline.IsleOfWightCoastline
+import com.kayak_backend.services.route.*
+import com.kayak_backend.services.slipways.BeachesService
+import com.kayak_backend.services.slipways.SlipwayService
 import com.kayak_backend.services.tideTimes.AdmiraltyTideTimeService
 import com.kayak_backend.services.tideTimes.TideTimeService
 import com.kayak_backend.services.tides.GribTideFetcher
 import com.kayak_backend.services.tides.TideService
+import com.kayak_backend.services.times.GribTimeService
+import com.kayak_backend.services.times.TimeService
 import com.kayak_backend.services.wind.GribWindFetcher
 import com.kayak_backend.services.wind.WindService
 import kotlinx.serialization.Serializable
@@ -20,9 +26,6 @@ import java.nio.file.Path
 data class TideGribConf(
     val gribReader: String,
     val filePath: String,
-    val latVarName: String,
-    val lonVarName: String,
-    val timeVarName: String,
     val uTideVarName: String,
     val vTideVarName: String,
 )
@@ -31,20 +34,25 @@ data class TideGribConf(
 data class WindGribConf(
     val gribReader: String,
     val filePath: String,
-    val latVarName: String,
-    val lonVarName: String,
-    val timeVarName: String,
     val uWindVarName: String,
     val vWindVarName: String,
+)
+
+@Serializable
+data class GribTimeServiceConf(
+    val gribReader: String,
+    val filePaths: List<String>,
 )
 
 @Serializable
 data class Conf(
     val tideService: String,
     val windService: String,
+    val timeService: String,
     val tideTimeService: String,
     val tideGribConf: TideGribConf? = null,
     val windGribConf: WindGribConf? = null,
+    val gribTimeServiceConf: GribTimeServiceConf? = null,
     val gribFetcher: String,
 )
 
@@ -87,6 +95,7 @@ fun getGribFetcher(conf: Conf): GribFetcher {
         "OpenSkiron" -> {
             OpenSkironGribFetcher()
         }
+
         else -> throw UnsupportedOperationException("Grib Fetcher Conf not Provided")
     }
 }
@@ -103,6 +112,46 @@ fun getTideTimeService(
             }
             AdmiraltyTideTimeService(apiKey)
         }
+
         else -> throw UnsupportedOperationException("TideTime Conf required")
     }
+}
+
+fun getTimeService(conf: Conf): TimeService {
+    return when (conf.timeService) {
+        "grib" -> {
+            with(conf.gribTimeServiceConf) {
+                this ?: throw IllegalStateException("Grib file time service but no conf provided")
+                GribTimeService(getGribReader(this.gribReader), this.filePaths)
+            }
+        }
+
+        else -> {
+            throw IllegalStateException("Time service provided not supported")
+        }
+    }
+}
+
+// Once we have the weather kayak, may want to use conf to determine which kayak
+fun getLegTimer(): LegTimer {
+    return LegTimer(BasicKayak())
+}
+
+fun getRoutePlanner(): RoutePlanner {
+    val distanceFromCoast = 500.0
+    val coast = IsleOfWightCoastline().getCoastline()
+    val route = BaseRoute().createBaseRoute(coast, distanceFromCoast)
+    val slipways = SlipwayService().getAllSlipways()
+    val beaches = BeachesService().getAllBeaches()
+    val slipwayStarts = slipways.mapIndexed { index, location -> StartPos(location, "Slipway $index") }
+    val beachStarts =
+        beaches.map { beachInfo ->
+            StartPos(
+                beachInfo.avergeLocation,
+                beachInfo.name ?: "Unnamed beach",
+            )
+        }
+    val startPositions = slipwayStarts.plus(beachStarts)
+
+    return RoutePlanner(route, startPositions)
 }

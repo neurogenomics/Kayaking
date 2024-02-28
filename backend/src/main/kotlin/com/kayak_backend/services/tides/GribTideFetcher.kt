@@ -27,9 +27,6 @@ class GribTideFetcher(
                 conf.uTideVarName,
                 conf.vTideVarName,
                 conf.filePath,
-                conf.latVarName,
-                conf.lonVarName,
-                conf.timeVarName,
             )
         return TideInfo(u = pair.first, v = pair.second)
     }
@@ -49,9 +46,6 @@ class GribTideFetcher(
                 time,
                 conf.uTideVarName,
                 conf.filePath,
-                conf.latVarName,
-                conf.lonVarName,
-                conf.timeVarName,
             )
         val (vData, latIndexV, lonIndexV) =
             gribReader.getVarGrid(
@@ -60,9 +54,6 @@ class GribTideFetcher(
                 time,
                 conf.vTideVarName,
                 conf.filePath,
-                conf.latVarName,
-                conf.lonVarName,
-                conf.timeVarName,
             )
         if (latIndexU != latIndexV || lonIndexU != lonIndexV) throw GribFileError("Tide Values uneven! Check variable names")
         val (interpolatedUData, newLatIndexU, newLonIndexU) =
@@ -73,7 +64,11 @@ class GribTideFetcher(
         val grid =
             interpolatedUData.zip(interpolatedVData) { us, vs ->
                 us.zip(vs) { u, v ->
-                    TideInfo(u, v)
+                    if (u.isNaN() || v.isNaN()) {
+                        null
+                    } else {
+                        TideInfo(u, v)
+                    }
                 }
             }
         return TideGrid(grid, newLatIndexU, newLonIndexU)

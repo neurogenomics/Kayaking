@@ -3,6 +3,7 @@ package com.kayak_backend
 import com.kayak_backend.gribReader.NetCDFGribReader
 import com.kayak_backend.services.tideTimes.TideTimeService
 import com.kayak_backend.services.tides.GribTideFetcher
+import com.kayak_backend.services.times.GribTimeService
 import com.kayak_backend.services.wind.GribWindFetcher
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -13,31 +14,33 @@ val testTideGribConf =
     TideGribConf(
         gribReader = "NetCDFGribReader",
         filePath = "src/test/gribFiles/testGrib.grb",
-        latVarName = "TwoD/LatLon_100X120-49p74N-1p333W/lat",
-        lonVarName = "TwoD/LatLon_100X120-49p74N-1p333W/lon",
-        timeVarName = "TwoD/LatLon_100X120-49p74N-1p333W/time",
-        uTideVarName = "TwoD/LatLon_100X120-49p74N-1p333W/u-component_of_current_surface",
-        vTideVarName = "TwoD/LatLon_100X120-49p74N-1p333W/v-component_of_current_surface",
+        uTideVarName = "(.+/)(u[_|-].*current.*)",
+        vTideVarName = "(.+/)(v[_|-].*current.*)",
     )
 
 val testWindGribConf =
     WindGribConf(
         gribReader = "NetCDFGribReader",
         filePath = "src/test/gribFiles/testGrib.grb",
-        latVarName = "TwoD/LatLon_76X92-49p73N-1p324W/lat",
-        lonVarName = "TwoD/LatLon_76X92-49p73N-1p324W/lon",
-        timeVarName = "TwoD/LatLon_76X92-49p73N-1p324W/time",
-        uWindVarName = "TwoD/LatLon_76X92-49p73N-1p324W/u-component_of_wind_height_above_ground",
-        vWindVarName = "TwoD/LatLon_76X92-49p73N-1p324W/v-component_of_wind_height_above_ground",
+        uWindVarName = "(.+/)(u[_|-].*wind.*)",
+        vWindVarName = "(.+/)(v[_|-].*wind.*)",
+    )
+
+val testGribTimeServiceConf =
+    GribTimeServiceConf(
+        gribReader = "NetCDFGribReader",
+        filePaths = listOf("file1", "file2"),
     )
 
 val testConfig =
     Conf(
         tideService = "grib",
         windService = "grib",
+        timeService = "grib",
         gribFetcher = "OpenSkiron",
         tideGribConf = testTideGribConf,
         windGribConf = testWindGribConf,
+        gribTimeServiceConf = testGribTimeServiceConf,
         tideTimeService = "admiralty",
     )
 
@@ -112,5 +115,10 @@ class ConfTest {
     fun getTideTimeServiceThrowIllegalArgumentWhenNoApiKeyProvided() {
         val env = mapOf(Pair("ADMIRALTY_API_KEY", ""))
         assertFailsWith<IllegalStateException> { getTideTimeService(testConfig, env) }
+    }
+
+    @Test
+    fun getTimeServiceReturnsCorrectType() {
+        assertIs<GribTimeService>(getTimeService(testConfig))
     }
 }

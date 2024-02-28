@@ -9,13 +9,20 @@ class SlipwayService(private val client: OkHttpClient = OkHttpClient()) {
     var slipways: List<Location> = listOf()
     val slipwayGetter = SlipwaysGetter(client, isleOfWightLocation1, isleOfWightLocation2)
 
+    fun getAllSlipways(): List<Location> {
+        if (slipways.isEmpty()) {
+            slipways = slipwayGetter.getSlipways()
+        }
+        return slipways
+    }
+
     fun getClosestSlipway(coords: Location): Location {
         if (slipways.isEmpty()) {
             slipways = slipwayGetter.getSlipways()
         }
         return slipways.reduce { closest, current ->
-            val distanceToClosest = coords.distance(closest)
-            val distanceToCurrent = coords.distance(current)
+            val distanceToClosest = coords distanceTo closest
+            val distanceToCurrent = coords distanceTo current
 
             if (distanceToCurrent < distanceToClosest) {
                 current

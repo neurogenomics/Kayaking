@@ -39,4 +39,6 @@ out/
 /src/test/gribFiles/*
 !/src/test/gribFiles/testGrib.grb
 .env
+*.gbx9
+*.ncx2
 
