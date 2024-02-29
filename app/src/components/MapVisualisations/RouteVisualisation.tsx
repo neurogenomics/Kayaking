@@ -61,7 +61,7 @@ export const RouteVisualisation: React.FC<RouteVisualisationProps> = ({
           coordinate={routes[selectedRouteIndex].locations[0]}
           isPreselected={true}
         ></Marker>
-      ) : null}
+        ) : null}
       {routes !== undefined
         ? routes.map((route, index) => (
             <View key={`polyline-${index}`}>

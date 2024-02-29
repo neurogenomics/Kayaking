@@ -209,7 +209,7 @@ export const WeatherVisualisation: React.FC<WeatherVisualisationProps> = ({
               strokeColor={getColor(coord.magnitude, display)}
               zIndex={0}
             />
-          ))
+         ))
         : null}
     </>
   );
