@@ -1,8 +1,8 @@
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList, Route } from '../routes';
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { SafeAreaView, StyleSheet } from 'react-native';
-import MapView from 'react-native-maps';
+import MapView, { Marker } from 'react-native-maps';
 import { isleOfWight } from '../../constants';
 import BottomSheet from '@gorhom/bottom-sheet';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
@@ -22,6 +22,8 @@ import { RouteVisualisation } from '../components/MapVisualisations/RouteVisuali
 import { RouteModel } from '../models/routeModel';
 import { useNavigation } from '@react-navigation/native';
 import { DataDisplay } from '../components/DataDisplay';
+import { LocationModel } from '../models/locationModel';
+import { getDangerousLocations } from '../services/dangerousLocationsService';
 
 const styles = StyleSheet.create({
   container: {
@@ -47,6 +49,9 @@ const HomeScreen: React.FC<HomeProps> = () => {
   const [userInput, setUserInput] = useState<UserInput>();
   const [routes, setRoutes] = useState<RouteModel[] | undefined>();
   const [selectedRouteIndex, setSelectedRouteIndex] = useState(0);
+  const [dangerousLocations, setDangerousLocations] = useState<LocationModel[]>(
+    [],
+  );
 
   const inverseBottomSheetStyle = useAnimatedStyle(() => {
     return {
@@ -72,6 +77,12 @@ const HomeScreen: React.FC<HomeProps> = () => {
     return result;
   };
 
+  useEffect(() => {
+    void getDangerousLocations().then((locations) => {
+      setDangerousLocations(locations);
+    });
+  }, []);
+
   return (
     <GestureHandlerRootView style={styles.container}>
       <MapView
@@ -93,6 +104,16 @@ const HomeScreen: React.FC<HomeProps> = () => {
             setSelectedRouteIndex={setSelectedRouteIndex}
           />
         ) : null}
+
+        {dangerousLocations.map((location, index) => {
+          return (
+            <Marker
+              key={index}
+              coordinate={location}
+              isPreselected={true}
+            ></Marker>
+          );
+        })}
       </MapView>
       <SafeAreaView style={styles.carouselContainer}>
         <DateCarousel
