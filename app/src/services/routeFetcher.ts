@@ -33,10 +33,8 @@ class RouteFetcher {
         getDuration(userInput),
         userInput.startTime,
       );
-      console.log('Fetched');
       this.setRoutes(routes);
     } catch (error) {
-      console.log('Error getting routes: ', error);
       console.error(error);
     } finally {
       this.isFetching = false;

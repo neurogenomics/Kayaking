@@ -44,7 +44,6 @@ export const RouteVisualisation: React.FC<RouteVisualisationProps> = ({
       setRoutes(routes);
     } catch (error) {
       console.log('Error getting routes: ', error);
-      console.error(error);
     }
   };
 
