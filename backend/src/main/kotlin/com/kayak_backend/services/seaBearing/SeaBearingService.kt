@@ -2,9 +2,10 @@ package com.kayak_backend.services.seaBearing
 
 import com.kayak_backend.services.coastline.CoastlineService
 import com.kayak_backend.services.coastline.IsleOfWightCoastline
+import com.kayak_backend.services.coastline.SmoothCoastline
 import com.kayak_backend.services.route.BaseRoute
 
-class SeaBearingService(coastlineService: CoastlineService = IsleOfWightCoastline()) {
+class SeaBearingService(coastlineService: CoastlineService = SmoothCoastline(IsleOfWightCoastline())) {
     private var seaBearings: List<SeaBearingInfo> = listOf()
 
     private val seaBearingsGetter = SeaBearingsGetter(coastlineService, BaseRoute())

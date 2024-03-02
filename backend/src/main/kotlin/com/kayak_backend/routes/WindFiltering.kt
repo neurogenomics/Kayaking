@@ -7,7 +7,8 @@ import io.ktor.server.routing.*
 fun Route.windFiltering(windFiltering: WindFiltering = WindFiltering()) {
     route("/windFiltering") {
         get {
-            call.respond(windFiltering.classifyAreas().filter { it.bad }.map { it.bearing.coor })
+            val date = getDateParameter(call.parameters, "date")
+            call.respond(windFiltering.classifyAreas(date).filter { it.bad }.map { it.bearing.coor })
         }
     }
 }

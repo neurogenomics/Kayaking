@@ -20,11 +20,11 @@ class WindFiltering(
     private val seaBearingService: SeaBearingService = SeaBearingService(),
 ) {
     // returns list of SeaBearingInfo and bool for if the wind is out to sea
-    fun classifyAreas(): List<WindZonesInfo> {
+    fun classifyAreas(dateTime: LocalDateTime): List<WindZonesInfo> {
         val seaBearings = seaBearingService.getSeaBearings()
 
         return seaBearings.map {
-            val wind = windService.getWind(it.coor, LocalDateTime.now())
+            val wind = windService.getWind(it.coor, dateTime)
 
             WindZonesInfo(it, badArea(it.bearing, wind))
         }
