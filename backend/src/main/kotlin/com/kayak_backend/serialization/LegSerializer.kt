@@ -22,7 +22,6 @@ object LegSerializer : KSerializer<Leg> {
 
     override fun deserialize(decoder: Decoder): Leg {
         // TODO not implemented
-        // also would be very hard to do?
-        return Leg.MultipleLegs(listOf())
+        throw NotImplementedError()
     }
 }
