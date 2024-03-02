@@ -16,5 +16,6 @@ fun Application.configureRouting(conf: Conf) {
         wind(getWindService(conf))
         times(getTimeService(conf))
         planRoute(getRoutePlanner(), getLegTimer())
+        windFiltering()
     }
 }
