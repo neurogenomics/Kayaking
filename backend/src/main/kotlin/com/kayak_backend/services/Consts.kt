@@ -6,3 +6,5 @@ import com.kayak_backend.models.Location
 
 val isleOfWightLocation1 = Location(50.564485309567644, -1.6005677025384493)
 val isleOfWightLocation2 = Location(50.8605772841442, -1.0457581322259493)
+
+const val GRIB_FILE_PATH = "./gribFiles/Cherbourg_4km_WRF_WAM.grb"

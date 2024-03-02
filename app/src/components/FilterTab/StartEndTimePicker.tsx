@@ -2,7 +2,7 @@ import { StyleSheet, Text, View } from 'react-native';
 import DateTimePicker, {
   DateTimePickerEvent,
 } from '@react-native-community/datetimepicker';
-import React, { useState } from 'react';
+import React from 'react';
 
 export const StartEndTimePicker: React.FC<{
   startTime: Date;

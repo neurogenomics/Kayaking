@@ -14,6 +14,8 @@ import com.kayak_backend.services.tideTimes.AdmiraltyTideTimeService
 import com.kayak_backend.services.tideTimes.TideTimeService
 import com.kayak_backend.services.tides.GribTideFetcher
 import com.kayak_backend.services.tides.TideService
+import com.kayak_backend.services.times.GribTimeService
+import com.kayak_backend.services.times.TimeService
 import com.kayak_backend.services.wind.GribWindFetcher
 import com.kayak_backend.services.wind.WindService
 import kotlinx.serialization.Serializable
@@ -37,12 +39,20 @@ data class WindGribConf(
 )
 
 @Serializable
+data class GribTimeServiceConf(
+    val gribReader: String,
+    val filePaths: List<String>,
+)
+
+@Serializable
 data class Conf(
     val tideService: String,
     val windService: String,
+    val timeService: String,
     val tideTimeService: String,
     val tideGribConf: TideGribConf? = null,
     val windGribConf: WindGribConf? = null,
+    val gribTimeServiceConf: GribTimeServiceConf? = null,
     val gribFetcher: String,
 )
 
@@ -104,6 +114,21 @@ fun getTideTimeService(
         }
 
         else -> throw UnsupportedOperationException("TideTime Conf required")
+    }
+}
+
+fun getTimeService(conf: Conf): TimeService {
+    return when (conf.timeService) {
+        "grib" -> {
+            with(conf.gribTimeServiceConf) {
+                this ?: throw IllegalStateException("Grib file time service but no conf provided")
+                GribTimeService(getGribReader(this.gribReader), this.filePaths)
+            }
+        }
+
+        else -> {
+            throw IllegalStateException("Time service provided not supported")
+        }
     }
 }
 

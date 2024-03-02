@@ -147,17 +147,19 @@ export const WeatherVisualisation: React.FC<WeatherVisualisationProps> = ({
 
           const arrow = getArrow(left, right, top, origin, theta);
 
-          const arrowPoints: ArrowCoords = {
-            coords: [
-              arrow.left,
-              arrow.right,
-              arrow.top,
-              arrow.right,
-              arrow.bottom,
-            ],
-            magnitude: magnitude,
-          };
-          markers.push(arrowPoints);
+          if (!isNaN(arrow.bottom.latitude) && !isNaN(arrow.bottom.longitude)) {
+            const arrowPoints: ArrowCoords = {
+              coords: [
+                arrow.left,
+                arrow.right,
+                arrow.top,
+                arrow.right,
+                arrow.bottom,
+              ],
+              magnitude: magnitude,
+            };
+            markers.push(arrowPoints);
+          }
         }
       }
     }
@@ -173,6 +175,7 @@ export const WeatherVisualisation: React.FC<WeatherVisualisationProps> = ({
         gridResolution,
         date,
       );
+      console.log(grid);
       makeArrowCoordinates(grid, gridResolution);
     } catch (error) {
       console.log('Error getting grid: ', error);
