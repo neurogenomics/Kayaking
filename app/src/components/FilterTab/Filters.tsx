@@ -21,8 +21,8 @@ export const Filters: React.FC<FiltersProps> = ({
   setUserInput,
 }: FiltersProps) => {
   const [startTime, setStartTime] = useState<Date>(new Date());
-  const endDate = new Date()
-  endDate.setHours(endDate.getHours() + 1)
+  const endDate = new Date();
+  endDate.setHours(endDate.getHours() + 1);
   const [endTime, setEndTime] = useState<Date>(endDate);
   const [paddleSpeed, setPaddleSpeed] = useState<PaddleSpeed>(
     PaddleSpeed.Normal,
