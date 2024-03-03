@@ -19,9 +19,10 @@ import DateCarousel from '../components/DateCarousel/DateCarousel';
 import { UserInput } from '../models/userInputModel';
 import { WeatherVisualisation } from '../components/MapVisualisations/WeatherVisualisation';
 import { RouteVisualisation } from '../components/MapVisualisations/RouteVisualisation';
-import { RouteModel } from '../models/routeModel';
+import { RouteInformationModel, RouteModel } from '../models/routeModel';
 import { useNavigation } from '@react-navigation/native';
 import { DataDisplay } from '../components/DataDisplay';
+import RouteInformation from '../components/RouteInformation';
 
 const styles = StyleSheet.create({
   container: {
@@ -70,6 +71,12 @@ const HomeScreen: React.FC<HomeProps> = () => {
       result.push(nextHour);
     }
     return result;
+  };
+
+  const routeInformation: RouteInformationModel = {
+    startTime: new Date(),
+    endTime: new Date(),
+    difficulty: 4,
   };
 
   return (
@@ -141,6 +148,9 @@ const HomeScreen: React.FC<HomeProps> = () => {
                 navigation={useNavigation()}
               />
             )}
+          </Tab.Screen>
+          <Tab.Screen name="Route Information">
+            {() => <RouteInformation route={routeInformation} />}
           </Tab.Screen>
         </Tab.Navigator>
       </BottomSheet>

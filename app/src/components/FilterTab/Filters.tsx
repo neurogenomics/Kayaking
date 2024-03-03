@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View } from 'react-native';
+import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import DateTimePicker, {
   DateTimePickerEvent,
 } from '@react-native-community/datetimepicker';
@@ -64,7 +64,7 @@ export const Filters: React.FC<FiltersProps> = ({
   ]);
 
   return (
-    <View>
+    <ScrollView>
       <StartEndTimePicker
         startTime={startTime}
         setStartTime={setStartTime}
@@ -98,7 +98,7 @@ export const Filters: React.FC<FiltersProps> = ({
           onChange={onBreakDurationChange}
         />
       </View>
-    </View>
+    </ScrollView>
   );
 };
 

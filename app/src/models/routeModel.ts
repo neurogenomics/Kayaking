@@ -6,6 +6,12 @@ export type RouteModel = {
   locations: LocationModel[];
 };
 
+//TODO - RouteInformation for graphing, can possibly be merged with RouteModel 
+export type RouteInformationModel = {
+  difficulty: number;
+  endTime: Date;
+  startTime: Date;
+};
 export const getDistance = (route: RouteModel): string => {
   return (route.length / 1000).toFixed(2).toString();
 };
