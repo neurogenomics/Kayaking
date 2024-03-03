@@ -1,5 +1,6 @@
 tideService: "grib"
 windService: "grib"
+timeService: "grib"
 gribFetcher: "OpenSkiron"
 tideTimeService: "admiralty"
 tideGribConf:
@@ -12,3 +13,7 @@ windGribConf:
   filePath: "gribFiles/Cherbourg_4km_WRF_WAM.grb"
   uWindVarName: "(.+/)(u[_|-].*wind.*)"
   vWindVarName: "(.+/)(v[_|-].*wind.*)"
+gribTimeServiceConf:
+  gribReader: "NetCDFGribReader"
+  filePaths:
+    - "gribFiles/Cherbourg_4km_WRF_WAM.grb"

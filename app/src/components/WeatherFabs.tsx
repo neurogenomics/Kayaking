@@ -17,11 +17,22 @@ const styles = StyleSheet.create({
 type WeatherFabsProps = {
   visible: boolean;
   setWeatherMap: React.Dispatch<React.SetStateAction<GridType | undefined>>;
+  setSunsetOn: React.Dispatch<React.SetStateAction<boolean>>;
+  setTideTimesOn: React.Dispatch<React.SetStateAction<boolean>>;
 };
+
+export enum WeatherFab {
+  SUNSET = 'Sunset',
+  WAVE_HEIGHT = 'Wave Height',
+  TIDE = 'Tide',
+  WIND = 'Wind',
+}
 
 const WeatherFabs: React.FC<WeatherFabsProps> = ({
   visible,
   setWeatherMap,
+  setSunsetOn,
+  setTideTimesOn,
 }: WeatherFabsProps) => {
   const [layersOpen, setLayersOpen] = useState(false);
   const icons = [
@@ -30,7 +41,12 @@ const WeatherFabs: React.FC<WeatherFabsProps> = ({
     'waves-arrow-right',
     'weather-windy',
   ];
-  const names = ['Sunset', 'Wave Height', GridType.TIDE, GridType.WIND];
+  const names = [
+    WeatherFab.SUNSET,
+    WeatherFab.WAVE_HEIGHT,
+    WeatherFab.TIDE,
+    WeatherFab.WIND,
+  ];
   const [layers, setLayers] = useState(new Array(icons.length).fill(false));
 
   const handleWeatherPress = (weather: GridType) => {
@@ -38,7 +54,9 @@ const WeatherFabs: React.FC<WeatherFabsProps> = ({
       if (prevWeather && prevWeather !== weather) {
         setLayers((prevState) => ({
           ...prevState,
-          [names.findIndex((name) => name === (prevWeather as string))]: false,
+          [names.findIndex(
+            (name) => (name as string) === (prevWeather as string),
+          )]: false,
         }));
       }
       return prevWeather === weather ? undefined : weather;
@@ -57,10 +75,23 @@ const WeatherFabs: React.FC<WeatherFabsProps> = ({
         icon: icon,
         label: names[index],
         onPress: () => {
-          if (names[index] === 'Wind') {
-            handleWeatherPress(GridType.WIND);
-          } else if (names[index] === 'Tide') {
-            handleWeatherPress(GridType.TIDE);
+          switch (names[index]) {
+            case WeatherFab.WIND: {
+              handleWeatherPress(GridType.WIND);
+              break;
+            }
+            case WeatherFab.TIDE: {
+              handleWeatherPress(GridType.TIDE);
+              break;
+            }
+            case WeatherFab.SUNSET: {
+              setSunsetOn((prevState) => !prevState);
+              break;
+            }
+            case WeatherFab.WAVE_HEIGHT: {
+              setTideTimesOn((prevState) => !prevState);
+              break;
+            }
           }
           setLayers((prevState) => ({
             ...prevState,

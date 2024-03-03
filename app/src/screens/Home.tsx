@@ -1,24 +1,27 @@
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../routes';
 import React, { useMemo, useState } from 'react';
-import { StyleSheet, SafeAreaView } from 'react-native';
+import { SafeAreaView, StyleSheet } from 'react-native';
 import MapView from 'react-native-maps';
 import { isleOfWight } from '../../constants';
 import BottomSheet from '@gorhom/bottom-sheet';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
-import Routes from '../components/Routes';
-import Filters from '../components/Filter';
+import Routes from '../components/RoutesTab/Routes';
+import Filters from '../components/FilterTab/Filters';
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
 } from 'react-native-reanimated';
 import WeatherFabs from '../components/WeatherFabs';
-import { MapVisualisation } from '../components/MapVisualisation';
 import { GridType } from '../models/gridModel';
 import DateCarousel from '../components/DateCarousel/DateCarousel';
-import RouteInformation from '../components/RouteInformation';
-import { Route } from '../models/routeModel';
+import { UserInput } from '../models/userInputModel';
+import { WeatherVisualisation } from '../components/MapVisualisations/WeatherVisualisation';
+import { RouteVisualisation } from '../components/MapVisualisations/RouteVisualisation';
+import { RouteModel } from '../models/routeModel';
+import { useNavigation } from '@react-navigation/native';
+import { DataDisplay } from '../components/DataDisplay';
 
 const styles = StyleSheet.create({
   container: {
@@ -35,10 +38,15 @@ type HomeProps = NativeStackScreenProps<RootStackParamList, Route.HOME>;
 const HomeScreen: React.FC<HomeProps> = () => {
   const [fabsVisible, setFabsVisible] = useState(true);
   const [weatherMap, setWeatherMap] = useState<GridType>();
+  const [sunsetOn, setSunsetOn] = useState(false);
+  const [tideHeightOn, setTideTimesOn] = useState(false);
   const snapPoints = useMemo(() => ['15%', '50%', '90%'], []);
   const [mapDate, setMapDate] = useState<Date>(new Date());
   const bottomSheetPosition = useSharedValue<number>(0);
   const Tab = createMaterialTopTabNavigator();
+  const [userInput, setUserInput] = useState<UserInput>();
+  const [routes, setRoutes] = useState<RouteModel[] | undefined>();
+  const [selectedRouteIndex, setSelectedRouteIndex] = useState(0);
 
   const inverseBottomSheetStyle = useAnimatedStyle(() => {
     return {
@@ -64,17 +72,6 @@ const HomeScreen: React.FC<HomeProps> = () => {
     return result;
   };
 
-  const [startTime, setStartTime] = useState(new Date());
-  const [endTime, setEndTime] = useState(new Date());
-
-  const routeProps: Route = {
-    difficulty: 3, // Example value for difficulty
-    length: 0, // Example value for length
-    locations: [],
-    startTime: new Date(),
-    endTime: new Date(new Date().getTime() + 4 * 60 * 60 * 1000),
-  };
-
   return (
     <GestureHandlerRootView style={styles.container}>
       <MapView
@@ -85,10 +82,17 @@ const HomeScreen: React.FC<HomeProps> = () => {
         provider="google"
       >
         {weatherMap !== undefined ? (
-          <MapVisualisation display={weatherMap} date={mapDate} />
-        ) : (
-          <></>
-        )}
+          <WeatherVisualisation display={weatherMap} date={mapDate} />
+        ) : null}
+        {userInput !== undefined ? (
+          <RouteVisualisation
+            userInput={userInput}
+            routes={routes}
+            setRoutes={setRoutes}
+            selectedRouteIndex={selectedRouteIndex}
+            setSelectedRouteIndex={setSelectedRouteIndex}
+          />
+        ) : null}
       </MapView>
       <SafeAreaView style={styles.carouselContainer}>
         <DateCarousel
@@ -96,10 +100,23 @@ const HomeScreen: React.FC<HomeProps> = () => {
           onDateChanged={(date) => setMapDate(date)}
         ></DateCarousel>
       </SafeAreaView>
+      <DataDisplay
+        sunsetOn={sunsetOn}
+        tideTimesOn={tideHeightOn}
+        // TODO get from map?
+        location={{
+          longitude: isleOfWight.longitude,
+          latitude: isleOfWight.latitude,
+        }}
+        date={mapDate}
+      />
+      {/*<Text style={{ fontSize: 100 }}>put here</Text>*/}
       <Animated.View style={inverseBottomSheetStyle} pointerEvents="box-none">
         <WeatherFabs
           visible={fabsVisible}
           setWeatherMap={setWeatherMap}
+          setSunsetOn={setSunsetOn}
+          setTideTimesOn={setTideTimesOn}
         ></WeatherFabs>
       </Animated.View>
       <BottomSheet
@@ -112,11 +129,19 @@ const HomeScreen: React.FC<HomeProps> = () => {
         }}
       >
         <Tab.Navigator>
-          <Tab.Screen
-            name="Filter"
-            component={() => <RouteInformation {...routeProps} />}
-          />
-          <Tab.Screen name="Routes" component={Routes} />
+          <Tab.Screen name="Filter">
+            {() => <Filters setUserInput={setUserInput} />}
+          </Tab.Screen>
+          <Tab.Screen name="Routes">
+            {() => (
+              <Routes
+                routes={routes}
+                selectedRouteIndex={selectedRouteIndex}
+                setSelectedRouteIndex={setSelectedRouteIndex}
+                navigation={useNavigation()}
+              />
+            )}
+          </Tab.Screen>
         </Tab.Navigator>
       </BottomSheet>
     </GestureHandlerRootView>

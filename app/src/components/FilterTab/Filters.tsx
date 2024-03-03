@@ -2,39 +2,26 @@ import { StyleSheet, Text, View } from 'react-native';
 import DateTimePicker, {
   DateTimePickerEvent,
 } from '@react-native-community/datetimepicker';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   PaddleSpeed,
   RouteDifficulty,
   RouteType,
-} from '../models/userInputModel';
-import { SelectButtons, generateOptions } from './SelectionButtons';
+  UserInput,
+} from '../../models/userInputModel';
+import { generateOptions, SelectButtons } from './SelectionButtons';
+import { StartEndTimePicker } from './StartEndTimePicker';
+import { eastCowes } from '../../../constants';
 
-export const Filters: React.FC<{
-  startTime: Date;
-  setStartTime: React.Dispatch<React.SetStateAction<Date>>;
-  endTime: Date;
-  setEndTime: React.Dispatch<React.SetStateAction<Date>>;
-}> = ({ startTime, setStartTime, endTime, setEndTime }) => {
-  const [showEndTimePicker, setShowEndTimePicker] = useState(false);
+type FiltersProps = {
+  setUserInput: React.Dispatch<React.SetStateAction<UserInput>>;
+};
 
-  const onStartTimeChange = (
-    _event: DateTimePickerEvent,
-    selectedStartTime: Date,
-  ) => {
-    const currentStart: Date = selectedStartTime || startTime;
-    setStartTime(currentStart);
-    setShowEndTimePicker(true);
-  };
-
-  const onEndTimeChange = (
-    _event: DateTimePickerEvent,
-    selectedEndTime: Date,
-  ) => {
-    const currentEnd: Date = selectedEndTime || endTime;
-    setEndTime(currentEnd);
-  };
-
+export const Filters: React.FC<FiltersProps> = ({
+  setUserInput,
+}: FiltersProps) => {
+  const [startTime, setStartTime] = useState<Date>(new Date());
+  const [endTime, setEndTime] = useState<Date>(new Date());
   const [paddleSpeed, setPaddleSpeed] = useState<PaddleSpeed>(
     PaddleSpeed.Normal,
   );
@@ -42,11 +29,6 @@ export const Filters: React.FC<{
   const [routeDifficulty, setRouteDifficulty] = useState<RouteDifficulty>(
     RouteDifficulty.Medium,
   );
-
-  const paddleSpeedOptions = generateOptions(PaddleSpeed);
-  const routeTypeOptions = generateOptions(RouteType);
-  const routeDifficultyOptions = generateOptions(RouteDifficulty);
-
   const [breakDuration, setBreakDuration] = useState(new Date(0));
 
   const onBreakDurationChange = (
@@ -57,52 +39,56 @@ export const Filters: React.FC<{
     setBreakDuration(currentBreak);
   };
 
+  const paddleSpeedOptions = generateOptions(PaddleSpeed);
+  const routeTypeOptions = generateOptions(RouteType);
+  const routeDifficultyOptions = generateOptions(RouteDifficulty);
+
+  useEffect(() => {
+    setUserInput((prevUserInput) => ({
+      ...prevUserInput,
+      location: eastCowes, // TODO: change this once we have location from map
+      startTime: startTime,
+      endTime: endTime,
+      paddleSpeed: paddleSpeed,
+      routeType: routeType,
+      routeDifficulty: routeDifficulty,
+      breakTime: breakDuration,
+    }));
+  }, [
+    startTime,
+    endTime,
+    paddleSpeed,
+    routeType,
+    routeDifficulty,
+    breakDuration,
+  ]);
+
   return (
     <View>
-      <View style={styles.timePickerContainer}>
-        <View style={styles.pickerContainer}>
-          <Text style={styles.label}>Enter Start Time</Text>
-          <DateTimePicker
-            value={startTime}
-            mode="time"
-            is24Hour={true}
-            minimumDate={new Date()}
-            onChange={onStartTimeChange}
-          ></DateTimePicker>
-        </View>
-        <View style={styles.pickerContainer}>
-          <Text style={styles.label}>Enter End Time</Text>
-          <DateTimePicker
-            value={endTime}
-            mode="time"
-            is24Hour={true}
-            minimumDate={startTime}
-            disabled={!showEndTimePicker}
-            onChange={onEndTimeChange}
-          ></DateTimePicker>
-        </View>
-      </View>
+      <StartEndTimePicker
+        startTime={startTime}
+        setStartTime={setStartTime}
+        endTime={endTime}
+        setEndTime={setEndTime}
+      />
       <SelectButtons
         label={'Select paddle speed'}
         options={paddleSpeedOptions}
         selectedOption={paddleSpeed}
         onSelect={setPaddleSpeed}
       />
-      <View style={{ height: 20 }} />
       <SelectButtons
         label={'Select route difficulty'}
         options={routeDifficultyOptions}
         selectedOption={routeDifficulty}
         onSelect={setRouteDifficulty}
       />
-      <View style={{ height: 20 }} />
       <SelectButtons
         label={'Select route type'}
         options={routeTypeOptions}
         selectedOption={routeType}
         onSelect={setRouteType}
       />
-      <View style={{ height: 20 }} />
       <View style={styles.pickerContainer}>
         <Text style={styles.label}>Break time duration</Text>
         <DateTimePicker

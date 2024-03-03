@@ -1,5 +1,6 @@
 tideService: "grib"
 windService: "grib"
+timeService: "grib"
 gribFetcher: "OpenSkiron"
 tideTimeService: "admiralty"
 tideGribConf:
@@ -12,3 +13,8 @@ windGribConf:
   filePath: "src/test/gribFiles/testGrib.grb"
   uWindVarName: "(.+/)(u[_|-].*wind.*)"
   vWindVarName: "(.+/)(v[_|-].*wind.*)"
+gribTimeServiceConf:
+  gribReader: "NetCDFGribReader"
+  filePaths:
+    - "file1"
+    - "file2"
