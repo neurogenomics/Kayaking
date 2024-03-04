@@ -1,12 +1,13 @@
 package com.kayak_backend.models
 
 import kotlinx.serialization.Serializable
+import kotlin.math.sqrt
 
 @Serializable
 data class WindInfo(val u: Double, val v: Double)
 
 fun getWindMagnitude(windInfo: WindInfo): Double {
-    return windInfo.u * windInfo.u * windInfo.v * windInfo.v
+    return sqrt(windInfo.u * windInfo.u + windInfo.v * windInfo.v)
 }
 
 @Serializable
