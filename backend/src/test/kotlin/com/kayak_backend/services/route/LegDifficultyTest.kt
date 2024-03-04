@@ -92,13 +92,13 @@ class LegDifficultyTest {
         val route = TimedRoute("name", 1.0, multipleLeg2, listOf(0, 1, 2, 3))
         println(dateTime)
         every { windMock.getWind(loc2, dateTime) } returns WindInfo(1.0, 1.0)
-        every { waveMock.getWave(loc2, any()) } returns WaveInfo(1.0, 1.0)
+        every { waveMock.getWave(loc2, dateTime) } returns WaveInfo(1.0, 1.0)
 
         every { windMock.getWind(loc3, dateTime.plusSeconds(1)) } returns WindInfo(2.0, 2.0)
-        every { waveMock.getWave(loc3, any()) } returns WaveInfo(5.0, 5.0)
+        every { waveMock.getWave(loc3, dateTime.plusSeconds(1)) } returns WaveInfo(5.0, 5.0)
 
         every { windMock.getWind(loc4, dateTime.plusSeconds(2)) } returns WindInfo(5.0, 5.0)
-        every { waveMock.getWave(loc4, any()) } returns WaveInfo(2.0, 2.0)
+        every { waveMock.getWave(loc4, dateTime.plusSeconds(2)) } returns WaveInfo(2.0, 2.0)
 
         println(dateTime)
         val result = legDifficulty.getDifficulty(route, dateTime)

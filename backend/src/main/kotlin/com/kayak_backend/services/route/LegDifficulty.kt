@@ -19,7 +19,7 @@ class LegDifficulty(
     // maps leg to (time, difficulty)
     private val difficultyCache = mutableMapOf<Leg, MutableMap<Long, Int>>()
 
-    // either this or need to get list of locations from legs and match them up with checkpoints
+    // index keeps track of which checkpoint of a timed route the difficulty is for
     private var index = 0
 
     // source: https://www.metoffice.gov.uk/weather/guides/coast-and-sea/beaufort-scale
