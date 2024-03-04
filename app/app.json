@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "app",
-    "slug": "app",
+    "name": "Neurogenomics Kayaking",
+    "slug": "neurogenomics-kayaking",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -15,7 +15,12 @@
       "**/*"
     ],
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.kayaking.neurogenomicskayaking",
+      "config": {
+        
+         "googleMapsApiKey": "AIzaSyABvOAizOXHC2NsifAxfIyo-yN0W24_lyk"
+      }
     },
     "android": {
       "adaptiveIcon": {
@@ -25,6 +30,18 @@
     },
     "web": {
       "favicon": "./assets/favicon.png"
+    },
+    "owner": "kayaking",
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/96892227-6b63-49f5-af08-67b39eabcc61"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "f1f36058-bbad-44c1-9af0-092587edd562"
+      }
     }
   }
 }
