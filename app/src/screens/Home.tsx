@@ -21,6 +21,8 @@ import { WeatherVisualisation } from '../components/MapVisualisations/WeatherVis
 import { RouteVisualisation } from '../components/MapVisualisations/RouteVisualisation';
 import { RouteModel } from '../models/routeModel';
 import { useNavigation } from '@react-navigation/native';
+import RouteFetcher from '../services/routeFetcher';
+import { LocationModel } from '../models/locationModel';
 import { DataDisplay } from '../components/DataDisplay';
 
 const styles = StyleSheet.create({
@@ -72,6 +74,8 @@ const HomeScreen: React.FC<HomeProps> = () => {
     return result;
   };
 
+  const routeFetcher = new RouteFetcher(setRoutes);
+
   return (
     <GestureHandlerRootView style={styles.container}>
       <MapView
@@ -80,6 +84,15 @@ const HomeScreen: React.FC<HomeProps> = () => {
         rotateEnabled={true}
         scrollEnabled={true}
         provider="google"
+        onRegionChangeComplete={(region) => {
+          const location: LocationModel = {
+            latitude: region.latitude,
+            longitude: region.longitude,
+          };
+          if (userInput !== undefined) {
+            routeFetcher.update(userInput, location);
+          }
+        }}
       >
         {weatherMap !== undefined ? (
           <WeatherVisualisation display={weatherMap} date={mapDate} />
