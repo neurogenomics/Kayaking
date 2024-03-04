@@ -27,7 +27,7 @@ fun Route.planRoute(
                     { legTimer.getDuration(it, startTime) < duration * 60 },
                 ).take(20).toList()
 
-            val timedRoutes = routes.zip(routes.map { legTimer.getCheckpoints(it, startTime) })
+            val timedRoutes = routes.map { Pair(it, legTimer.getCheckpoints(it, startTime)) }
             call.respond(
                 timedRoutes.map {
                         (route, checkpoints) ->
