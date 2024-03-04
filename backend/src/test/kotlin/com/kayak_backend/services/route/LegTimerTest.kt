@@ -1,6 +1,7 @@
 package com.kayak_backend.services.route
 
 import com.kayak_backend.models.Location
+import com.kayak_backend.services.route.kayak.BasicKayak
 import org.junit.Test
 import java.time.LocalDateTime
 import kotlin.test.assertEquals

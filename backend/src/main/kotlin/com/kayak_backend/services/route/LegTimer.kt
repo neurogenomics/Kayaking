@@ -1,6 +1,7 @@
 package com.kayak_backend.services.route
 
 import com.kayak_backend.models.Location
+import com.kayak_backend.services.route.kayak.Kayak
 import java.time.LocalDateTime
 import java.time.ZoneOffset
 import kotlin.math.roundToLong
@@ -47,6 +48,7 @@ class LegTimer(private val kayak: Kayak) {
         dateTime: LocalDateTime,
     ): Long {
         val epoch = dateTime.toEpochSecond(ZoneOffset.UTC)
+
         val times = durationCache.getOrPut(leg) { mutableMapOf() }
         return times.getOrPut(epoch) { calculateDuration(leg, dateTime) }
     }
@@ -62,6 +64,7 @@ class LegTimer(private val kayak: Kayak) {
                         (leg.start.latitude + leg.start.latitude) / 2,
                         (leg.start.longitude + leg.start.longitude) / 2,
                     )
+
                 (leg.length / kayak.getSpeed(dateTime, midpoint, leg.bearing)).roundToLong()
             }
 
