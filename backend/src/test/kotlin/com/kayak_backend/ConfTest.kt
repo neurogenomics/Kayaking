@@ -26,6 +26,14 @@ val testWindGribConf =
         vWindVarName = "(.+/)(v[_|-].*wind.*)",
     )
 
+val testWaveGribConf =
+    WaveGribConf(
+        gribReader = "NetCDFGribReader",
+        filePath = "gribFiles/Cherbourg_4km_WRF_WAM.grb",
+        waveHeightVarName = "(.+/)(.*combined.*waves.*)",
+        waveDirectionVarName = "(.+/)(.*Direction.*swell_waves.*)",
+    )
+
 val testGribTimeServiceConf =
     GribTimeServiceConf(
         gribReader = "NetCDFGribReader",
@@ -37,7 +45,9 @@ val testConfig =
         tideService = "grib",
         windService = "grib",
         timeService = "grib",
+        waveService = "grib",
         gribFetcher = "OpenSkiron",
+        waveGribConf = testWaveGribConf,
         tideGribConf = testTideGribConf,
         windGribConf = testWindGribConf,
         gribTimeServiceConf = testGribTimeServiceConf,
