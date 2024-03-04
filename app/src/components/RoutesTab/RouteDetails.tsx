@@ -1,15 +1,11 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
-import { getDistance, RouteModel } from '../../models/routeModel';
-import { RouteListNavigationProp } from './Routes';
+import { getDistance } from '../../models/routeModel';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { faArrowLeft } from '@fortawesome/free-solid-svg-icons';
-
-export type RouteDetailsProps = {
-  routes: RouteModel[] | undefined;
-  selectedRouteIndex: number;
-  navigation: RouteListNavigationProp;
-};
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { RoutesParamList } from './Routes';
+import MapView, { Polyline } from 'react-native-maps';
 
 const styles = StyleSheet.create({
   container: {
@@ -38,16 +34,22 @@ const styles = StyleSheet.create({
     color: '#888',
     marginTop: 5,
   },
+  map: {
+    width: '100%',
+    height: 'auto',
+  },
 });
 
+type RouteDetailsProps = NativeStackScreenProps<
+  RoutesParamList,
+  'RouteDetails'
+>;
+
 const RouteDetails: React.FC<RouteDetailsProps> = ({
-  routes,
-  selectedRouteIndex,
+  route,
   navigation,
 }: RouteDetailsProps) => {
-  if (routes === undefined) {
-    return null;
-  }
+  const mapRoute = route.params.route;
   return (
     <View style={styles.container}>
       <TouchableOpacity
@@ -57,10 +59,20 @@ const RouteDetails: React.FC<RouteDetailsProps> = ({
         <FontAwesomeIcon icon={faArrowLeft} style={styles.icon} />
       </TouchableOpacity>
       <View style={styles.textContainer}>
-        <Text style={styles.routeName}>{routes[selectedRouteIndex].name}</Text>
+        <Text style={styles.routeName}>{mapRoute.name}</Text>
         <Text
           style={styles.distance}
-        >{`Distance covered: ${getDistance(routes[selectedRouteIndex])}km`}</Text>
+        >{`Distance covered: ${getDistance(mapRoute)}km`}</Text>
+        <MapView
+          style={styles.map}
+          // region={region}
+        >
+          {/* <Polyline
+            coordinates={route.locations}
+            strokeColor={routeColors.selected}
+            strokeWidth={3}
+          ></Polyline> */}
+        </MapView>
       </View>
     </View>
   );
