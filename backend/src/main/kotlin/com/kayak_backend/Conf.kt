@@ -8,6 +8,7 @@ import com.kayak_backend.gribReader.NetCDFGribReader
 import com.kayak_backend.interpolator.SimpleInterpolator
 import com.kayak_backend.services.coastline.IsleOfWightCoastline
 import com.kayak_backend.services.route.*
+import com.kayak_backend.services.route.kayak.BasicKayak
 import com.kayak_backend.services.slipways.BeachesService
 import com.kayak_backend.services.slipways.SlipwayService
 import com.kayak_backend.services.tideTimes.AdmiraltyTideTimeService

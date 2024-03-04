@@ -68,8 +68,8 @@ class RoutePlannerTest {
         )
 
         for (route in result) {
-            assert(startPos.any { it.location == route.locations.first() })
-            assert(startPos.any { it.location == route.locations.last() })
+            assert(startPos.any { it.location == route.locations.start })
+            assert(startPos.any { it.location == route.locations.end })
         }
     }
 
@@ -88,8 +88,8 @@ class RoutePlannerTest {
         )
 
         for (route in result) {
-            assertEquals(route.locations.first(), start.location)
-            assertEquals(route.locations.last(), start.location)
+            assertEquals(route.locations.start, start.location)
+            assertEquals(route.locations.end, start.location)
         }
     }
 

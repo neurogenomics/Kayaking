@@ -171,6 +171,6 @@ class RoutePlanner(
     ): Sequence<Route> {
         val validStarts = startToRoute.filter { startPositionFilter(it.key) }
         val generator = routeGenerator(condition, validStarts.values.toList())
-        return generator.take(maxGenerated).map { Route(it.second, it.first.length, it.first.locations) }.sortedByDescending { it.length }
+        return generator.take(maxGenerated).map { Route(it.second, it.first.length, it.first) }.sortedByDescending { it.length }
     }
 }

@@ -7,6 +7,7 @@ export type RouteModel = {
   difficulty: number;
   endTime: Date;
   startTime: Date;
+  checkpoints: number[];
 };
 export const getDistance = (route: RouteModel): string => {
   return (route.length / 1000).toFixed(2).toString();
