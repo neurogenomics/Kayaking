@@ -23,6 +23,7 @@ import { RouteModel } from '../models/routeModel';
 import { useNavigation } from '@react-navigation/native';
 import { DataDisplay } from '../components/DataDisplay';
 import { getWeatherDates } from '../services/timeService';
+import Routes3 from '../components/RoutesTab/Routes';
 
 const styles = StyleSheet.create({
   container: {
@@ -155,8 +156,8 @@ const HomeScreen: React.FC<HomeProps> = () => {
           </Tab.Screen>
           <Tab.Screen name="Routes">
             {() => (
-              <Routes
-                routes={routes}
+              <Routes3
+                routes={routes ?? []}
                 selectedRouteIndex={selectedRouteIndex}
                 setSelectedRouteIndex={setSelectedRouteIndex}
                 navigation={useNavigation()}

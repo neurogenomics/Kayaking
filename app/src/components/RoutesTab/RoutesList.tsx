@@ -5,7 +5,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import { RouteModel } from '../../models/routeModel';
+import { RouteModel, getMapDisplayRegion } from '../../models/routeModel';
 import React, { useCallback } from 'react';
 import { RouteListNavigationProp } from './Routes';
 import MapView, { Polyline } from 'react-native-maps';
@@ -73,28 +73,7 @@ const RoutesList: React.FC<RoutesListProps> = ({ routes, navigation }) => {
   const renderItem = useCallback(
     ({ item, index }: { item: RouteModel; index: number }) => {
       const route = item;
-      const latitudes = route.locations.map((location) => location.latitude);
-      const longitudes = route.locations.map((location) => location.longitude);
-      const minLat = Math.min(...latitudes);
-      const maxLat = Math.max(...latitudes);
-      const minLng = Math.min(...longitudes);
-      const maxLng = Math.max(...longitudes);
-
-      // Calculate deltas for latitude and longitude
-      const deltaLat = (maxLat - minLat) * 1.1; // Add some padding
-      const deltaLng = (maxLng - minLng) * 1.1; // Add some padding
-
-      // Calculate center of the region
-      const centerLat = (minLat + maxLat) / 2;
-      const centerLng = (minLng + maxLng) / 2;
-
-      const region = {
-        latitude: centerLat,
-        longitude: centerLng,
-        latitudeDelta: deltaLat,
-        longitudeDelta: deltaLng,
-      };
-
+      const region = getMapDisplayRegion(route);
       const totalMins = Math.round(
         route.checkpoints[route.checkpoints.length - 1] / 60,
       );
