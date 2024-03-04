@@ -4,10 +4,6 @@ export type RouteModel = {
   name: string;
   length: number;
   locations: LocationModel[];
-};
-
-//TODO - RouteInformation for graphing, can possibly be merged with RouteModel 
-export type RouteInformationModel = {
   difficulty: number;
   endTime: Date;
   startTime: Date;

@@ -15,9 +15,9 @@ import Speedometer, {
   Marks,
   Indicator,
 } from 'react-native-cool-speedometer';
-import { RouteInformationModel } from '../models/routeModel';
+import { RouteModel } from '../models/routeModel';
 import { ScrollView } from 'react-native-gesture-handler';
-const RouteInformation = (route: RouteInformationModel) => {
+const RouteInformation = (route: RouteModel) => {
   const times: string[] = [];
   const currentDate = new Date(route.startTime);
 

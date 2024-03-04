@@ -73,7 +73,7 @@ const HomeScreen: React.FC<HomeProps> = () => {
     return result;
   };
 
-  const routeInformation: RouteInformationModel = {
+  const routeInformation: RouteModel = {
     startTime: new Date(),
     endTime: new Date(),
     difficulty: 4,
