@@ -1,5 +1,8 @@
 package com.kayak_backend.services.route
 
+import com.kayak_backend.getConf
+import com.kayak_backend.getWindService
+import com.kayak_backend.services.wind.WindService
 import kotlinx.serialization.Serializable
 import org.locationtech.jts.geom.Geometry
 import org.locationtech.jts.geom.GeometryFactory
@@ -49,5 +52,11 @@ class BaseRoute {
             }
         }
         return longestPart
+    }
+
+    fun getDifficulty(
+        route: Route,
+        windService: WindService = getWindService(getConf("./config.yaml")),
+    ) {
     }
 }
