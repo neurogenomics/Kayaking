@@ -14,11 +14,12 @@ open class Route(
 )
 
 @Serializable
-data class TimedRoute(
+data class TimedRankedRoute(
     val name: String,
     val length: Double,
     val locations: Leg,
     val checkpoints: List<Long>,
+    val difficulty: Int,
 )
 
 class BaseRoute {

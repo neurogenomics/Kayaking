@@ -22,16 +22,18 @@ class LegDifficulty(
     // index keeps track of which checkpoint of a timed route the difficulty is for
     private var index = 0
 
+    // TODO would it be better to store these somewhere else - kind of like the kayaks?
     // source: https://www.metoffice.gov.uk/weather/guides/coast-and-sea/beaufort-scale
     private val waveLevels = listOf(0.0, 0.1, 0.3, 1.0, 1.5, 2.5, 4.0, 5.5, 7.5, 10.0, 12.5, 16.0)
     private val windLevels = listOf(1.0, 2.0, 3.0, 5.0, 8.0, 11.0, 14.0, 17.0, 21.0, 24.0, 28.0, 32.0)
 
     fun getDifficulty(
-        route: TimedRoute,
+        route: Route,
         dateTime: LocalDateTime,
+        checkpoints: List<Long>,
     ): Int {
         index = 0
-        return getLegDifficulty(route.locations, dateTime, route.checkpoints)
+        return getLegDifficulty(route.locations, dateTime, checkpoints)
     }
 
     private fun getLegDifficulty(
