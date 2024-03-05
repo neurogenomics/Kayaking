@@ -9,7 +9,6 @@ fun Application.configureRouting(conf: Conf) {
     routing {
         testRouting()
         sunset()
-        slipway()
         beaches()
         tideTimes(getTideTimeService(conf, System.getenv()))
         tide(getTideService(conf))
