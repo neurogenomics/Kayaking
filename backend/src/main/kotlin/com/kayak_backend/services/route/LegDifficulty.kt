@@ -19,7 +19,7 @@ class LegDifficulty(
     // maps leg to (time, difficulty)
     private val difficultyCache = mutableMapOf<Leg, MutableMap<Long, Int>>()
 
-    // index keeps track of which checkpoint of a timed route the difficulty is for
+    // index of how many checkpoints we are through the route, increased each time we process a single leg
     private var index = 0
 
     // TODO would it be better to store these somewhere else - kind of like the kayaks?
