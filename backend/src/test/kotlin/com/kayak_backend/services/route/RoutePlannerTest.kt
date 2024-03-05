@@ -146,16 +146,15 @@ class RoutePlannerTest {
     }
 
     // SectionIterator tests
-//    @Test
-//    fun sectionIteratorHasNext() {
-//        val routePlanner = RoutePlanner(polygon, startPos, 10)
-//        val sectionIterator = SectionIterator()
-//        assert(sectionIterator.hasNext())
-//    }
+    @Test
+    fun sectionedRouteReturnInfiniteSequence() {
+        val sectionedRoute = SectionedRoute(polygon, startPos, 10)
+        assert((sectionedRoute.stepFrom(loc1).take(1000).toList().size == 1000))
+    }
 
 //    @Test
 //    fun sectionIteratorGetNext() {
-//        val routePlanner = RoutePlanner(polygon, startPos, 10)
+//        val sectionedRoute = SectionedRoute(polygon, startPos, 10)
 //        val sectionIterator = routePlanner.SectionIterator()
 //
 //        val expectedCombinedLeg1 = Leg.MultipleLegs(listOf(leg1, leg2, leg3, leg4))
