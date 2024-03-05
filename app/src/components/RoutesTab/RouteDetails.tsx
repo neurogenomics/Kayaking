@@ -8,6 +8,7 @@ import { RoutesParamList } from './Routes';
 import MapView, { Polyline } from 'react-native-maps';
 import interpolate from 'color-interpolate';
 import { LinearGradient } from 'expo-linear-gradient';
+import { speedMapColours } from '../../colors';
 
 const styles = StyleSheet.create({
   container: {
@@ -79,9 +80,7 @@ const RouteDetails: React.FC<RouteDetailsProps> = ({
 
   const normalisedSpeeds = speeds.map((speed) => (speed - minSpeed) / range);
 
-  const colourChoices = ['#264b96', '#27b376', '#006f3c', '#f9a73e', '#bf212f'];
-
-  const colourmap = interpolate(colourChoices);
+  const colourmap = interpolate(speedMapColours);
   const colours = normalisedSpeeds.map((speed) => colourmap(speed));
   return (
     <View style={styles.container}>
@@ -95,7 +94,7 @@ const RouteDetails: React.FC<RouteDetailsProps> = ({
       <View style={styles.gradientContainer}>
         <Text style={styles.text}>Slow</Text>
         <LinearGradient
-          colors={colourChoices}
+          colors={speedMapColours}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 0 }}
           style={styles.linearGradient}
