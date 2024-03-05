@@ -35,7 +35,14 @@ const Routes: React.FC<RoutesProps> = ({
   return (
     <Stack.Navigator initialRouteName={'RouteList'}>
       <Stack.Screen name="RouteList" options={{ headerShown: false }}>
-        {() => <RoutesList routes={routes} navigation={navigation} />}
+        {() => (
+          <RoutesList
+            routes={routes}
+            navigation={navigation}
+            setSelectedRouteIndex={setSelectedRouteIndex}
+            selectedRouteIndex={selectedRouteIndex}
+          />
+        )}
       </Stack.Screen>
       <Stack.Screen
         name={'RouteDetails'}

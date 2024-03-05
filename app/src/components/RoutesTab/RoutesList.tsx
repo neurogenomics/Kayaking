@@ -35,6 +35,12 @@ const styles = StyleSheet.create({
     marginBottom: 4,
     textAlign: 'center',
   },
+  mainTextSelected: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 4,
+    textAlign: 'center',
+  },
   rowContainer: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -66,9 +72,16 @@ const styles = StyleSheet.create({
 export type RoutesListProps = {
   routes: RouteModel[];
   navigation: RouteListNavigationProp;
+  setSelectedRouteIndex: React.Dispatch<React.SetStateAction<number>>;
+  selectedRouteIndex: number;
 };
 
-const RoutesList: React.FC<RoutesListProps> = ({ routes, navigation }) => {
+const RoutesList: React.FC<RoutesListProps> = ({
+  routes,
+  navigation,
+  setSelectedRouteIndex,
+  selectedRouteIndex,
+}) => {
   const renderItem = useCallback(
     ({ item, index }: { item: RouteModel; index: number }) => {
       const route = item;
@@ -87,9 +100,10 @@ const RoutesList: React.FC<RoutesListProps> = ({ routes, navigation }) => {
 
       return (
         <TouchableOpacity
-          onPress={() =>
-            navigation.navigate('RouteDetails', { route: routes[index] })
-          }
+          onPress={() => {
+            navigation.navigate('RouteDetails', { route: routes[index] });
+            setSelectedRouteIndex(index);
+          }}
         >
           <View style={styles.itemContainer}>
             <View style={styles.mapContainer}>
@@ -107,7 +121,15 @@ const RoutesList: React.FC<RoutesListProps> = ({ routes, navigation }) => {
               </MapView>
             </View>
             <View style={styles.detailsContainer}>
-              <Text style={styles.mainText}>{route.name}</Text>
+              <Text
+                style={
+                  selectedRouteIndex === index
+                    ? styles.mainTextSelected
+                    : styles.mainText
+                }
+              >
+                {route.name}
+              </Text>
               <View style={styles.rowContainer}>
                 <View style={styles.textContainer}>
                   <Icon source="kayaking" size={24} />
