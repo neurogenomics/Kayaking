@@ -69,7 +69,6 @@ export type RoutesListProps = {
 };
 
 const RoutesList: React.FC<RoutesListProps> = ({ routes, navigation }) => {
-  // renders routes in a list where you can select a route
   const renderItem = useCallback(
     ({ item, index }: { item: RouteModel; index: number }) => {
       const route = item;
@@ -99,7 +98,6 @@ const RoutesList: React.FC<RoutesListProps> = ({ routes, navigation }) => {
                 region={region}
                 scrollEnabled={false}
                 zoomEnabled={false}
-                provider="google"
               >
                 <Polyline
                   coordinates={route.locations}
@@ -136,8 +134,7 @@ const RoutesList: React.FC<RoutesListProps> = ({ routes, navigation }) => {
 
   return (
     <View>
-      {routes === undefined ? (
-        // TODO make better display than this
+      {!routes ? (
         <Text>Enter filters to get a route</Text>
       ) : (
         <FlatList

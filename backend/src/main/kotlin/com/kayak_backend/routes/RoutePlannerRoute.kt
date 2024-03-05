@@ -25,7 +25,7 @@ fun Route.planRoute(
                 routePlanner.generateRoutes(
                     { location distanceTo it.location < startPositionFilterDistance },
                     { legTimer.getDuration(it, startTime) < duration * 60 },
-                ).take(4).toList()
+                ).take(20).toList()
 
             call.respond(
                 routes.map { route -> TimedRoute(route.name, route.length, route.locations, legTimer.getCheckpoints(route, startTime)) },
