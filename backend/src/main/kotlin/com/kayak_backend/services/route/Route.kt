@@ -1,6 +1,5 @@
 package com.kayak_backend.services.route
 
-import com.kayak_backend.models.Location
 import kotlinx.serialization.Serializable
 import org.locationtech.jts.geom.Geometry
 import org.locationtech.jts.geom.GeometryFactory
@@ -11,14 +10,14 @@ import org.locationtech.jts.simplify.TopologyPreservingSimplifier
 open class Route(
     val name: String,
     val length: Double,
-    val locations: List<Location>,
+    val locations: Leg,
 )
 
 @Serializable
 data class TimedRoute(
     val name: String,
     val length: Double,
-    val locations: List<Location>,
+    val locations: Leg,
     val checkpoints: List<Long>,
 )
 

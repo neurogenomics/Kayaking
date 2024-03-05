@@ -1,4 +1,4 @@
-package com.kayak_backend.services.route
+package com.kayak_backend.services.route.kayak
 
 import com.kayak_backend.models.Location
 import java.time.LocalDateTime

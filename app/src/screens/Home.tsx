@@ -1,6 +1,6 @@
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList, Route } from '../routes';
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { SafeAreaView, StyleSheet } from 'react-native';
 import MapView from 'react-native-maps';
 import { isleOfWight } from '../../constants';
@@ -24,6 +24,7 @@ import { useNavigation } from '@react-navigation/native';
 import RouteFetcher from '../services/routeFetcher';
 import { LocationModel } from '../models/locationModel';
 import { DataDisplay } from '../components/DataDisplay';
+import { getWeatherDates } from '../services/timeService';
 
 const styles = StyleSheet.create({
   container: {
@@ -49,6 +50,7 @@ const HomeScreen: React.FC<HomeProps> = () => {
   const [userInput, setUserInput] = useState<UserInput>();
   const [routes, setRoutes] = useState<RouteModel[] | undefined>();
   const [selectedRouteIndex, setSelectedRouteIndex] = useState(0);
+  const [weatherDates, setWeatherDates] = useState<Date[]>([]);
 
   const inverseBottomSheetStyle = useAnimatedStyle(() => {
     return {
@@ -60,19 +62,37 @@ const HomeScreen: React.FC<HomeProps> = () => {
     };
   });
 
-  // TODO: This should call the server to find what times the weather data is available but no such route exists yet
-  const getNextHours = () => {
-    const result: Date[] = [];
-    const startTime = new Date();
-    startTime.setMinutes(0);
-    startTime.setSeconds(0);
-    startTime.setMilliseconds(0);
-    for (let i = 0; i <= 50; i++) {
-      const nextHour = new Date(startTime.getTime() + i * 3600 * 1000);
-      result.push(nextHour);
+  function indexOfClosestPastDate(dates: Date[]): number | null {
+    if (dates.length === 0) return null;
+
+    const currentDate = new Date();
+    const pastDates = dates.filter(
+      (date) => date.getTime() <= currentDate.getTime(),
+    );
+    if (pastDates.length === 0) return null;
+
+    let minDifference = Math.abs(
+      pastDates[0].getTime() - currentDate.getTime(),
+    );
+    let closestIndex = 0;
+
+    for (let i = 1; i < pastDates.length; i++) {
+      const difference = Math.abs(
+        pastDates[i].getTime() - currentDate.getTime(),
+      );
+      if (difference < minDifference) {
+        minDifference = difference;
+        closestIndex = i;
+      }
     }
-    return result;
-  };
+    return dates.indexOf(pastDates[closestIndex]);
+  }
+
+  useEffect(() => {
+    void getWeatherDates().then((dates) => {
+      setWeatherDates(dates);
+    });
+  }, []);
 
   const routeFetcher = new RouteFetcher(setRoutes);
 
@@ -109,7 +129,8 @@ const HomeScreen: React.FC<HomeProps> = () => {
       </MapView>
       <SafeAreaView style={styles.carouselContainer}>
         <DateCarousel
-          dates={getNextHours()}
+          dates={weatherDates}
+          defaultIndex={indexOfClosestPastDate(weatherDates) ?? 0}
           onDateChanged={(date) => setMapDate(date)}
         ></DateCarousel>
       </SafeAreaView>
