@@ -1,6 +1,7 @@
 import com.kayak_backend.models.Location
 import com.kayak_backend.routes.commonSetup
 import com.kayak_backend.routes.slipway
+import com.kayak_backend.services.route.NamedLocation
 import com.kayak_backend.services.slipways.SlipwayService
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
@@ -18,7 +19,7 @@ class SlipwayRouteTest {
     // private val sunsetInfoMock = SunsetInfo(LocalTime.of(10, 30), LocalTime.of(6,30))
 
     init {
-        every { slipwayMock.getClosestSlipway(any()) } returns Location(0.0, 0.0)
+        every { slipwayMock.getClosestSlipway(any()) } returns NamedLocation(Location(0.0, 0.0), "name")
     }
 
     // TODO: Check error messages instead of error pages? Not sure how to
