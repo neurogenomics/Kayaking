@@ -1,7 +1,6 @@
 package com.kayak_backend.routes
 
 import com.kayak_backend.models.Location
-import com.kayak_backend.services.coastline.IsleOfWightCoastline
 import com.kayak_backend.services.route.LegTimer
 import com.kayak_backend.services.route.RoutePlanner
 import com.kayak_backend.services.route.TimedRoute
@@ -9,8 +8,6 @@ import io.ktor.server.application.call
 import io.ktor.server.response.respond
 import io.ktor.server.routing.*
 import io.ktor.server.util.getOrFail
-
-val coastline = IsleOfWightCoastline()
 
 fun Route.planRoute(
     routePlanner: RoutePlanner,
