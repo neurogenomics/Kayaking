@@ -17,19 +17,18 @@ class SeaBearingsGetter(
      * Returns list of bearings between each pair of coordinates in the coastline
      * Requires the coastline service to return the coordinates in a clockwise order.
      * */
-    fun getSeaBearings(): List<SeaBearingInfo> {
+    fun getSeaBearings(): Map<Location, Double> {
         val coastline = route.createBaseRoute(coastlineService.getCoastline(), routeBuffer).coordinates
 
         return coastline.toList().zipWithNext {
                 a: Coordinate, b: Coordinate ->
             if (a != b) {
                 val brng = seaDirection(b, a)
-                SeaBearingInfo(brng, Location(a.x, a.y))
+                Pair(Location(a.x, a.y), brng)
             } else {
-                // Null for the case the same coordinate is twice in a row, to avoid non-meaningful bearings
                 null
             }
-        }.filterNotNull()
+        }.filterNotNull().associate { (loc, brng) -> loc to brng }
     }
 
     /*

@@ -2,7 +2,9 @@ package com.kayak_backend.services.windFiltering
 
 import com.kayak_backend.getConf
 import com.kayak_backend.getWindService
+import com.kayak_backend.models.Location
 import com.kayak_backend.models.WindInfo
+import com.kayak_backend.services.route.Route
 import com.kayak_backend.services.seaBearing.SeaBearingService
 import com.kayak_backend.services.wind.WindService
 import java.time.LocalDateTime
@@ -19,18 +21,30 @@ class WindFiltering(
     private val windService: WindService = getWindService(getConf("./config.yaml")),
     private val seaBearingService: SeaBearingService = SeaBearingService(),
 ) {
-    // returns list of SeaBearingInfo and bool for if the wind is out to sea
-    fun classifyAreas(): List<WindZonesInfo> {
+    fun classifyRoute(route: Route): Boolean {
         val seaBearings = seaBearingService.getSeaBearings()
+        val locs = route.locations.locations
+        return locs.any { classifyArea(it, seaBearings) }
+    }
 
-        return seaBearings.map {
-            val wind = windService.getWind(it.coor, LocalDateTime.now())
-
-            WindZonesInfo(it, badArea(it.bearing, wind))
+    // returns map of locations and bool for if the wind is out to sea for entire coastline
+    fun classifyAreas(): Map<Location, Boolean> {
+        val seaBearings = seaBearingService.getSeaBearings()
+        return seaBearings.mapValues {
+            val wind = windService.getWind(it.key, LocalDateTime.now())
+            badArea(it.value, wind)
         }
     }
 
-    // returns true if wind direction is out to sea (meaning bad zone)
+    private fun classifyArea(
+        location: Location,
+        seaBearings: Map<Location, Double>,
+    ): Boolean {
+        val wind = windService.getWind(location, LocalDateTime.now())
+        return badArea(getClosestBearing(location, seaBearings), wind)
+    }
+
+    // returns true if wind direction is out to sea and strong
     private fun badArea(
         bearing: Double,
         wind: WindInfo,
@@ -40,5 +54,18 @@ class WindFiltering(
         val dif = abs(resultWind - bearing)
 
         return magnitude >= BAD_WIND_MAGNITUDE_LIMIT && (dif < BAD_WIND_LIMIT || dif > (360 - BAD_WIND_LIMIT))
+    }
+
+    // or to avoid issue of it not being in teh sea bearing map we could just find the bearings for this route?
+    private fun getClosestBearing(
+        location: Location,
+        seaBearings: Map<Location, Double>,
+    ): Double {
+        if (seaBearings.containsKey(location)) {
+            return seaBearings.getValue(location)
+        } else {
+            // TODO - how to efficiently find the closest point - particularly for slipways/start/endpoints
+            return 0.0
+        }
     }
 }
