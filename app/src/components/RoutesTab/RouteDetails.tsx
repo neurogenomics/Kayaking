@@ -14,7 +14,7 @@ import { routeColors } from '../../colors';
 import interpolate from 'color-interpolate';
 import { LinearGradient } from 'expo-linear-gradient';
 
-const styles = StyleSheet.create({
+const styles2 = StyleSheet.create({
   container: {
     flexDirection: 'row',
     alignItems: 'flex-start',
@@ -51,6 +51,56 @@ const styles = StyleSheet.create({
   },
 });
 
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    margin: 10,
+  },
+  titleContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  routeName: {
+    fontSize: 20,
+    marginLeft: 5,
+    fontWeight: 'bold',
+  },
+  gradientContainer: {
+    marginTop: 10,
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  linearGradient: {
+    flex: 4,
+    height: '100%',
+    borderRadius: 10,
+    borderWidth: 2,
+    borderColor: 'black',
+  },
+  text: {
+    textAlign: 'center',
+    flex: 1,
+    fontSize: 16,
+  },
+  divider: {
+    height: 1,
+    width: '100%',
+    backgroundColor: 'grey',
+    marginVertical: 5,
+  },
+  map: {
+    width: '100%',
+    height: '100%',
+  },
+  mapContainer: {
+    width: '100%',
+    height: 200,
+    marginVertical: 10,
+    borderRadius: 10,
+    overflow: 'hidden',
+  },
+});
+
 type RouteDetailsProps = NativeStackScreenProps<
   RoutesParamList,
   'RouteDetails'
@@ -71,47 +121,46 @@ const RouteDetails: React.FC<RouteDetailsProps> = ({
 
   const normalisedSpeeds = speeds.map((speed) => (speed - minSpeed) / range);
 
-  const colourChoices = ['blue', 'green', 'red'];
+  const colourChoices = ['#264b96', '#27b376', '#006f3c', '#f9a73e', '#bf212f'];
 
   const colourmap = interpolate(colourChoices);
   const colours = normalisedSpeeds.map((speed) => colourmap(speed));
   return (
     <View style={styles.container}>
-      <TouchableOpacity
-        style={styles.arrowContainer}
-        onPress={() => navigation.navigate('RouteList')}
-      >
-        <FontAwesomeIcon icon={faArrowLeft} style={styles.icon} />
-      </TouchableOpacity>
-      <View style={styles.textContainer}>
+      <View style={styles.titleContainer}>
+        <TouchableOpacity onPress={() => navigation.navigate('RouteList')}>
+          <FontAwesomeIcon icon={faArrowLeft} />
+        </TouchableOpacity>
         <Text style={styles.routeName}>{mapRoute.name}</Text>
-        <Text
-          style={styles.distance}
-        >{`Distance covered2: ${getDistance(mapRoute)}km`}</Text>
       </View>
-      <View>
+      <View style={styles.divider} />
+      <View style={styles.gradientContainer}>
+        <Text style={styles.text}>Slow</Text>
         <LinearGradient
           colors={colourChoices}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 0 }}
           style={styles.linearGradient}
         />
+        <Text style={styles.text}>Fast</Text>
       </View>
-      <MapView style={styles.map} region={region}>
-        {colours.map((colour, index) => {
-          return (
-            <Polyline
-              key={index}
-              coordinates={[
-                mapRoute.locations[index],
-                mapRoute.locations[index + 1],
-              ]}
-              strokeColor={colour}
-              strokeWidth={3}
-            ></Polyline>
-          );
-        })}
-      </MapView>
+      <View style={styles.mapContainer}>
+        <MapView style={styles.map} region={region} provider="google">
+          {colours.map((colour, index) => {
+            return (
+              <Polyline
+                key={index}
+                coordinates={[
+                  mapRoute.locations[index],
+                  mapRoute.locations[index + 1],
+                ]}
+                strokeColor={colour}
+                strokeWidth={3}
+              ></Polyline>
+            );
+          })}
+        </MapView>
+      </View>
     </View>
   );
 };

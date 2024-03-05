@@ -99,6 +99,7 @@ const RoutesList: React.FC<RoutesListProps> = ({ routes, navigation }) => {
                 region={region}
                 scrollEnabled={false}
                 zoomEnabled={false}
+                provider="google"
               >
                 <Polyline
                   coordinates={route.locations}
