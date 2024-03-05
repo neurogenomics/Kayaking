@@ -8,6 +8,7 @@ import com.kayak_backend.gribReader.NetCDFGribReader
 import com.kayak_backend.interpolator.SimpleInterpolator
 import com.kayak_backend.services.coastline.IsleOfWightCoastline
 import com.kayak_backend.services.route.*
+import com.kayak_backend.services.route.kayak.BasicKayak
 import com.kayak_backend.services.slipways.BeachesService
 import com.kayak_backend.services.slipways.SlipwayService
 import com.kayak_backend.services.tideTimes.AdmiraltyTideTimeService
@@ -16,6 +17,8 @@ import com.kayak_backend.services.tides.GribTideFetcher
 import com.kayak_backend.services.tides.TideService
 import com.kayak_backend.services.times.GribTimeService
 import com.kayak_backend.services.times.TimeService
+import com.kayak_backend.services.waves.GribWaveFetcher
+import com.kayak_backend.services.waves.WaveService
 import com.kayak_backend.services.wind.GribWindFetcher
 import com.kayak_backend.services.wind.WindService
 import kotlinx.serialization.Serializable
@@ -39,6 +42,14 @@ data class WindGribConf(
 )
 
 @Serializable
+data class WaveGribConf(
+    val gribReader: String,
+    val filePath: String,
+    val waveHeightVarName: String,
+    val waveDirectionVarName: String,
+)
+
+@Serializable
 data class GribTimeServiceConf(
     val gribReader: String,
     val filePaths: List<String>,
@@ -49,9 +60,11 @@ data class Conf(
     val tideService: String,
     val windService: String,
     val timeService: String,
+    val waveService: String,
     val tideTimeService: String,
     val tideGribConf: TideGribConf? = null,
     val windGribConf: WindGribConf? = null,
+    val waveGribConf: WaveGribConf? = null,
     val gribTimeServiceConf: GribTimeServiceConf? = null,
     val gribFetcher: String,
 )
@@ -87,6 +100,17 @@ fun getWindService(conf: Conf): WindService {
         }
 
         else -> throw UnsupportedOperationException("Wind service type non existent")
+    }
+}
+
+fun getWaveService(conf: Conf): WaveService {
+    return when (conf.waveService) {
+        "grib" -> {
+            conf.waveGribConf ?: throw UnsupportedOperationException("Wave Grib Config not Provided")
+            GribWaveFetcher(conf.waveGribConf, getGribReader(conf.waveGribConf.gribReader), SimpleInterpolator())
+        }
+
+        else -> throw UnsupportedOperationException("Wave service type non existent")
     }
 }
 

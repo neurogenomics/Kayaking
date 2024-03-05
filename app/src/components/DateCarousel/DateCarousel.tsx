@@ -14,10 +14,12 @@ const styles = StyleSheet.create({
 type DateCarosoulProps = {
   dates: Date[];
   onDateChanged: (date: Date) => void;
+  defaultIndex?: number;
 };
 const DateCarousel: React.FC<DateCarosoulProps> = ({
   dates,
   onDateChanged,
+  defaultIndex,
 }: DateCarosoulProps) => {
   const r = React.useRef<ICarouselInstance>(null);
   const width = Dimensions.get('window').width;
@@ -27,6 +29,7 @@ const DateCarousel: React.FC<DateCarosoulProps> = ({
         ref={r}
         loop={false}
         width={width / 3}
+        defaultIndex={defaultIndex ?? 0}
         // There is no support in the library to have this dynamic height but since font-sizes are fixed it shouldn't matter
         height={60}
         style={styles.carousel}
