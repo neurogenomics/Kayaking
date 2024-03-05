@@ -3,21 +3,21 @@ package com.kayak_backend.services.route
 import com.kayak_backend.models.Location
 import org.locationtech.jts.geom.Polygon
 
-class StartPos(val location: Location, val name: String)
+class NamedLocation(val location: Location, val name: String)
 
 class RoutePlanner(
     baseRoutePolygon: Polygon,
-    inStartPositions: List<StartPos>,
+    inStartPositions: List<NamedLocation>,
     maxStartDistance: Int = 1000,
 ) {
     // The base route split into sections by the possible start positions
     private val sections: List<Leg>
 
     // Maps the closest point on the base route to a start position(s)
-    private val routeToStarts: Map<Location, MutableList<StartPos>>
+    private val routeToStarts: Map<Location, MutableList<NamedLocation>>
 
     // Maps the closest point on the base route to a start position(s)
-    private val startToRoute: Map<StartPos, Location>
+    private val startToRoute: Map<NamedLocation, Location>
     private val routeToNextSectionIndex: Map<Location, Int>
     private val routeToPrevSectionIndex: Map<Location, Int>
 
@@ -25,8 +25,8 @@ class RoutePlanner(
         // Construct startPositions and routeToStart
         val baseRoute = baseRoutePolygon.coordinates.map { Location(it.x, it.y) }
 
-        val mutableStartToRoute = mutableMapOf<StartPos, Location>()
-        val mutableRouteToStarts = mutableMapOf<Location, MutableList<StartPos>>()
+        val mutableStartToRoute = mutableMapOf<NamedLocation, Location>()
+        val mutableRouteToStarts = mutableMapOf<Location, MutableList<NamedLocation>>()
 
         // Find valid startPositions along the route and connect them to the startPositions
         for (startPos in inStartPositions) {
@@ -165,7 +165,7 @@ class RoutePlanner(
 
     // Generates a sequence of routes starting from the filtered start positions and that all abide by condition
     fun generateRoutes(
-        startPositionFilter: (StartPos) -> Boolean,
+        startPositionFilter: (NamedLocation) -> Boolean,
         condition: (Leg) -> Boolean,
         maxGenerated: Int = 300,
     ): Sequence<Route> {
