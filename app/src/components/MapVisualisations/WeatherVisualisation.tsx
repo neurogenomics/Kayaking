@@ -3,7 +3,8 @@ import React, { useEffect, useState } from 'react';
 import { LocationModel } from '../../models/locationModel';
 import { GridModel, GridType, ResolutionModel } from '../../models/gridModel';
 import { getGrid } from '../../services/gridService';
-import { tideColorMap, windColorMap } from '../../colors';
+import { interpolateColor } from 'react-native-reanimated';
+import { mapVisColours } from '../../colors';
 
 type WeatherVisualisationProps = {
   display: GridType;
@@ -16,16 +17,9 @@ type WeatherVector = {
   magnitude: number;
 };
 
-type Arrow = {
-  left: LocationModel;
-  right: LocationModel;
-  top: LocationModel;
-  bottom: LocationModel;
-};
-
 type ArrowCoords = {
   coords: LocationModel[];
-  magnitude: number;
+  scale: number;
 };
 
 export const WeatherVisualisation: React.FC<WeatherVisualisationProps> = ({
@@ -49,31 +43,73 @@ export const WeatherVisualisation: React.FC<WeatherVisualisationProps> = ({
     lonRes: 0.05,
   };
 
-  const getArrow = (
+  const getArrows = (
     vectors: WeatherVector[],
     gridRes: ResolutionModel,
     minMag: number,
     maxMag: number,
   ) => {
     const arrows: ArrowCoords[] = [];
+
+    // minimum length of arrow - set to 1/10th grid resolution
+    const minLength: number = Math.min(gridRes.latRes, gridRes.lonRes) / 10;
+
+    // maximum length of arrow - set to grid resolution
     const maxLength: number = Math.min(gridRes.latRes, gridRes.lonRes);
+
+    // proportion of arrow covered by arrowhead
+    const arrowHeadProportion: number = 1 / 3;
+
+    // angle between arrowhead at arrow
+    const arrowheadAngle = Math.PI / 6;
     for (let i = 0; i < vectors.length; i++) {
       const vec = vectors[i];
-      const x = (maxLength * (vec.magnitude - minMag)) / (maxMag - minMag);
+
+      // scale of vector according to magnitude (normalised between [0, 1])
+      const scale = (vec.magnitude - minMag) / (maxMag - minMag);
+      const arrowLength = scale * (maxLength - minLength) + minLength;
+      const arrowHeadLength = arrowHeadProportion * arrowLength;
+
       const endArrow: LocationModel = {
-        longitude: vec.location.longitude + x * Math.sin(vec.direction),
-        latitude: vec.location.latitude + x * Math.cos(vec.direction),
+        longitude:
+          vec.location.longitude + arrowLength * Math.sin(vec.direction),
+        latitude: vec.location.latitude + arrowLength * Math.cos(vec.direction),
       };
+
+      const arrowheadPoint1: LocationModel = {
+        longitude:
+          endArrow.longitude -
+          arrowHeadLength * Math.sin(vec.direction + arrowheadAngle),
+        latitude:
+          endArrow.latitude -
+          arrowHeadLength * Math.cos(vec.direction + arrowheadAngle),
+      };
+
+      const arrowheadPoint2: LocationModel = {
+        longitude:
+          endArrow.longitude -
+          arrowHeadLength * Math.sin(vec.direction - arrowheadAngle),
+        latitude:
+          endArrow.latitude -
+          arrowHeadLength * Math.cos(vec.direction - arrowheadAngle),
+      };
+
       const coords = {
-        coords: [vec.location, endArrow],
-        magnitude: vec.magnitude,
+        coords: [
+          vec.location,
+          endArrow,
+          arrowheadPoint1,
+          endArrow,
+          arrowheadPoint2,
+        ],
+        scale: scale,
       };
       arrows.push(coords);
     }
     setCoords(arrows);
   };
 
-  const makeArrowCoordinates = (grid: GridModel) => {
+  const getWeatherVectors = (grid: GridModel) => {
     const vectors: WeatherVector[] = [];
     let minMag: number = Infinity;
     let maxMag: number = 0;
@@ -83,9 +119,6 @@ export const WeatherVisualisation: React.FC<WeatherVisualisationProps> = ({
           const latitude: number = grid.latIndex[i];
           const longitude: number = grid.lonIndex[j];
 
-          // Coordinates of right facing arrow
-          // Constants chosen to prevent arrow from filling entire grid
-
           // Bearing angle that the arrow needs to be rotated by
           const theta = Math.atan2(grid.grid[i][j].v, grid.grid[i][j].u);
 
@@ -94,6 +127,7 @@ export const WeatherVisualisation: React.FC<WeatherVisualisationProps> = ({
             grid.grid[i][j].u ** 2 + grid.grid[i][j].v ** 2,
           );
 
+          // Finding the minimum and maximum magnitudes in order to normalise the vectors
           minMag = Math.min(minMag, magnitude);
           maxMag = Math.max(maxMag, magnitude);
 
@@ -106,7 +140,13 @@ export const WeatherVisualisation: React.FC<WeatherVisualisationProps> = ({
         }
       }
     }
-    getArrow(vectors, gridResolution, minMag, maxMag);
+    getArrows(vectors, gridResolution, minMag, maxMag);
+  };
+
+  const getArrowColour = (scale: number) => {
+    const outputRange =
+      display === GridType.WIND ? mapVisColours.wind : mapVisColours.tide;
+    return interpolateColor(scale, [0, 1], outputRange);
   };
 
   const getArrowGrid = async (date: Date) => {
@@ -118,21 +158,10 @@ export const WeatherVisualisation: React.FC<WeatherVisualisationProps> = ({
         gridResolution,
         date,
       );
-      console.log(grid);
-      makeArrowCoordinates(grid);
+      getWeatherVectors(grid);
     } catch (error) {
       console.log('Error getting grid: ', error);
     }
-  };
-
-  const getColor = (magnitude: number, palette: GridType): string => {
-    const map = palette === GridType.WIND ? windColorMap : tideColorMap;
-    for (const category of map) {
-      if (magnitude <= category.maxMagnitude) {
-        return category.color;
-      }
-    }
-    return 'black';
   };
 
   useEffect(() => {
@@ -148,8 +177,8 @@ export const WeatherVisualisation: React.FC<WeatherVisualisationProps> = ({
             <Polyline
               key={index}
               coordinates={coord.coords}
-              strokeWidth={2}
-              strokeColor={getColor(coord.magnitude, display)}
+              strokeWidth={1 + coord.scale * 2}
+              strokeColor={getArrowColour(coord.scale)}
               zIndex={0}
             />
           ))
