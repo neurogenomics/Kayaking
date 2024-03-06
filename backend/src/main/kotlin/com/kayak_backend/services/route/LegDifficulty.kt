@@ -19,43 +19,38 @@ class LegDifficulty(
     // maps leg to (time, difficulty)
     private val difficultyCache = mutableMapOf<Leg, MutableMap<Long, Int>>()
 
-    // index of how many checkpoints we are through the route, increased each time we process a single leg
-    private var index = 0
-
     fun getDifficulty(
         route: Route,
         dateTime: LocalDateTime,
         checkpoints: List<Long>,
     ): Int {
-        index = 0
-        return getLegDifficulty(route.locations, dateTime, checkpoints)
+        return getLegDifficulty(route.locations, dateTime, checkpoints, 0).first
     }
 
     private fun getLegDifficulty(
         leg: Leg,
         dateTime: LocalDateTime,
         checkpoints: List<Long>,
-    ): Int {
+        index: Int,
+    ): Pair<Int, Int> {
         val epoch = dateTime.toEpochSecond(ZoneOffset.UTC) + checkpoints[index]
         val times = difficultyCache.getOrPut(leg) { mutableMapOf() }
 
         if (times.containsKey(epoch)) {
-            index += leg.locations.size - 1
-            return times.getValue(epoch)
+            return Pair(times.getValue(epoch), index + leg.locations.size - 1)
         } else {
-            val dif = calculateDifficulty(leg, dateTime, checkpoints)
-            times[epoch] = dif
-            return dif
+            val diff = calculateDifficulty(leg, dateTime, checkpoints, index)
+            times[epoch] = diff.first
+            return diff
         }
-
-        // return times.getOrPut(epoch) { calculateDifficulty(leg, dateTime, checkpoints) }
     }
 
     private fun calculateDifficulty(
         leg: Leg,
         dateTime: LocalDateTime,
         checkpoints: List<Long>,
-    ): Int {
+        index: Int,
+    ): Pair<Int, Int> {
         return when (leg) {
             is Leg.SingleLeg -> {
                 val midpoint =
@@ -63,12 +58,17 @@ class LegDifficulty(
                         (leg.start.latitude + leg.end.latitude) / 2,
                         (leg.start.longitude + leg.end.longitude) / 2,
                     )
-                classifyConditions(dateTime.plusSeconds(checkpoints[index++]), midpoint)
+                Pair(classifyConditions(dateTime.plusSeconds(checkpoints[index]), midpoint), index + 1)
             }
             is Leg.MultipleLegs -> {
-                leg.legs.maxOf {
-                    getLegDifficulty(it, dateTime, checkpoints)
-                }
+                var ind = index
+                val max =
+                    leg.legs.maxOf {
+                        val (dif, ind2) = getLegDifficulty(it, dateTime, checkpoints, ind)
+                        ind = ind2
+                        dif
+                    }
+                Pair(max, ind)
             }
         }
     }
