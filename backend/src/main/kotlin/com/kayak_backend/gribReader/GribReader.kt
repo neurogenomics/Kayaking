@@ -3,6 +3,7 @@ package com.kayak_backend.gribReader
 import com.kayak_backend.models.Range
 import java.time.LocalDate
 import java.time.LocalDateTime
+import java.time.LocalTime
 
 interface GribReader {
     fun getSingleVar(
@@ -32,12 +33,12 @@ interface GribReader {
 
     fun getTimeRange(filePath: String): List<LocalDateTime>
 
-    fun getTimeSlice(
+    fun getDayData(
         lat: Double,
         lon: Double,
         date: LocalDate,
         var1Name: String,
         var2Name: String,
         filePath: String,
-    ): List<Pair<Double, Double>>
+    ): Map<LocalTime, Pair<Double, Double>>
 }

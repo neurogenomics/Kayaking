@@ -10,6 +10,7 @@ import com.kayak_backend.models.TideGrid
 import com.kayak_backend.models.TideInfo
 import java.time.LocalDate
 import java.time.LocalDateTime
+import java.time.LocalTime
 
 class GribTideFetcher(
     private val conf: TideGribConf,
@@ -78,9 +79,9 @@ class GribTideFetcher(
     override fun getTideAllDay(
         loc: Location,
         date: LocalDate,
-    ): List<TideInfo> {
+    ): Map<LocalTime, TideInfo> {
         val data =
-            gribReader.getTimeSlice(
+            gribReader.getDayData(
                 loc.latitude,
                 loc.longitude,
                 date,
@@ -88,6 +89,6 @@ class GribTideFetcher(
                 conf.vTideVarName,
                 conf.filePath,
             )
-        return data.map { TideInfo(u = it.first, v = it.second) }
+        return data.mapValues { TideInfo(u = it.value.first, v = it.value.second) }
     }
 }

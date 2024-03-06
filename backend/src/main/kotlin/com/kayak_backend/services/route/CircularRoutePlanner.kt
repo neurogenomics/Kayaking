@@ -7,6 +7,7 @@ import java.time.Duration
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
+import java.time.temporal.ChronoUnit
 import kotlin.math.cos
 import kotlin.math.sin
 
@@ -20,7 +21,7 @@ class CircularRoutePlanner(
     private val sectionedRoute = SectionedRoute(baseRoutePolygon, inStartPositions, maxStartDistance)
     private val sectionsShuffled = sectionedRoute.sections.shuffled()
 
-    private val resistances: MutableMap<Pair<Leg, LocalDate>, List<Double>> = mutableMapOf()
+    private val resistances: MutableMap<Pair<Leg, LocalDate>, Map<LocalTime, Double>> = mutableMapOf()
 
     private fun Leg.resistance(tide: TideInfo): Double {
         val bearing = this.bearing
@@ -34,12 +35,12 @@ class CircularRoutePlanner(
     private fun getResistance(
         leg: Leg,
         time: LocalDateTime,
-    ): Double {
+    ): Double? {
         val timeslice =
             resistances.getOrPut(Pair(leg, time.toLocalDate())) {
-                tideService.getTideAllDay(leg.midpoint(), time.toLocalDate()).map { leg.resistance(it) }
+                tideService.getTideAllDay(leg.midpoint(), time.toLocalDate()).mapValues { leg.resistance(it.value) }
             }
-        return timeslice[time.hour]
+        return timeslice[time.toLocalTime().truncatedTo(ChronoUnit.HOURS)]
     }
 
     private fun stepThrough(
@@ -50,11 +51,11 @@ class CircularRoutePlanner(
         var currentStart = time
         var currentEnd = time
 
-        val step = if (getResistance(switchLeg, time) >= 0) 1 else -1
+        val step = if ((getResistance(switchLeg, time) ?: return null) >= 0) 1 else -1
         val legs =
             sectionedRoute.stepFrom(switchLeg.end, step).takeWhile {
-                if (getResistance(it, currentStart) > 0) return@takeWhile false
-                if (getResistance(it, currentEnd) < 0) return@takeWhile false
+                if ((getResistance(it, currentStart) ?: return@takeWhile false) > 0) return@takeWhile false
+                if ((getResistance(it, currentEnd) ?: return@takeWhile false) < 0) return@takeWhile false
                 currentStart -= Duration.ofSeconds(legTimer.getDuration(it.reverse(), currentStart))
                 currentEnd += Duration.ofSeconds(legTimer.getDuration(it, currentEnd))
                 Duration.between(currentStart, currentEnd) < minDuration
@@ -72,15 +73,27 @@ class CircularRoutePlanner(
         assert(switchLeg is Leg.SingleLeg)
         val switchResistances =
             resistances.getOrPut(Pair(switchLeg, date)) {
-                tideService.getTideAllDay(switchLeg.midpoint(), date).map { switchLeg.resistance(it) }
+                tideService.getTideAllDay(switchLeg.midpoint(), date).mapValues { switchLeg.resistance(it.value) }
             }
+        println(switchResistances)
         val switchpoints =
-            (1..<switchResistances.size).map { switchResistances[it] >= 0 != switchResistances[it - 1] >= 0 }
+            switchResistances.mapValues {
+                if (it.key.hour == 0) {
+                    false
+                } else {
+                    (
+                        (switchResistances[it.key]!! >= 0) != (
+                            switchResistances[
+                                it.key.minusHours(
+                                    1,
+                                ),
+                            ]!! >= 0
+                        )
+                    )
+                }
+            }.filterValues { it }
 
-        val validSwitchPoints =
-            switchpoints.mapIndexed { i, switch -> LocalTime.of(i + 1, 0) to switch }.toMap()
-
-        return validSwitchPoints.map {
+        return switchpoints.map {
             stepThrough(switchLeg, LocalDateTime.of(date, it.key), minDuration)
         }.filterNotNull()
     }

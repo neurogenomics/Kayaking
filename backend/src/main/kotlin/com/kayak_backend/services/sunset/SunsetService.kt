@@ -10,7 +10,7 @@ import org.json.JSONObject
 import java.time.LocalDate
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
-import java.util.Locale
+import java.util.*
 
 @Serializable
 data class SunsetInfo(
@@ -37,7 +37,7 @@ class SunsetService(private val client: OkHttpClient = OkHttpClient()) {
         val results = json.getJSONObject("results")
         val sunriseStr = results.get("sunrise").toString()
         val sunsetStr = results.get("sunset").toString()
-        val formatter = DateTimeFormatter.ofPattern("h:mm:ss a", Locale("en"))
+        val formatter = DateTimeFormatter.ofPattern("h:mm:ss a", Locale.ENGLISH)
         val sunrise = LocalTime.parse(sunriseStr, formatter)
         val sunset = LocalTime.parse(sunsetStr, formatter)
         return SunsetInfo(sunrise, sunset)
