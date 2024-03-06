@@ -24,6 +24,8 @@ data class TimedRoute(
     val length: Double,
     val locations: Leg,
     val checkpoints: List<Long>,
+    @Serializable(with = LocalDateTimeSerializer::class)
+    val startTime: LocalDateTime? = null,
 )
 
 class BaseRoute {

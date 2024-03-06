@@ -345,7 +345,7 @@ class NetCDFGribReader : GribReader {
         shape[timeDim] = size
 
         val res = List(size) { variable.read(origin, shape).getDouble(it) }
-        res.mapIndexed { index, it ->
+        return res.mapIndexed { index, it ->
             if (it.isNaN()) {
                 var i = 1
                 var resList: List<Double>
@@ -355,9 +355,10 @@ class NetCDFGribReader : GribReader {
                     i++
                 } while (resList.isEmpty())
                 resList.average()
+            } else {
+                it
             }
         }
-        return res
     }
 
     override fun getDayData(
@@ -379,6 +380,9 @@ class NetCDFGribReader : GribReader {
             val val1 = fetchTimeSlice(variable1, latIndex, lonIndex, timeIndex, size)
             val val2 = fetchTimeSlice(variable2, latIndex, lonIndex, timeIndex, size)
             file.close()
+
+            assert(val1.none { it.isNaN() })
+            assert(val2.none { it.isNaN() })
             val data = val1 zip val2
             val timeList =
                 generateSequence(firstTime) { it.plusHours(1) }

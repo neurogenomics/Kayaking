@@ -72,7 +72,6 @@ class CircularRoutePlanner(
         switchLeg: Leg,
         minDuration: Duration,
     ): List<Pair<Leg, LocalDateTime>> {
-        assert(switchLeg is Leg.SingleLeg)
         val switchResistances =
             resistances.getOrPut(Pair(switchLeg, date)) {
                 tideService.getTideAllDay(switchLeg.midpoint(), date).mapValues { switchLeg.resistance(it.value) }
@@ -84,14 +83,14 @@ class CircularRoutePlanner(
                     false
                 } else {
                     (
-                        (switchResistances[it.key]!! >= 0) != (
-                            switchResistances[
-                                it.key.minusHours(
-                                    1,
-                                ),
-                            ]!! >= 0
-                        )
-                    )
+                            (switchResistances[it.key]!! >= 0) != (
+                                    switchResistances[
+                                        it.key.minusHours(
+                                            1,
+                                        ),
+                                    ]!! >= 0
+                                    )
+                            )
                 }
             }.filterValues { it }
 

@@ -60,6 +60,7 @@ fun Route.planRoute(
                         it.length,
                         it.locations,
                         legTimer.getCheckpoints(it, it.startTime!!),
+                        it.startTime
                     )
                 },
             )
