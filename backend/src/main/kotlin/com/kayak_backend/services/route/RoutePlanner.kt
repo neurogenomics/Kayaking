@@ -30,23 +30,6 @@ class RoutePlanner(
         }
     }
 
-    // Given a leg, create a longer leg that connects to the start and end slipways
-    private fun connectToStart(leg: Leg): Pair<Leg, String> {
-        // TODO allow route to connect to multiple start locations
-        val start = sectionedRoute.getStartPos(leg.start)
-        val end = sectionedRoute.getStartPos(leg.end)
-        val combinedLeg =
-            Leg.MultipleLegs(
-                listOf(
-                    Leg.SingleLeg(start.location, leg.start),
-                    leg,
-                    Leg.SingleLeg(leg.end, end.location),
-                ),
-            )
-        val name = "${start.name} to ${end.name}"
-        return Pair(combinedLeg, name)
-    }
-
     // Given the start locations, generate a sequence of routes that all abide by condition
     private fun routeGenerator(
         condition: (Leg) -> Boolean,
@@ -54,7 +37,7 @@ class RoutePlanner(
     ): Sequence<Pair<Leg, String>> {
         val forwardRoutes =
             routeLocations.map { routeLocation ->
-                sectionedRoute.stepFromAccumulating(routeLocation).map { connectToStart(it) }
+                sectionedRoute.stepFromAccumulating(routeLocation).map { connectToStart(sectionedRoute, it) }
                     .takeWhile { condition(it.first) }
             }
 

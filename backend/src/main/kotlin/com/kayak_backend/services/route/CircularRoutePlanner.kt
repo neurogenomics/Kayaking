@@ -107,7 +107,7 @@ class CircularRoutePlanner(
     ): Sequence<Triple<Leg, LocalDateTime, String>> {
         return sectionsShuffled.asSequence().map { createRoute(date, it, minDuration) }.flatMap { it }
             .filter { condition(it.first) }.map {
-                Triple(it.first, it.second, "")
+                Triple(connectToStart(sectionedRoute, it.first).first, it.second, "")
             }
     }
 

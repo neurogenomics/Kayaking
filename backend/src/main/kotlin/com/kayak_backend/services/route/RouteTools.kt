@@ -26,3 +26,23 @@ fun splitRouteIntoSections(
     sections.add(0, Leg.create(currentLegLocations))
     return sections
 }
+
+// Given a leg, create a longer leg that connects to the start and end slipways
+fun connectToStart(
+    route: SectionedRoute,
+    leg: Leg,
+): Pair<Leg, String> {
+    // TODO allow route to connect to multiple start locations
+    val start = route.getStartPos(leg.start)
+    val end = route.getStartPos(leg.end)
+    val combinedLeg =
+        Leg.MultipleLegs(
+            listOf(
+                Leg.SingleLeg(start.location, leg.start),
+                leg,
+                Leg.SingleLeg(leg.end, end.location),
+            ),
+        )
+    val name = "${start.name} to ${end.name}"
+    return Pair(combinedLeg, name)
+}
