@@ -76,7 +76,6 @@ class CircularRoutePlanner(
             resistances.getOrPut(Pair(switchLeg, date)) {
                 tideService.getTideAllDay(switchLeg.midpoint(), date).mapValues { switchLeg.resistance(it.value) }
             }
-        println(switchResistances)
         val switchpoints =
             switchResistances.mapValues {
                 if (it.key.hour == (switchResistances.keys.min().hour)) {
