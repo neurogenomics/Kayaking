@@ -61,7 +61,7 @@ class CircularRoutePlanner(
             }.toList()
 
         if (Duration.between(currentStart, currentEnd) < minDuration) return null
-        return Pair(Leg.MultipleLegs(legs.plus(legs.map(Leg::reverse))), currentStart)
+        return Pair(Leg.MultipleLegs(legs + legs.reversed().map(Leg::reverse)), currentStart)
     }
 
     private fun createRoute(
@@ -75,7 +75,7 @@ class CircularRoutePlanner(
                 tideService.getTideAllDay(switchLeg.midpoint(), date).map { switchLeg.resistance(it) }
             }
         val switchpoints =
-            (1..switchResistances.size).map { switchResistances[it] >= 0 != switchResistances[it - 1] >= 0 }
+            (1..<switchResistances.size).map { switchResistances[it] >= 0 != switchResistances[it - 1] >= 0 }
 
         val validSwitchPoints =
             switchpoints.mapIndexed { i, switch -> LocalTime.of(i + 1, 0) to switch }.toMap()

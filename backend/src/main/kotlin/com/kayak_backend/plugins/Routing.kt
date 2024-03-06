@@ -6,6 +6,9 @@ import io.ktor.server.application.*
 import io.ktor.server.routing.*
 
 fun Application.configureRouting(conf: Conf) {
+
+    val legTimer = getLegTimer()
+    val tideService = getTideService(conf)
     routing {
         testRouting()
         sunset()
@@ -16,6 +19,6 @@ fun Application.configureRouting(conf: Conf) {
         wind(getWindService(conf))
         times(getTimeService(conf))
         wave(getWaveService(conf))
-        planRoute(getRoutePlanner(), getLegTimer())
+        planRoute(getRoutePlanner(), getCircularRoutePlanner(tideService, legTimer), legTimer)
     }
 }

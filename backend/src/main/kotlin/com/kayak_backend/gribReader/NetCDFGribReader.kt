@@ -339,7 +339,7 @@ class NetCDFGribReader : GribReader {
                 var i = 1
                 var resList: List<Double>
                 do {
-                    origin[timeDim] += index
+                    origin[timeDim] = timeIndex + index
                     resList = trySurrounding(variable, origin, IntArray(rank) { 1 }, latDim, lonDim, i)
                     i++
                 } while (resList.isEmpty())

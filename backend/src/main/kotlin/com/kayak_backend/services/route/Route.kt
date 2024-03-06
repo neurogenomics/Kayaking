@@ -113,7 +113,7 @@ class SectionedRoute(
     ): Sequence<Leg> {
         val startIndex = if (location == null) 0 else routeToNextSectionIndex[location]!!
         val seq =
-            generateSequence(seed = startIndex) { (it + step) % sections.size }.map { sections[it] }
+            generateSequence(seed = startIndex) { Math.floorMod((it + step), sections.size) }.map { sections[it] }
         return if (step >= 0) seq else seq.map { it.reverse() }
     }
 
