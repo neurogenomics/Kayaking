@@ -23,15 +23,17 @@ class LegDifficultyTest {
     private val loc3 = Location(0.0, 2.0)
     private val loc4 = Location(0.0, 3.0)
     private val loc5 = Location(0.0, 4.0)
+    private val loc6 = Location(0.0, 5.0)
+    private val loc7 = Location(0.0, 6.0)
 
     // midpoint is loc2
     private val leg1 = Leg.SingleLeg(loc1, loc3)
 
-    // midpoint is loc3
-    private val leg2 = Leg.SingleLeg(loc2, loc4)
-
     // midpoint is loc4
-    private val leg3 = Leg.SingleLeg(loc3, loc5)
+    private val leg2 = Leg.SingleLeg(loc3, loc5)
+
+    // midpoint is loc6
+    private val leg3 = Leg.SingleLeg(loc5, loc7)
 
     private val multipleLeg1 =
         Leg.MultipleLegs(listOf(leg2, leg3))
@@ -90,18 +92,38 @@ class LegDifficultyTest {
     @Test
     fun forMultipleLegReturnsMaxDifficultyOfLegsInside() {
         val route = Route("name", 1.0, multipleLeg2)
-        println(dateTime)
         every { windMock.getWind(loc2, dateTime) } returns WindInfo(1.0, 1.0)
         every { waveMock.getWave(loc2, dateTime) } returns WaveInfo(1.0, 1.0)
 
-        every { windMock.getWind(loc3, dateTime.plusSeconds(1)) } returns WindInfo(2.0, 2.0)
-        every { waveMock.getWave(loc3, dateTime.plusSeconds(1)) } returns WaveInfo(5.0, 5.0)
+        every { windMock.getWind(loc4, dateTime.plusSeconds(1)) } returns WindInfo(2.0, 2.0)
+        every { waveMock.getWave(loc4, dateTime.plusSeconds(1)) } returns WaveInfo(5.0, 5.0)
 
-        every { windMock.getWind(loc4, dateTime.plusSeconds(2)) } returns WindInfo(5.0, 5.0)
-        every { waveMock.getWave(loc4, dateTime.plusSeconds(2)) } returns WaveInfo(2.0, 2.0)
+        every { windMock.getWind(loc6, dateTime.plusSeconds(2)) } returns WindInfo(5.0, 5.0)
+        every { waveMock.getWave(loc6, dateTime.plusSeconds(2)) } returns WaveInfo(2.0, 2.0)
 
-        println(dateTime)
         val result = legDifficulty.getDifficulty(route, dateTime, listOf(0, 1, 2, 3))
+        // wind = 3, wave = 7
+        assertEquals(7, result)
+    }
+
+    @Test
+    fun forMultipleLegReturnsMaxDifficultyOfLegsInsideWhenSomeAreCached() {
+        val route1 = Route("name", 1.0, multipleLeg2)
+        val route2 = Route("name", 1.0, leg1)
+        val route3 = Route("name", 1.0, leg3)
+
+        every { windMock.getWind(loc2, dateTime) } returns WindInfo(1.0, 1.0)
+        every { waveMock.getWave(loc2, dateTime) } returns WaveInfo(1.0, 1.0)
+
+        every { windMock.getWind(loc4, dateTime.plusSeconds(1)) } returns WindInfo(2.0, 2.0)
+        every { waveMock.getWave(loc4, dateTime.plusSeconds(1)) } returns WaveInfo(5.0, 5.0)
+
+        every { windMock.getWind(loc6, dateTime.plusSeconds(2)) } returns WindInfo(5.0, 5.0)
+        every { waveMock.getWave(loc6, dateTime.plusSeconds(2)) } returns WaveInfo(2.0, 2.0)
+
+        legDifficulty.getDifficulty(route2, dateTime, listOf(0, 1))
+        legDifficulty.getDifficulty(route3, dateTime, listOf(2, 3))
+        val result = legDifficulty.getDifficulty(route1, dateTime, listOf(0, 1, 2, 3))
         // wind = 3, wave = 7
         assertEquals(7, result)
     }

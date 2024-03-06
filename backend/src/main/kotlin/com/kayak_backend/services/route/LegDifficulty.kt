@@ -19,38 +19,44 @@ class LegDifficulty(
     // maps leg to (time, difficulty)
     private val difficultyCache = mutableMapOf<Leg, MutableMap<Long, Int>>()
 
-    // index keeps track of which checkpoint of a timed route the difficulty is for
-    private var index = 0
-
-    // TODO would it be better to store these somewhere else - kind of like the kayaks?
-    // source: https://www.metoffice.gov.uk/weather/guides/coast-and-sea/beaufort-scale
-    private val waveLimits = listOf(0.0, 0.1, 0.3, 1.0, 1.5, 2.5, 4.0, 5.5, 7.5, 10.0, 12.5, 16.0)
-    private val windLimits = listOf(1.0, 2.0, 3.0, 5.0, 8.0, 11.0, 14.0, 17.0, 21.0, 24.0, 28.0, 32.0)
-
     fun getDifficulty(
         route: Route,
         dateTime: LocalDateTime,
         checkpoints: List<Long>,
     ): Int {
-        index = 0
-        return getLegDifficulty(route.locations, dateTime, checkpoints)
+        return getLegDifficulty(route.locations, dateTime, checkpoints, 0).first
     }
 
+    /**
+     * @Param[leg] Leg of route
+     * @Param[dateTime] Start time of the route
+     * @Param[checkpoints] List of checkpoints associated with the route
+     * @Param[index] Index of how many checkpoints through the route this leg starts
+     *
+     * @Return Pair(Leg difficulty, Index of how many checkpoints through the route after completing this leg)
+     */
     private fun getLegDifficulty(
         leg: Leg,
         dateTime: LocalDateTime,
         checkpoints: List<Long>,
-    ): Int {
+        index: Int,
+    ): Pair<Int, Int> {
         val epoch = dateTime.toEpochSecond(ZoneOffset.UTC) + checkpoints[index]
         val times = difficultyCache.getOrPut(leg) { mutableMapOf() }
-        return times.getOrPut(epoch) { calculateDifficulty(leg, dateTime, checkpoints) }
+
+        return if (times.containsKey(epoch)) {
+            Pair(times.getValue(epoch), index + leg.locations.size - 1)
+        } else {
+            calculateDifficulty(leg, dateTime, checkpoints, index).also { times[epoch] = it.first }
+        }
     }
 
     private fun calculateDifficulty(
         leg: Leg,
         dateTime: LocalDateTime,
         checkpoints: List<Long>,
-    ): Int {
+        index: Int,
+    ): Pair<Int, Int> {
         return when (leg) {
             is Leg.SingleLeg -> {
                 val midpoint =
@@ -58,12 +64,15 @@ class LegDifficulty(
                         (leg.start.latitude + leg.end.latitude) / 2,
                         (leg.start.longitude + leg.end.longitude) / 2,
                     )
-                classifyConditions(dateTime.plusSeconds(checkpoints[index++]), midpoint)
+                Pair(classifyConditions(dateTime.plusSeconds(checkpoints[index]), midpoint), index + 1)
             }
             is Leg.MultipleLegs -> {
-                leg.legs.maxOf {
-                    getLegDifficulty(it, dateTime, checkpoints)
-                }
+                val difficulty =
+                    leg.legs.fold(0 to index) { (currentMax, currentIndex), aLeg ->
+                        val (difficulty, newIndex) = getLegDifficulty(aLeg, dateTime, checkpoints, currentIndex)
+                        maxOf(currentMax, difficulty) to newIndex
+                    }
+                difficulty
             }
         }
     }
@@ -79,5 +88,11 @@ class LegDifficulty(
         val waveLevel = waveLimits.indexOfFirst { it >= (waveInfo.height) }
 
         return if (windLevel == -1 || waveLevel == -1) 12 else max(windLevel, waveLevel)
+    }
+
+    companion object {
+        // source: https://www.metoffice.gov.uk/weather/guides/coast-and-sea/beaufort-scale
+        private val waveLimits = listOf(0.0, 0.1, 0.3, 1.0, 1.5, 2.5, 4.0, 5.5, 7.5, 10.0, 12.5, 16.0)
+        private val windLimits = listOf(1.0, 2.0, 3.0, 5.0, 8.0, 11.0, 14.0, 17.0, 21.0, 24.0, 28.0, 32.0)
     }
 }
