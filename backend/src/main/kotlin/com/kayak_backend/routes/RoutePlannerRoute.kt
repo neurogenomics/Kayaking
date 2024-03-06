@@ -53,7 +53,6 @@ fun Route.planRoute(
                     date.toLocalDate(),
                     minTime = Duration.ofMinutes(duration.toLong()),
                 ).take(10).toList()
-
             call.respond(
                 routes.map {
                     TimedRoute(
