@@ -6,7 +6,6 @@ import io.ktor.server.application.*
 import io.ktor.server.routing.*
 
 fun Application.configureRouting(conf: Conf) {
-
     val legTimer = getLegTimer()
     val tideService = getTideService(conf)
     routing {

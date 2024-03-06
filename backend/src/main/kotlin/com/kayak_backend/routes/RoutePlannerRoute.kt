@@ -36,7 +36,7 @@ fun Route.planRoute(
                         route.name,
                         route.length,
                         route.locations,
-                        legTimer.getCheckpoints(route, startTime)
+                        legTimer.getCheckpoints(route, startTime),
                     )
                 },
             )
@@ -47,11 +47,12 @@ fun Route.planRoute(
         get {
             val duration = call.parameters.getOrFail<Double>("duration")
             val date = getDateParameter(call.parameters, "date")
-            val routes = circularRoutePlanner.generateRoutes(
-                { true },
-                date.toLocalDate().plusDays(1),
-                minTime = Duration.ofMinutes(duration.toLong())
-            ).take(10).toList()
+            val routes =
+                circularRoutePlanner.generateRoutes(
+                    { true },
+                    date.toLocalDate().plusDays(1),
+                    minTime = Duration.ofMinutes(duration.toLong()),
+                ).take(10).toList()
 
             call.respond(
                 routes.map {
@@ -59,9 +60,9 @@ fun Route.planRoute(
                         it.name,
                         it.length,
                         it.locations,
-                        legTimer.getCheckpoints(it, it.startTime!!)
+                        legTimer.getCheckpoints(it, it.startTime!!),
                     )
-                }
+                },
             )
         }
     }

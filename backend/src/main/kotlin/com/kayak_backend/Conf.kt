@@ -180,7 +180,10 @@ fun getRoutePlanner(): RoutePlanner {
     return RoutePlanner(route, startPositions)
 }
 
-fun getCircularRoutePlanner(tideService: TideService, legTimer: LegTimer): CircularRoutePlanner {
+fun getCircularRoutePlanner(
+    tideService: TideService,
+    legTimer: LegTimer,
+): CircularRoutePlanner {
     val distanceFromCoast = 500.0
     val coast = IsleOfWightCoastline().getCoastline()
     val route = BaseRoute().createBaseRoute(coast, distanceFromCoast)
