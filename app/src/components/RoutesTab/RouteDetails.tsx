@@ -4,6 +4,7 @@ import { getDistance, RouteModel } from '../../models/routeModel';
 import { RouteListNavigationProp } from './Routes';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { faArrowLeft } from '@fortawesome/free-solid-svg-icons';
+import RouteInformation from '../RouteInformation';
 
 export type RouteDetailsProps = {
   routes: RouteModel[] | undefined;
@@ -62,6 +63,8 @@ const RouteDetails: React.FC<RouteDetailsProps> = ({
           style={styles.distance}
         >{`Distance covered: ${getDistance(routes[selectedRouteIndex])}km`}</Text>
       </View>
+
+      {/* <RouteInformation route={routes[selectedRouteIndex]}></RouteInformation> */}
     </View>
   );
 };
