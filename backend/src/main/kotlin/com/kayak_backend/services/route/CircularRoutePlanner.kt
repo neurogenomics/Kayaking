@@ -28,7 +28,7 @@ class CircularRoutePlanner(
         val xResistance = cos(Math.toRadians(bearing))
         val yResistance = sin(Math.toRadians(bearing))
 
-        val resistance = tide.u * xResistance + tide.v * yResistance
+        val resistance = -(tide.u * xResistance + tide.v * yResistance)
         return resistance
     }
 
@@ -51,7 +51,7 @@ class CircularRoutePlanner(
         var currentStart = time
         var currentEnd = time
 
-        val step = if ((getResistance(switchLeg, time) ?: return null) >= 0) 1 else -1
+        val step = if ((getResistance(switchLeg, time) ?: return null) >= 0) -1 else 1
         val legs =
             sectionedRoute.stepFrom(switchLeg.end, step).takeWhile {
                 val newStart = currentStart - Duration.ofSeconds(legTimer.getDuration(it.reverse(), currentStart))
@@ -60,7 +60,7 @@ class CircularRoutePlanner(
                 if ((getResistance(it, newEnd) ?: return@takeWhile false) < 0) return@takeWhile false
                 currentStart = newStart
                 currentEnd = newEnd
-                Duration.between(currentStart, currentEnd) < minDuration
+                Duration.between(currentStart, currentEnd) <= minDuration
             }.toList()
 
         if (Duration.between(currentStart, currentEnd) < minDuration) return null
