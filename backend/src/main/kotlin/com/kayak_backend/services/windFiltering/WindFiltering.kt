@@ -56,16 +56,13 @@ class WindFiltering(
         return magnitude >= BAD_WIND_MAGNITUDE_LIMIT && (dif < BAD_WIND_LIMIT || dif > (360 - BAD_WIND_LIMIT))
     }
 
-    // or to avoid issue of it not being in teh sea bearing map we could just find the bearings for this route?
     private fun getClosestBearing(
         location: Location,
         seaBearings: Map<Location, Double>,
     ): Double {
-        if (seaBearings.containsKey(location)) {
-            return seaBearings.getValue(location)
-        } else {
-            // TODO - how to efficiently find the closest point - particularly for slipways/start/endpoints
-            return 0.0
+        return seaBearings.getOrElse(location) {
+            val closestPoint = seaBearings.keys.minByOrNull { it.distanceTo(location) }
+            seaBearings.getValue(closestPoint!!)
         }
     }
 }
