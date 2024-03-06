@@ -82,14 +82,14 @@ class CircularRoutePlanner(
                     false
                 } else {
                     (
-                            (switchResistances[it.key]!! >= 0) != (
-                                    switchResistances[
-                                        it.key.minusHours(
-                                            1,
-                                        ),
-                                    ]!! >= 0
-                                    )
-                            )
+                        (switchResistances[it.key]!! >= 0) != (
+                            switchResistances[
+                                it.key.minusHours(
+                                    1,
+                                ),
+                            ]!! >= 0
+                        )
+                    )
                 }
             }.filterValues { it }
 
