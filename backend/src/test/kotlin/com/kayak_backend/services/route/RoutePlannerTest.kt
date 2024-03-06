@@ -61,11 +61,11 @@ class RoutePlannerTest {
         every { legTimerMock.getDuration(any(), any()) } returns 4L
 
         val result = (
-                routePlanner.generateRoutes(
-                    { location distanceTo it.location < 1000000000.0 },
-                    { legTimerMock.getDuration(it, startTime) < duration },
-                ).take(5).toList()
-                )
+            routePlanner.generateRoutes(
+                { location distanceTo it.location < 1000000000.0 },
+                { legTimerMock.getDuration(it, startTime) < duration },
+            ).take(5).toList()
+        )
 
         for (route in result) {
             assert(startPos.any { it.location == route.locations.start })
@@ -81,11 +81,11 @@ class RoutePlannerTest {
         every { legTimerMock.getDuration(any(), any()) } returns 4L
 
         val result = (
-                routePlanner.generateRoutes(
-                    { location distanceTo it.location < 1000000 },
-                    { legTimerMock.getDuration(it, startTime) < duration },
-                ).take(5).toList()
-                )
+            routePlanner.generateRoutes(
+                { location distanceTo it.location < 1000000 },
+                { legTimerMock.getDuration(it, startTime) < duration },
+            ).take(5).toList()
+        )
 
         for (route in result) {
             assertEquals(route.locations.start, start.location)
@@ -102,11 +102,11 @@ class RoutePlannerTest {
         every { legTimerMock.getDuration(any(), any()) } returns 4L
 
         val result = (
-                routePlanner.generateRoutes(
-                    { location distanceTo it.location < 1000000000.0 },
-                    { legTimerMock.getDuration(it, startTime) < smallDuration },
-                ).take(5).toList()
-                )
+            routePlanner.generateRoutes(
+                { location distanceTo it.location < 1000000000.0 },
+                { legTimerMock.getDuration(it, startTime) < smallDuration },
+            ).take(5).toList()
+        )
 
         assert(result.isEmpty())
     }
@@ -118,11 +118,11 @@ class RoutePlannerTest {
         every { legTimerMock.getDuration(any(), any()) } returns 4L
 
         val result = (
-                routePlanner.generateRoutes(
-                    { location distanceTo it.location < 10 },
-                    { legTimerMock.getDuration(it, startTime) < duration },
-                ).take(5).toList()
-                )
+            routePlanner.generateRoutes(
+                { location distanceTo it.location < 10 },
+                { legTimerMock.getDuration(it, startTime) < duration },
+            ).take(5).toList()
+        )
 
         assert(result.isEmpty())
     }
@@ -134,11 +134,11 @@ class RoutePlannerTest {
         every { legTimerMock.getDuration(any(), any()) } returns 4L
 
         val result = (
-                routePlanner.generateRoutes(
-                    { location distanceTo it.location < 1000000000.0 },
-                    { legTimerMock.getDuration(it, startTime) < duration },
-                ).take(5).toList()
-                )
+            routePlanner.generateRoutes(
+                { location distanceTo it.location < 1000000000.0 },
+                { legTimerMock.getDuration(it, startTime) < duration },
+            ).take(5).toList()
+        )
 
         result.zipWithNext { a, b ->
             assert(a.length >= b.length)
