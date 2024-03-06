@@ -14,6 +14,7 @@ fun Route.planRoute(
     legTimer: LegTimer,
     startPositionFilterDistance: Double = 1000.0,
 ) {
+    val coastlineLocations = routePlanner.getBaseRoute().coordinates.map { Location(it.x, it.y) }
     route("/planRoute") {
         get {
             val lat = call.parameters.getOrFail<Double>("lat")
@@ -21,9 +22,12 @@ fun Route.planRoute(
             val duration = call.parameters.getOrFail<Double>("duration")
             val startTime = getDateParameter(call.parameters, "startDateTime")
             val location = Location(lat, lng)
+
+            val coastlineLocation = coastlineLocations.minBy { it distanceTo location }
+
             val routes =
                 routePlanner.generateRoutes(
-                    { location distanceTo it.location < startPositionFilterDistance },
+                    { coastlineLocation distanceTo it.location < startPositionFilterDistance },
                     { legTimer.getDuration(it, startTime) < duration * 60 },
                 ).take(20).toList()
 
