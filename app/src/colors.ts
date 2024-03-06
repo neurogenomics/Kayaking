@@ -13,11 +13,3 @@ export const routeColors = {
   selected: '#FF0000',
   unselected: '#999999',
 };
-
-export const speedMapColours = [
-  '#264b96',
-  '#27b376',
-  '#006f3c',
-  '#f9a73e',
-  '#bf212f',
-];

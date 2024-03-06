@@ -19,8 +19,8 @@ class WeatherKayakTest {
     private val kayak: WeatherKayak = WeatherKayak(windServiceMock, tideServiceMock, kayakerSpeed)
 
     // make sure these match those in WeatherKayak.kt
-    private val windMult = 0.02
-    private val tideMult = 0.05
+    private val windMult = 0.2
+    private val tideMult = 0.5
 
     // to allow for small errors with sin/cos/PI
     private val roundingAllowance = 0.005
