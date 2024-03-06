@@ -16,7 +16,7 @@ import Animated, {
 import WeatherFabs from '../components/WeatherFabs';
 import { GridType } from '../models/gridModel';
 import DateCarousel from '../components/DateCarousel/DateCarousel';
-import { UserInput, getDuration } from '../models/userInputModel';
+import { RouteType, UserInput, getDuration } from '../models/userInputModel';
 import { WeatherVisualisation } from '../components/MapVisualisations/WeatherVisualisation';
 import { RouteVisualisation } from '../components/MapVisualisations/RouteVisualisation';
 import { RouteModel } from '../models/routeModel';
@@ -99,15 +99,13 @@ const HomeScreen: React.FC<HomeProps> = () => {
     });
   }, []);
 
-  // const routeFetcher = new RouteFetcher(setRoutes);
-
   const searchRoutes = async () => {
-    console.log(region);
-    console.log(userInput);
     if (userInput) {
-      const routes = await getRoute(region, getDuration(userInput));
-      setRoutes(routes);
-      // void getCircularRoute(5).then((routes) => setRoutes(routes));
+      if (userInput.routeType === RouteType.PointToPoint) {
+        setRoutes(await getRoute(region, userInput));
+      } else {
+        setRoutes(await getCircularRoute(userInput));
+      }
     }
   };
 

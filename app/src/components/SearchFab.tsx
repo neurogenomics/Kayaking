@@ -1,9 +1,6 @@
 import { ActivityIndicator, FAB } from 'react-native-paper';
 import React, { useState } from 'react';
-import { StyleSheet, View, Text } from 'react-native';
-import { COLORS } from '../colors';
-import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
-import { faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons';
+import { StyleSheet } from 'react-native';
 
 const styles = StyleSheet.create({
   container: {
@@ -16,11 +13,11 @@ const styles = StyleSheet.create({
     margin: 16,
     right: 0,
     top: 0,
-    width: 56, // Set a fixed width for the FAB
     justifyContent: 'center',
     alignItems: 'center',
-    alignSelf: 'center', // Align the FAB in the center horizontally
-    height: 56, // Set a fixed height for the FAB
+    alignSelf: 'center',
+    height: 56,
+    width: 56,
   },
 });
 
@@ -32,7 +29,6 @@ const SearchFab: React.FC<SearchFabProps> = ({ onSearch }: SearchFabProps) => {
   const [isSearching, setIsSearching] = useState(false);
 
   const handleSearch = () => {
-    console.log(isSearching);
     if (isSearching) {
       return;
     }
