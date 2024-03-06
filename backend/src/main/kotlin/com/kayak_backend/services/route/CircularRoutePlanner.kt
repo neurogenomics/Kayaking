@@ -78,7 +78,7 @@ class CircularRoutePlanner(
         println(switchResistances)
         val switchpoints =
             switchResistances.mapValues {
-                if (it.key.hour == 0) {
+                if (it.key.hour == (switchResistances.keys.min().hour)) {
                     false
                 } else {
                     (
