@@ -47,6 +47,27 @@ fun Route.wind(wind: WindService) {
         }
     }
 
+    route("/winds") {
+        get {
+            val locs = call.parameters.getOrFail<List<List<Double>>>("locs")
+            val checkpoints = call.parameters.getOrFail<List<Int>>("checkpoints")
+            val start = getDateParameter(call.parameters, "start")
+            val locations = locs.map { (lat, long) ->
+                Location(lat, long)
+            }
+
+            try {
+                call.respond(wind.getWindRoute(locations, checkpoints, start))
+            } catch (e: GribFileError) {
+                call.response.status(HttpStatusCode.InternalServerError)
+                call.respondText(e.message ?: "Unknown Grib File Error")
+            } catch (e: GribIndexError) {
+                call.response.status(HttpStatusCode.BadRequest)
+                call.respondText(e.message ?: "Grib Index Error - Request may be out of bounds")
+            }
+        }
+    }
+
     route("/windGrid") {
         get {
             val lat1 = call.parameters.getOrFail<Double>("latFrom")
