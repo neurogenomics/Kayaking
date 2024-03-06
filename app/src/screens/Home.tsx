@@ -99,7 +99,7 @@ const HomeScreen: React.FC<HomeProps> = () => {
     locations: [],
     checkpoints: [],
     startTime: new Date(),
-    endTime: new Date(),
+    endTime: new Date(new Date().getTime() + 120 * 60 * 1000),
     difficulty: 4,
   };
 

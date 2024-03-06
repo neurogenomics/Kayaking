@@ -17,7 +17,13 @@ import Speedometer, {
 } from 'react-native-cool-speedometer';
 import { RouteModel } from '../models/routeModel';
 import { ScrollView } from 'react-native-gesture-handler';
-const RouteInformation = (route: RouteModel) => {
+type RouteInformationProps = {
+  route: RouteModel;
+};
+
+export const RouteInformation: React.FC<RouteInformationProps> = ({
+  route,
+}: RouteInformationProps) => {
   const times: string[] = [];
   const currentDate = new Date(route.startTime);
 
@@ -51,9 +57,9 @@ const RouteInformation = (route: RouteModel) => {
         yAxisInterval={5} // optional, defaults to 1
         fromZero={true}
         chartConfig={{
-          backgroundColor: '#e26a00',
-          backgroundGradientFrom: '#fb8c00',
-          backgroundGradientTo: '#ffa726',
+          backgroundColor: '#CC99FF',
+          backgroundGradientFrom: '#CC99FF',
+          backgroundGradientTo: '#CC99FF',
           decimalPlaces: 2, // optional, defaults to 2dp
           color: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
           labelColor: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
@@ -72,38 +78,42 @@ const RouteInformation = (route: RouteModel) => {
           borderRadius: 10,
         }}
       />
-      <Text style={styles.label}>Estimated Speed</Text>
+      <Text style={styles.label}>Support winds</Text>
       <LineChart
         data={{
           labels: ['January', 'February', 'March', 'April', 'May', 'June'],
           datasets: [
             {
-              data: [10, 20, 30, 40, 50],
+              data: [40, 10, -20, 30, -40, 0],
+            },
+            {
+              data: [0, 0, 0, 0, 0, 0],
             },
           ],
         }}
         width={400} //{Dimensions.get('window').width} // from react-native
-        height={150}
-        yAxisLabel="$"
-        yAxisSuffix="k"
+        height={200}
+        yAxisLabel=""
+        yAxisSuffix="m/s"
         yAxisInterval={1} // optional, defaults to 1
         chartConfig={{
-          backgroundColor: '#e26a00',
-          backgroundGradientFrom: '#fb8c00',
-          backgroundGradientTo: '#ffa726',
-          decimalPlaces: 2, // optional, defaults to 2dp
+          backgroundColor: '#CC99FF',
+          backgroundGradientFrom: '#CC99FF',
+          backgroundGradientTo: '#CC99FF',
+          fillShadowGradientFromOpacity: 0,
+          fillShadowGradientToOpacity: 0,
+          decimalPlaces: 0, // optional, defaults to 2dp
           color: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
           labelColor: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
           style: {
             borderRadius: 16,
           },
           propsForDots: {
-            r: '6',
+            r: '0',
             strokeWidth: '2',
-            stroke: '#ffa726',
+            stroke: '#CC99FF',
           },
         }}
-        bezier
         style={{
           marginVertical: 8,
           borderRadius: 16,
@@ -115,7 +125,7 @@ const RouteInformation = (route: RouteModel) => {
         max={10}
         angle={180}
         lineCap="round"
-        accentColor="orange"
+        accentColor="rgb(204, 153, 255)"
       >
         <Arc arcWidth={40} />
         <Progress arcWidth={40} />
@@ -130,7 +140,7 @@ const RouteInformation = (route: RouteModel) => {
               //textAnchor="middle"
               //alignmentBaseline="middle"
             >
-              {value}%
+              {value}/10
             </Text>
           )}
         </Indicator>
