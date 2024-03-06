@@ -17,6 +17,9 @@ import Speedometer, {
 } from 'react-native-cool-speedometer';
 import { RouteModel } from '../models/routeModel';
 import { ScrollView } from 'react-native-gesture-handler';
+import { getWindsDirection } from '../services/windService';
+import { useEffect, useState } from 'react';
+import { Vector } from '../models/vectorModel';
 type RouteInformationProps = {
   route: RouteModel;
 };
@@ -27,6 +30,43 @@ export const RouteInformation: React.FC<RouteInformationProps> = ({
   const times: string[] = [];
   const currentDate = new Date(route.startTime);
 
+  const [windsInfo, setWindsInfo] = useState<number[]>([]);
+
+  /* useEffect(() => {
+    void getWindsDirection(
+      route.locations,
+      route.checkpoints,
+      route.startTime,
+    ).then((winds) => {
+      const speedVectors: Vector[] = [];
+      for (let i = 0; i < route.locations.length - 1; i++) {
+        const loc1 = route.locations[i];
+        const loc2 = route.locations[i + 1];
+        const time = route.checkpoints[i + 1] - route.checkpoints[i]; // Time taken to travel from loc1 to loc2
+
+        const displacement = {
+          u: loc2.latitude - loc1.latitude, // Assuming lat represents u component
+          v: loc2.longitude - loc1.longitude, // Assuming long represents v component
+        };
+
+        const speed = {
+          u: displacement.u / time,
+          v: displacement.v / time,
+        };
+
+        speedVectors.push(speed);
+      }
+
+      const windScalar: number[] = speedVectors.map((vel, index) => {
+        const velMagnitude = Math.sqrt(vel.u ** 2 + vel.v ** 2);
+        const dotProd = vel.u * vel.u + winds[index].v * winds[index].v;
+        return dotProd / velMagnitude;
+      });
+
+      setWindsInfo(windScalar);
+    });
+  }, []); */
+
   while (currentDate <= route.endTime) {
     const hours = currentDate.getHours().toString().padStart(2, '0');
     const minutes = currentDate.getMinutes().toString().padStart(2, '0');
@@ -35,6 +75,7 @@ export const RouteInformation: React.FC<RouteInformationProps> = ({
   }
 
   const center = 250 / 2;
+
   return (
     <ScrollView>
       <Text style={styles.label}>Estimated Speed</Text>
@@ -84,7 +125,7 @@ export const RouteInformation: React.FC<RouteInformationProps> = ({
           labels: ['January', 'February', 'March', 'April', 'May', 'June'],
           datasets: [
             {
-              data: [40, 10, -20, 30, -40, 0],
+              data: windsInfo,
             },
             {
               data: [0, 0, 0, 0, 0, 0],

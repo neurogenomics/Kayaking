@@ -13,3 +13,14 @@ export const getWindDirection = async (
   }
   return await getData<Vector>(url);
 };
+
+export const getWindsDirection = async (
+  locations: LocationModel[],
+  checkpoints: number[],
+  date: Date,
+): Promise<Vector[]> => {
+  let url = `winds?locs=${JSON.stringify(locations)}&checkpoints=${JSON.stringify(checkpoints)}`;
+  url += `&date=${format(date, "yyyy-MM-dd'T'HH:mm:ss")}`;
+
+  return await getData<Vector[]>(url);
+};
