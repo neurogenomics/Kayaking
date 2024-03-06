@@ -7,7 +7,6 @@ import { isleOfWight } from '../../constants';
 import BottomSheet from '@gorhom/bottom-sheet';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
-import Routes from '../components/RoutesTab/Routes';
 import Filters from '../components/FilterTab/Filters';
 import Animated, {
   useAnimatedStyle,
@@ -21,9 +20,11 @@ import { WeatherVisualisation } from '../components/MapVisualisations/WeatherVis
 import { RouteVisualisation } from '../components/MapVisualisations/RouteVisualisation';
 import { RouteModel } from '../models/routeModel';
 import { useNavigation } from '@react-navigation/native';
+import RouteFetcher from '../services/routeFetcher';
+import { LocationModel } from '../models/locationModel';
 import { DataDisplay } from '../components/DataDisplay';
 import { getWeatherDates } from '../services/timeService';
-import RouteInformation from '../components/RouteInformation';
+import Routes from '../components/RoutesTab/Routes';
 
 const styles = StyleSheet.create({
   container: {
@@ -93,6 +94,8 @@ const HomeScreen: React.FC<HomeProps> = () => {
     });
   }, []);
 
+  const routeFetcher = new RouteFetcher(setRoutes);
+
   const routeInformation: RouteModel = {
     name: 'Route',
     length: 3,
@@ -111,6 +114,15 @@ const HomeScreen: React.FC<HomeProps> = () => {
         rotateEnabled={true}
         scrollEnabled={true}
         provider="google"
+        onRegionChangeComplete={(region) => {
+          const location: LocationModel = {
+            latitude: region.latitude,
+            longitude: region.longitude,
+          };
+          if (userInput !== undefined) {
+            routeFetcher.update(userInput, location);
+          }
+        }}
       >
         {weatherMap !== undefined ? (
           <WeatherVisualisation display={weatherMap} date={mapDate} />
@@ -167,7 +179,7 @@ const HomeScreen: React.FC<HomeProps> = () => {
           <Tab.Screen name="Routes">
             {() => (
               <Routes
-                routes={routes}
+                routes={routes ?? []}
                 selectedRouteIndex={selectedRouteIndex}
                 setSelectedRouteIndex={setSelectedRouteIndex}
                 navigation={useNavigation()}
