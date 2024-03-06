@@ -61,8 +61,8 @@ class LegTimer(private val kayak: Kayak) {
             is Leg.SingleLeg -> {
                 val midpoint =
                     Location(
-                        (leg.start.latitude + leg.start.latitude) / 2,
-                        (leg.start.longitude + leg.start.longitude) / 2,
+                        (leg.start.latitude + leg.end.latitude) / 2,
+                        (leg.start.longitude + leg.end.longitude) / 2,
                     )
 
                 (leg.length / kayak.getSpeed(dateTime, midpoint, leg.bearing)).roundToLong()

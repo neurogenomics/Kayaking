@@ -8,6 +8,7 @@ import com.kayak_backend.models.Location
 import com.kayak_backend.models.Range
 import com.kayak_backend.models.TideGrid
 import com.kayak_backend.models.TideInfo
+import java.time.LocalDate
 import java.time.LocalDateTime
 
 class GribTideFetcher(
@@ -72,5 +73,21 @@ class GribTideFetcher(
                 }
             }
         return TideGrid(grid, newLatIndexU, newLonIndexU)
+    }
+
+    override fun getTideAllDay(
+        loc: Location,
+        date: LocalDate,
+    ): List<TideInfo> {
+        val data =
+            gribReader.getTimeSlice(
+                loc.latitude,
+                loc.longitude,
+                date,
+                conf.uTideVarName,
+                conf.vTideVarName,
+                conf.filePath,
+            )
+        return data.map { TideInfo(u = it.first, v = it.second) }
     }
 }

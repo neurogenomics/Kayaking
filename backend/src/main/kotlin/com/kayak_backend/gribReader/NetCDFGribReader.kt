@@ -5,6 +5,7 @@ import ucar.nc2.NetcdfFile
 import ucar.nc2.Variable
 import ucar.nc2.dataset.NetcdfDataset
 import java.time.Duration
+import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
@@ -293,5 +294,83 @@ class NetCDFGribReader : GribReader {
                 !x.isNaN()
             }
         return surroundingValues
+    }
+
+    fun findTimeFromDay(
+        variable: Variable,
+        date: LocalDate,
+    ): Int {
+        val group = variable.group
+        val time = date.atStartOfDay()
+
+        val timeVar = group.findVariable("time") ?: throw GribFileError("Time variable not found")
+        val reftime = getRefTime(timeVar)
+        val duration = Duration.between(reftime, time)
+        val firstTime = timeVar.read().getDouble(0).toInt()
+
+        val timeIndex = duration.toHours().toInt() - firstTime
+        if (timeIndex < 0 || timeIndex > timeVar.shape.max() - 1) throw GribIndexError("Time variable out of bounds")
+        if (timeIndex + 24 > timeVar.shape.max() - 1) throw GribIndexError("Time variable out of bounds")
+
+        return timeIndex
+    }
+
+    fun fetchTimeSlice(
+        variable: Variable,
+        latIndex: Int,
+        lonIndex: Int,
+        timeIndex: Int,
+    ): List<Double> {
+        val rank = variable.rank
+        val origin = IntArray(rank)
+
+        val (latDim, lonDim, timeDim) = getDimensionsIndex(variable)
+
+        origin[latDim] = latIndex
+        origin[lonDim] = lonIndex
+        origin[timeDim] = timeIndex
+
+        val shape = IntArray(rank) { 1 }
+        shape[timeDim] = 24
+
+        val res = List(24) { variable.read(origin, shape).getDouble(it) }
+        res.mapIndexed { index, it ->
+            if (it.isNaN()) {
+                var i = 1
+                var resList: List<Double>
+                do {
+                    origin[timeDim] += index
+                    resList = trySurrounding(variable, origin, IntArray(rank) { 1 }, latDim, lonDim, i)
+                    i++
+                } while (resList.isEmpty())
+                resList.average()
+            }
+        }
+        return res
+    }
+
+    override fun getTimeSlice(
+        lat: Double,
+        lon: Double,
+        date: LocalDate,
+        var1Name: String,
+        var2Name: String,
+        filePath: String,
+    ): List<Pair<Double, Double>> {
+        val file = NetcdfDataset.openFile(filePath, null)
+
+        val variable1 = getVariable(file, var1Name)
+        val variable2 = getVariable(file, var2Name)
+
+        if (variable1.group.fullName == variable2.group.fullName) {
+            val (latIndex, lonIndex) = findLatLon(variable1, lat, lon)
+            val timeIndex = findTimeFromDay(variable1, date)
+            val val1 = fetchTimeSlice(variable1, latIndex, lonIndex, timeIndex)
+            val val2 = fetchTimeSlice(variable2, latIndex, lonIndex, timeIndex)
+            file.close()
+            return val1 zip val2
+        } else {
+            throw NotImplementedError("Cannot fetch timeslice of unrelated variables")
+        }
     }
 }

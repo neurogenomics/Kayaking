@@ -3,8 +3,6 @@ package com.kayak_backend.services.route
 import com.kayak_backend.models.Location
 import org.locationtech.jts.geom.Polygon
 
-class StartPos(val location: Location, val name: String)
-
 class RoutePlanner(
     baseRoutePolygon: Polygon,
     inStartPositions: List<StartPos>,

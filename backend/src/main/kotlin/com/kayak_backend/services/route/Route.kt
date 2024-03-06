@@ -1,17 +1,21 @@
 package com.kayak_backend.services.route
 
 import com.kayak_backend.models.Location
+import com.kayak_backend.serialization.LocalDateTimeSerializer
 import kotlinx.serialization.Serializable
 import org.locationtech.jts.geom.Geometry
 import org.locationtech.jts.geom.GeometryFactory
 import org.locationtech.jts.geom.Polygon
 import org.locationtech.jts.simplify.TopologyPreservingSimplifier
+import java.time.LocalDateTime
 
 @Serializable
 open class Route(
     val name: String,
     val length: Double,
     val locations: Leg,
+    @Serializable(with = LocalDateTimeSerializer::class)
+    val startTime: LocalDateTime? = null,
 )
 
 @Serializable
@@ -59,7 +63,7 @@ class SectionedRoute(
     maxStartDistance: Int = 1000,
 ) {
     // The base route split into sections by the possible start positions
-    private val sections: List<Leg>
+    val sections: List<Leg>
 
     // Maps the closest point on the base route to a start position(s)
     private val routeToStarts: Map<Location, MutableList<StartPos>>
@@ -104,14 +108,17 @@ class SectionedRoute(
     }
 
     fun stepFrom(
-        location: Location,
+        location: Location? = null,
         step: Int = 1,
     ): Sequence<Leg> {
-        return generateSequence(seed = routeToNextSectionIndex[location]!!) { (it + step) % sections.size }.map { sections[it] }
+        val startIndex = if (location == null) 0 else routeToNextSectionIndex[location]!!
+        val seq =
+            generateSequence(seed = startIndex) { (it + step) % sections.size }.map { sections[it] }
+        return if (step >= 0) seq else seq.map { it.reverse() }
     }
 
     fun stepFromAccumulating(
-        location: Location,
+        location: Location? = null,
         step: Int = 1,
     ): Sequence<Leg> {
         return stepFrom(location, step).scan<Leg, Leg?>(null) { acc, value ->

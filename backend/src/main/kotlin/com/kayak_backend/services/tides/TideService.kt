@@ -3,6 +3,7 @@ package com.kayak_backend.services.tides
 import com.kayak_backend.models.Location
 import com.kayak_backend.models.TideGrid
 import com.kayak_backend.models.TideInfo
+import java.time.LocalDate
 import java.time.LocalDateTime
 
 interface TideService {
@@ -17,4 +18,9 @@ interface TideService {
         time: LocalDateTime,
         resolutions: Pair<Double, Double>,
     ): TideGrid
+
+    fun getTideAllDay(
+        loc: Location,
+        date: LocalDate,
+    ): List<TideInfo>
 }

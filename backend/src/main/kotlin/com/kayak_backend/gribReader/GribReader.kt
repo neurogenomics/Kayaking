@@ -1,6 +1,7 @@
 package com.kayak_backend.gribReader
 
 import com.kayak_backend.models.Range
+import java.time.LocalDate
 import java.time.LocalDateTime
 
 interface GribReader {
@@ -30,4 +31,13 @@ interface GribReader {
     ): Triple<List<List<Double>>, List<Double>, List<Double>>
 
     fun getTimeRange(filePath: String): List<LocalDateTime>
+
+    fun getTimeSlice(
+        lat: Double,
+        lon: Double,
+        date: LocalDate,
+        var1Name: String,
+        var2Name: String,
+        filePath: String,
+    ): List<Pair<Double, Double>>
 }
