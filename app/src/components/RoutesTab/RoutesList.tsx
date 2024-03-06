@@ -5,9 +5,10 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import { RouteModel, getMapDisplayRegion } from '../../models/routeModel';
+import { RouteModel } from '../../models/routeModel';
 import React, { useCallback } from 'react';
 import { RouteListNavigationProp } from './Routes';
+import { RouteDetailsProps } from './RouteDetails';
 import MapView, { Polyline } from 'react-native-maps';
 import { Icon } from 'react-native-paper';
 import { routeColors } from '../../colors';
@@ -32,12 +33,6 @@ const styles = StyleSheet.create({
   },
   mainText: {
     fontSize: 18,
-    marginBottom: 4,
-    textAlign: 'center',
-  },
-  mainTextSelected: {
-    fontSize: 18,
-    fontWeight: 'bold',
     marginBottom: 4,
     textAlign: 'center',
   },
@@ -70,22 +65,44 @@ const styles = StyleSheet.create({
 });
 
 export type RoutesListProps = {
-  routes: RouteModel[];
-  navigation: RouteListNavigationProp;
-  setSelectedRouteIndex: React.Dispatch<React.SetStateAction<number>>;
+  routes: RouteModel[] | undefined;
   selectedRouteIndex: number;
+  setSelectedRouteIndex: React.Dispatch<React.SetStateAction<number>>;
+  navigation: RouteListNavigationProp;
 };
 
 const RoutesList: React.FC<RoutesListProps> = ({
   routes,
-  navigation,
-  setSelectedRouteIndex,
   selectedRouteIndex,
+  setSelectedRouteIndex,
+  navigation,
 }) => {
+  // renders routes in a list where you can select a route
   const renderItem = useCallback(
     ({ item, index }: { item: RouteModel; index: number }) => {
       const route = item;
-      const region = getMapDisplayRegion(route);
+      const latitudes = route.locations.map((location) => location.latitude);
+      const longitudes = route.locations.map((location) => location.longitude);
+      const minLat = Math.min(...latitudes);
+      const maxLat = Math.max(...latitudes);
+      const minLng = Math.min(...longitudes);
+      const maxLng = Math.max(...longitudes);
+
+      // Calculate deltas for latitude and longitude
+      const deltaLat = (maxLat - minLat) * 1.1; // Add some padding
+      const deltaLng = (maxLng - minLng) * 1.1; // Add some padding
+
+      // Calculate center of the region
+      const centerLat = (minLat + maxLat) / 2;
+      const centerLng = (minLng + maxLng) / 2;
+
+      const region = {
+        latitude: centerLat,
+        longitude: centerLng,
+        latitudeDelta: deltaLat,
+        longitudeDelta: deltaLng,
+      };
+
       const totalMins = Math.round(
         route.checkpoints[route.checkpoints.length - 1] / 60,
       );
@@ -99,12 +116,7 @@ const RoutesList: React.FC<RoutesListProps> = ({
       timeDisplayStr += `${mins}m`;
 
       return (
-        <TouchableOpacity
-          onPress={() => {
-            navigation.navigate('RouteDetails', { route: routes[index] });
-            setSelectedRouteIndex(index);
-          }}
-        >
+        <TouchableOpacity onPress={() => selectRouteFromList(index)}>
           <View style={styles.itemContainer}>
             <View style={styles.mapContainer}>
               <MapView
@@ -121,15 +133,7 @@ const RoutesList: React.FC<RoutesListProps> = ({
               </MapView>
             </View>
             <View style={styles.detailsContainer}>
-              <Text
-                style={
-                  selectedRouteIndex === index
-                    ? styles.mainTextSelected
-                    : styles.mainText
-                }
-              >
-                {route.name}
-              </Text>
+              <Text style={styles.mainText}>{route.name}</Text>
               <View style={styles.rowContainer}>
                 <View style={styles.textContainer}>
                   <Icon source="kayaking" size={24} />
@@ -154,9 +158,22 @@ const RoutesList: React.FC<RoutesListProps> = ({
     [routes],
   );
 
+  const selectRouteFromList = (index: number) => {
+    if (routes !== undefined) {
+      setSelectedRouteIndex(index);
+      const props: RouteDetailsProps = {
+        routes: routes,
+        selectedRouteIndex: selectedRouteIndex,
+        navigation: navigation,
+      };
+      navigation.navigate('RouteDetails', { props });
+    }
+  };
+
   return (
     <View>
-      {!routes ? (
+      {routes === undefined ? (
+        // TODO make better display than this
         <Text>Enter filters to get a route</Text>
       ) : (
         <FlatList

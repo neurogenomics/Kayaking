@@ -4,21 +4,21 @@ import {
   createStackNavigator,
   StackNavigationProp,
 } from '@react-navigation/stack';
-import RouteDetails from './RouteDetails';
 import RoutesList from './RoutesList';
+import RouteDetails, { RouteDetailsProps } from './RouteDetails';
 
-export type RoutesParamList = {
+type RootStackParamList = {
   RouteList: undefined;
-  RouteDetails: { route: RouteModel };
+  RouteDetails: { props: RouteDetailsProps };
 };
 
 export type RouteListNavigationProp = StackNavigationProp<
-  RoutesParamList,
+  RootStackParamList,
   'RouteList'
 >;
 
 type RoutesProps = {
-  routes: RouteModel[];
+  routes: RouteModel[] | undefined;
   selectedRouteIndex: number;
   setSelectedRouteIndex: React.Dispatch<React.SetStateAction<number>>;
   navigation: RouteListNavigationProp;
@@ -38,17 +38,26 @@ const Routes: React.FC<RoutesProps> = ({
         {() => (
           <RoutesList
             routes={routes}
-            navigation={navigation}
             setSelectedRouteIndex={setSelectedRouteIndex}
             selectedRouteIndex={selectedRouteIndex}
+            navigation={navigation}
           />
         )}
       </Stack.Screen>
       <Stack.Screen
-        name={'RouteDetails'}
-        options={{ headerShown: false }}
-        component={RouteDetails}
-      ></Stack.Screen>
+        name="RouteDetails"
+        options={{
+          headerShown: false,
+        }}
+      >
+        {() => (
+          <RouteDetails
+            routes={routes}
+            selectedRouteIndex={selectedRouteIndex}
+            navigation={navigation}
+          />
+        )}
+      </Stack.Screen>
     </Stack.Navigator>
   );
 };

@@ -6,7 +6,7 @@ import org.locationtech.jts.geom.Polygon
 class StartPos(val location: Location, val name: String)
 
 class RoutePlanner(
-    baseRoutePolygon: Polygon,
+    private val baseRoutePolygon: Polygon,
     inStartPositions: List<StartPos>,
     maxStartDistance: Int = 1000,
 ) {
@@ -48,6 +48,10 @@ class RoutePlanner(
         }
         routeToNextSectionIndex = mutableRouteToNextSectionIndex
         routeToPrevSectionIndex = mutableRouteToPrevSectionIndex
+    }
+
+    fun getBaseRoute(): Polygon {
+        return baseRoutePolygon
     }
 
     private fun splitRouteIntoSections(
