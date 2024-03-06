@@ -61,14 +61,12 @@ class LegDifficulty(
                 Pair(classifyConditions(dateTime.plusSeconds(checkpoints[index]), midpoint), index + 1)
             }
             is Leg.MultipleLegs -> {
-                var ind = index
-                val max =
-                    leg.legs.maxOf {
-                        val (dif, ind2) = getLegDifficulty(it, dateTime, checkpoints, ind)
-                        ind = ind2
-                        dif
+                val difficulty =
+                    leg.legs.fold(0 to index) { (currentMax, currentIndex), leg ->
+                        val (difficulty, newIndex) = getLegDifficulty(leg, dateTime, checkpoints, currentIndex)
+                        maxOf(currentMax, difficulty) to newIndex
                     }
-                Pair(max, ind)
+                difficulty
             }
         }
     }
