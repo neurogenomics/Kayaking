@@ -38,7 +38,17 @@ class LegDifficulty(
     ): Int {
         val epoch = dateTime.toEpochSecond(ZoneOffset.UTC) + checkpoints[index]
         val times = difficultyCache.getOrPut(leg) { mutableMapOf() }
-        return times.getOrPut(epoch) { calculateDifficulty(leg, dateTime, checkpoints) }
+
+        if (times.containsKey(epoch)) {
+            index += leg.locations.size - 1
+            return times.getValue(epoch)
+        } else {
+            val dif = calculateDifficulty(leg, dateTime, checkpoints)
+            times[epoch] = dif
+            return dif
+        }
+
+        // return times.getOrPut(epoch) { calculateDifficulty(leg, dateTime, checkpoints) }
     }
 
     private fun calculateDifficulty(

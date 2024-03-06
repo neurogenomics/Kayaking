@@ -105,4 +105,24 @@ class LegDifficultyTest {
         // wind = 3, wave = 7
         assertEquals(7, result)
     }
+
+    @Test
+    fun forMultipleLegReturnsMaxDifficultyOfLegsInsideWhenSomeAreCached() {
+        val route1 = Route("name", 1.0, multipleLeg2)
+        val route2 = Route("name", 1.0, leg1)
+
+        every { windMock.getWind(loc2, dateTime) } returns WindInfo(1.0, 1.0)
+        every { waveMock.getWave(loc2, dateTime) } returns WaveInfo(1.0, 1.0)
+
+        every { windMock.getWind(loc4, dateTime.plusSeconds(1)) } returns WindInfo(2.0, 2.0)
+        every { waveMock.getWave(loc4, dateTime.plusSeconds(1)) } returns WaveInfo(5.0, 5.0)
+
+        every { windMock.getWind(loc6, dateTime.plusSeconds(2)) } returns WindInfo(5.0, 5.0)
+        every { waveMock.getWave(loc6, dateTime.plusSeconds(2)) } returns WaveInfo(2.0, 2.0)
+
+        legDifficulty.getDifficulty(route2, dateTime, listOf(0, 1))
+        val result = legDifficulty.getDifficulty(route1, dateTime, listOf(0, 1, 2, 3))
+        // wind = 3, wave = 7
+        assertEquals(7, result)
+    }
 }
