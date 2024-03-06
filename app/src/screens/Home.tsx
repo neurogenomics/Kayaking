@@ -23,7 +23,7 @@ import { RouteModel } from '../models/routeModel';
 import { useNavigation } from '@react-navigation/native';
 import { DataDisplay } from '../components/DataDisplay';
 import { getWeatherDates } from '../services/timeService';
-import SearchFab from '../components/SeatchFab';
+import SearchFab from '../components/SearchFab';
 import { getCircularRoute, getRoute } from '../services/routeService';
 
 const styles = StyleSheet.create({
@@ -52,7 +52,7 @@ const HomeScreen: React.FC<HomeProps> = () => {
   const bottomSheetPosition = useSharedValue<number>(0);
   const Tab = createMaterialTopTabNavigator();
   const [userInput, setUserInput] = useState<UserInput>();
-  const [routes, setRoutes] = useState<RouteModel[] | undefined>();
+  const [routes, setRoutes] = useState<RouteModel[]>([]);
   const [selectedRouteIndex, setSelectedRouteIndex] = useState(0);
   const [weatherDates, setWeatherDates] = useState<Date[]>([]);
   const [region, setRegion] = useState<Region>(isleOfWight);
@@ -126,7 +126,7 @@ const HomeScreen: React.FC<HomeProps> = () => {
           <RouteVisualisation
             userInput={userInput}
             routes={routes}
-            setRoutes={setRoutes}
+            region={region}
             selectedRouteIndex={selectedRouteIndex}
             setSelectedRouteIndex={setSelectedRouteIndex}
           />
