@@ -22,11 +22,6 @@ class LegDifficulty(
     // index of how many checkpoints we are through the route, increased each time we process a single leg
     private var index = 0
 
-    // TODO would it be better to store these somewhere else - kind of like the kayaks?
-    // source: https://www.metoffice.gov.uk/weather/guides/coast-and-sea/beaufort-scale
-    private val waveLimits = listOf(0.0, 0.1, 0.3, 1.0, 1.5, 2.5, 4.0, 5.5, 7.5, 10.0, 12.5, 16.0)
-    private val windLimits = listOf(1.0, 2.0, 3.0, 5.0, 8.0, 11.0, 14.0, 17.0, 21.0, 24.0, 28.0, 32.0)
-
     fun getDifficulty(
         route: Route,
         dateTime: LocalDateTime,
@@ -79,5 +74,11 @@ class LegDifficulty(
         val waveLevel = waveLimits.indexOfFirst { it >= (waveInfo.height) }
 
         return if (windLevel == -1 || waveLevel == -1) 12 else max(windLevel, waveLevel)
+    }
+
+    companion object {
+        // source: https://www.metoffice.gov.uk/weather/guides/coast-and-sea/beaufort-scale
+        private val waveLimits = listOf(0.0, 0.1, 0.3, 1.0, 1.5, 2.5, 4.0, 5.5, 7.5, 10.0, 12.5, 16.0)
+        private val windLimits = listOf(1.0, 2.0, 3.0, 5.0, 8.0, 11.0, 14.0, 17.0, 21.0, 24.0, 28.0, 32.0)
     }
 }
