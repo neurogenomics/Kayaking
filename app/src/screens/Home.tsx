@@ -101,13 +101,13 @@ const HomeScreen: React.FC<HomeProps> = () => {
 
   // const routeFetcher = new RouteFetcher(setRoutes);
 
-  const searchRoutes = () => {
+  const searchRoutes = async () => {
     console.log(region);
     console.log(userInput);
     if (userInput) {
-      void getRoute(region, getDuration(userInput)).then((routes) =>
-        setRoutes(routes),
-      );
+      const routes = await getRoute(region, getDuration(userInput));
+      setRoutes(routes);
+      // void getCircularRoute(5).then((routes) => setRoutes(routes));
     }
   };
 
