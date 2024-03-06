@@ -28,10 +28,10 @@ class LegDifficulty(
     }
 
     /**
-     * @Param leg Leg of route
-     * @Param dateTime Start time of the route
-     * @Param checkpoints List of checkpoints associated with the route
-     * @Param index Index of how many checkpoints through the route this leg starts
+     * @Param[leg] Leg of route
+     * @Param[dateTime] Start time of the route
+     * @Param[checkpoints] List of checkpoints associated with the route
+     * @Param[index] Index of how many checkpoints through the route this leg starts
      *
      * @Return Pair(Leg difficulty, Index of how many checkpoints through the route after completing this leg)
      */
