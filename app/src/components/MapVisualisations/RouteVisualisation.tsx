@@ -28,29 +28,10 @@ type RouteVisualisationProps = {
 };
 
 export const RouteVisualisation: React.FC<RouteVisualisationProps> = ({
-  userInput,
   routes,
-  setRoutes,
   selectedRouteIndex,
   setSelectedRouteIndex,
 }: RouteVisualisationProps) => {
-  const getRoutes = async (userInput: UserInput) => {
-    try {
-      const routes: RouteModel[] = await getRoute(
-        userInput.location,
-        getDuration(userInput),
-        userInput.startTime,
-      );
-      setRoutes(routes);
-    } catch (error) {
-      console.log('Error getting routes: ', error);
-    }
-  };
-
-  useEffect(() => {
-    void getRoutes(userInput);
-  }, [userInput, selectedRouteIndex]);
-
   return (
     <>
       {routes !== undefined && selectedRouteIndex < routes.length ? (
@@ -66,22 +47,21 @@ export const RouteVisualisation: React.FC<RouteVisualisationProps> = ({
         ? routes.map((route, index) => (
             <View key={`polyline-${index}`}>
               <Polyline
-                coordinates={route.locations}
-                strokeWidth={
-                  index === selectedRouteIndex
-                    ? styles.selected.strokeWidth
-                    : styles.unselected.strokeWidth
-                }
-                strokeColor={
-                  index === selectedRouteIndex
-                    ? styles.selected.strokeColor
-                    : styles.unselected.strokeColor
-                }
-                zIndex={
-                  index === selectedRouteIndex
-                    ? styles.selected.zIndex
-                    : styles.unselected.zIndex
-                }
+                coordinates={route.locations.slice(
+                  0,
+                  route.locations.length / 2,
+                )}
+                strokeWidth={4}
+                strokeColor={'red'}
+                zIndex={1}
+                tappable={true}
+                onPress={() => setSelectedRouteIndex(index)}
+              />
+              <Polyline
+                coordinates={route.locations.slice(route.locations.length / 2)}
+                strokeWidth={2}
+                strokeColor={'blue'}
+                zIndex={2}
                 tappable={true}
                 onPress={() => setSelectedRouteIndex(index)}
               />

@@ -1,12 +1,13 @@
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList, Route } from '../routes';
 import React, { useEffect, useMemo, useState } from 'react';
-import { SafeAreaView, StyleSheet } from 'react-native';
-import MapView from 'react-native-maps';
+import { SafeAreaView, StyleSheet, View } from 'react-native';
+import MapView, { Region } from 'react-native-maps';
 import { isleOfWight } from '../../constants';
 import BottomSheet from '@gorhom/bottom-sheet';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
+import Routes from '../components/RoutesTab/Routes';
 import Filters from '../components/FilterTab/Filters';
 import Animated, {
   useAnimatedStyle,
@@ -15,16 +16,15 @@ import Animated, {
 import WeatherFabs from '../components/WeatherFabs';
 import { GridType } from '../models/gridModel';
 import DateCarousel from '../components/DateCarousel/DateCarousel';
-import { UserInput } from '../models/userInputModel';
+import { UserInput, getDuration } from '../models/userInputModel';
 import { WeatherVisualisation } from '../components/MapVisualisations/WeatherVisualisation';
 import { RouteVisualisation } from '../components/MapVisualisations/RouteVisualisation';
 import { RouteModel } from '../models/routeModel';
 import { useNavigation } from '@react-navigation/native';
-import RouteFetcher from '../services/routeFetcher';
-import { LocationModel } from '../models/locationModel';
 import { DataDisplay } from '../components/DataDisplay';
 import { getWeatherDates } from '../services/timeService';
-import Routes from '../components/RoutesTab/Routes';
+import SearchFab from '../components/SeatchFab';
+import { getRoute } from '../services/routeService';
 
 const styles = StyleSheet.create({
   container: {
@@ -34,6 +34,9 @@ const styles = StyleSheet.create({
   carouselContainer: {
     backgroundColor: 'rgba(0, 0, 0, 0.3)',
     borderRadius: 12,
+  },
+  searchFabContainer: {
+    flex: 1,
   },
 });
 
@@ -51,6 +54,7 @@ const HomeScreen: React.FC<HomeProps> = () => {
   const [routes, setRoutes] = useState<RouteModel[] | undefined>();
   const [selectedRouteIndex, setSelectedRouteIndex] = useState(0);
   const [weatherDates, setWeatherDates] = useState<Date[]>([]);
+  const [region, setRegion] = useState<Region>(isleOfWight);
 
   const inverseBottomSheetStyle = useAnimatedStyle(() => {
     return {
@@ -94,25 +98,27 @@ const HomeScreen: React.FC<HomeProps> = () => {
     });
   }, []);
 
-  const routeFetcher = new RouteFetcher(setRoutes);
+  // const routeFetcher = new RouteFetcher(setRoutes);
+
+  const searchRoutes = () => {
+    console.log(region);
+    console.log(userInput);
+    if (userInput) {
+      void getRoute(region, getDuration(userInput)).then((routes) =>
+        setRoutes(routes),
+      );
+    }
+  };
 
   return (
     <GestureHandlerRootView style={styles.container}>
       <MapView
         style={styles.map}
-        initialRegion={isleOfWight}
+        initialRegion={region}
         rotateEnabled={true}
         scrollEnabled={true}
         provider="google"
-        onRegionChangeComplete={(region) => {
-          const location: LocationModel = {
-            latitude: region.latitude,
-            longitude: region.longitude,
-          };
-          if (userInput !== undefined) {
-            routeFetcher.update(userInput, location);
-          }
-        }}
+        onRegionChangeComplete={setRegion}
       >
         {weatherMap !== undefined ? (
           <WeatherVisualisation display={weatherMap} date={mapDate} />
@@ -134,6 +140,11 @@ const HomeScreen: React.FC<HomeProps> = () => {
           onDateChanged={(date) => setMapDate(date)}
         ></DateCarousel>
       </SafeAreaView>
+
+      <View style={styles.searchFabContainer}>
+        <SearchFab onSearch={searchRoutes}></SearchFab>
+      </View>
+
       <DataDisplay
         sunsetOn={sunsetOn}
         tideTimesOn={tideHeightOn}
@@ -169,7 +180,7 @@ const HomeScreen: React.FC<HomeProps> = () => {
           <Tab.Screen name="Routes">
             {() => (
               <Routes
-                routes={routes ?? []}
+                routes={routes}
                 selectedRouteIndex={selectedRouteIndex}
                 setSelectedRouteIndex={setSelectedRouteIndex}
                 navigation={useNavigation()}

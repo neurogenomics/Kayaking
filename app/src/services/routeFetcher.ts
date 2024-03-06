@@ -1,7 +1,7 @@
 import { LocationModel } from '../models/locationModel';
 import { RouteModel } from '../models/routeModel';
 import { UserInput, getDuration } from '../models/userInputModel';
-import { getRoute } from './routeService';
+import { getCircularRoute, getRoute } from './routeService';
 
 class RouteFetcher {
   private toFetch: [UserInput, LocationModel] | undefined;
@@ -28,8 +28,8 @@ class RouteFetcher {
   ) {
     this.isFetching = true;
     try {
-      const routes: RouteModel[] = await getRoute(
-        LocationModel,
+      const routes: RouteModel[] = await getCircularRoute(
+        // LocationModel,
         getDuration(userInput),
         userInput.startTime,
       );
