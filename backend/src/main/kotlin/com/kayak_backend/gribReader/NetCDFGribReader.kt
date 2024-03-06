@@ -7,6 +7,7 @@ import ucar.nc2.dataset.NetcdfDataset
 import java.time.Duration
 import java.time.LocalDate
 import java.time.LocalDateTime
+import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 
 class NetCDFGribReader : GribReader {
@@ -299,7 +300,7 @@ class NetCDFGribReader : GribReader {
     fun findTimeFromDay(
         variable: Variable,
         date: LocalDate,
-    ): Int {
+    ): Triple<Int, LocalTime, Int> {
         val group = variable.group
         val time = date.atStartOfDay()
 
@@ -309,10 +310,19 @@ class NetCDFGribReader : GribReader {
         val firstTime = timeVar.read().getDouble(0).toInt()
 
         val timeIndex = duration.toHours().toInt() - firstTime
-        if (timeIndex < 0 || timeIndex > timeVar.shape.max() - 1) throw GribIndexError("Time variable out of bounds")
-        if (timeIndex + 24 > timeVar.shape.max() - 1) throw GribIndexError("Time variable out of bounds")
+        val timeSize = timeVar.shape.max() - 1
 
-        return timeIndex
+        if (timeIndex + 23 < 0) throw GribIndexError("Time variable out of bounds")
+        if (timeIndex < 0) {
+            val start = reftime.plusHours(timeVar.read().getDouble(0).toInt().toLong()).toLocalTime()
+            return Triple(0, start, minOf(timeSize, 23))
+        }
+
+        if (timeIndex > timeVar.shape.max() - 1) throw GribIndexError("Time variable out of bounds")
+        if (timeIndex + 23 > timeSize) {
+            return Triple(timeIndex, time.toLocalTime(), timeSize - timeIndex)
+        }
+        return Triple(timeIndex, time.toLocalTime(), 24)
     }
 
     fun fetchTimeSlice(
@@ -320,6 +330,7 @@ class NetCDFGribReader : GribReader {
         latIndex: Int,
         lonIndex: Int,
         timeIndex: Int,
+        size: Int,
     ): List<Double> {
         val rank = variable.rank
         val origin = IntArray(rank)
@@ -331,9 +342,9 @@ class NetCDFGribReader : GribReader {
         origin[timeDim] = timeIndex
 
         val shape = IntArray(rank) { 1 }
-        shape[timeDim] = 24
+        shape[timeDim] = size
 
-        val res = List(24) { variable.read(origin, shape).getDouble(it) }
+        val res = List(size) { variable.read(origin, shape).getDouble(it) }
         res.mapIndexed { index, it ->
             if (it.isNaN()) {
                 var i = 1
@@ -349,14 +360,14 @@ class NetCDFGribReader : GribReader {
         return res
     }
 
-    override fun getTimeSlice(
+    override fun getDayData(
         lat: Double,
         lon: Double,
         date: LocalDate,
         var1Name: String,
         var2Name: String,
         filePath: String,
-    ): List<Pair<Double, Double>> {
+    ): Map<LocalTime, Pair<Double, Double>> {
         val file = NetcdfDataset.openFile(filePath, null)
 
         val variable1 = getVariable(file, var1Name)
@@ -364,11 +375,16 @@ class NetCDFGribReader : GribReader {
 
         if (variable1.group.fullName == variable2.group.fullName) {
             val (latIndex, lonIndex) = findLatLon(variable1, lat, lon)
-            val timeIndex = findTimeFromDay(variable1, date)
-            val val1 = fetchTimeSlice(variable1, latIndex, lonIndex, timeIndex)
-            val val2 = fetchTimeSlice(variable2, latIndex, lonIndex, timeIndex)
+            val (timeIndex, firstTime, size) = findTimeFromDay(variable1, date)
+            val val1 = fetchTimeSlice(variable1, latIndex, lonIndex, timeIndex, size)
+            val val2 = fetchTimeSlice(variable2, latIndex, lonIndex, timeIndex, size)
             file.close()
-            return val1 zip val2
+            val data = val1 zip val2
+            val timeList =
+                generateSequence(firstTime) { it.plusHours(1) }
+                    .take(size)
+                    .toList()
+            return (timeList zip data).toMap()
         } else {
             throw NotImplementedError("Cannot fetch timeslice of unrelated variables")
         }

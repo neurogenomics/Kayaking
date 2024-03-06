@@ -5,6 +5,7 @@ import com.kayak_backend.models.TideGrid
 import com.kayak_backend.models.TideInfo
 import java.time.LocalDate
 import java.time.LocalDateTime
+import java.time.LocalTime
 
 interface TideService {
     fun getTide(
@@ -22,5 +23,5 @@ interface TideService {
     fun getTideAllDay(
         loc: Location,
         date: LocalDate,
-    ): List<TideInfo>
+    ): Map<LocalTime, TideInfo>
 }
