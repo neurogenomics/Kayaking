@@ -19,6 +19,7 @@ const styles = StyleSheet.create({
     width: 56, // Set a fixed width for the FAB
     justifyContent: 'center',
     alignItems: 'center',
+    alignSelf: 'center', // Align the FAB in the center horizontally
     height: 56, // Set a fixed height for the FAB
   },
 });
@@ -28,13 +29,7 @@ type SearchFabProps = {
 };
 
 const SearchFab: React.FC<SearchFabProps> = ({ onSearch }: SearchFabProps) => {
-  return (
-    <FAB
-      style={styles.fab}
-      icon={() => <FontAwesomeIcon icon={faMagnifyingGlass} />}
-      onPress={onSearch}
-    />
-  );
+  return <FAB style={styles.fab} icon={'magnify'} onPress={onSearch} />;
 };
 
 export default SearchFab;

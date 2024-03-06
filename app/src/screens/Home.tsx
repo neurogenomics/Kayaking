@@ -24,7 +24,7 @@ import { useNavigation } from '@react-navigation/native';
 import { DataDisplay } from '../components/DataDisplay';
 import { getWeatherDates } from '../services/timeService';
 import SearchFab from '../components/SeatchFab';
-import { getRoute } from '../services/routeService';
+import { getCircularRoute, getRoute } from '../services/routeService';
 
 const styles = StyleSheet.create({
   container: {
@@ -37,6 +37,7 @@ const styles = StyleSheet.create({
   },
   searchFabContainer: {
     flex: 1,
+    pointerEvents: 'box-none',
   },
 });
 
