@@ -6,7 +6,7 @@ import org.locationtech.jts.geom.Polygon
 class NamedLocation(val location: Location, val name: String)
 
 class RoutePlanner(
-    baseRoutePolygon: Polygon,
+    private val baseRoutePolygon: Polygon,
     inStartPositions: List<NamedLocation>,
     maxStartDistance: Int = 1000,
 ) {
@@ -71,6 +71,10 @@ class RoutePlanner(
         }
         sections.add(0, Leg.create(currentLegLocations))
         return sections
+    }
+
+    fun getBaseRoute(): Polygon {
+        return baseRoutePolygon
     }
 
     // Iterate along the sections starting at section currentIndex
