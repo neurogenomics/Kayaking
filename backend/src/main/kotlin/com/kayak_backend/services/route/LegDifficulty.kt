@@ -62,8 +62,8 @@ class LegDifficulty(
             }
             is Leg.MultipleLegs -> {
                 val difficulty =
-                    leg.legs.fold(0 to index) { (currentMax, currentIndex), leg ->
-                        val (difficulty, newIndex) = getLegDifficulty(leg, dateTime, checkpoints, currentIndex)
+                    leg.legs.fold(0 to index) { (currentMax, currentIndex), aLeg ->
+                        val (difficulty, newIndex) = getLegDifficulty(aLeg, dateTime, checkpoints, currentIndex)
                         maxOf(currentMax, difficulty) to newIndex
                     }
                 difficulty
