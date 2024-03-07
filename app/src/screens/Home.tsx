@@ -4,7 +4,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { SafeAreaView, StyleSheet, View } from 'react-native';
 import MapView, { Region } from 'react-native-maps';
 import { isleOfWight } from '../../constants';
-import BottomSheet from '@gorhom/bottom-sheet';
+import BottomSheet, { BottomSheetScrollView } from '@gorhom/bottom-sheet';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 import Routes from '../components/RoutesTab/Routes';
@@ -174,7 +174,11 @@ const HomeScreen: React.FC<HomeProps> = () => {
       >
         <Tab.Navigator>
           <Tab.Screen name="Filter">
-            {() => <Filters setUserInput={setUserInput} />}
+            {() => (
+              <BottomSheetScrollView>
+                <Filters setUserInput={setUserInput} />
+              </BottomSheetScrollView>
+            )}
           </Tab.Screen>
           <Tab.Screen name="Routes">
             {() => (
