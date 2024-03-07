@@ -26,8 +26,6 @@ import { DataDisplay } from '../components/DataDisplay';
 import { getWeatherDates } from '../services/timeService';
 import Routes from '../components/RoutesTab/Routes';
 
-import RouteInformation from '../components/RouteInformation';
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,

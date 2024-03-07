@@ -23,9 +23,22 @@ sealed class Leg {
         }
     }
 
+    abstract fun reverse(): Leg
+
+    fun midpoint(): Location {
+        return Location(
+            (start.latitude + end.latitude) / 2,
+            (start.longitude + end.longitude) / 2,
+        )
+    }
+
     data class SingleLeg(override val start: Location, override val end: Location) : Leg() {
         override val length: Double by lazy { start distanceTo end }
         override val locations by lazy { listOf(start, end) }
+
+        override fun reverse(): Leg {
+            return SingleLeg(start = end, end = start)
+        }
     }
 
     data class MultipleLegs(val legs: List<Leg>) : Leg() {
@@ -42,6 +55,10 @@ sealed class Leg {
                     leg.locations.dropLast(1)
                 }
             }
+        }
+
+        override fun reverse(): Leg {
+            return MultipleLegs(legs.reversed().map(Leg::reverse))
         }
     }
 }

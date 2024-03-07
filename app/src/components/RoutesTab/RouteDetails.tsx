@@ -1,14 +1,5 @@
 import React from 'react';
-
-import RouteInformation from '../RouteInformation';
-
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  StyleSheet,
-  ScrollView,
-} from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { getMapDisplayRegion, getRouteSpeeds } from '../../models/routeModel';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { faArrowLeft } from '@fortawesome/free-solid-svg-icons';
@@ -18,6 +9,7 @@ import MapView, { Polyline } from 'react-native-maps';
 import interpolate from 'color-interpolate';
 import { LinearGradient } from 'expo-linear-gradient';
 import { speedMapColours } from '../../colors';
+import RouteInformation from '../RouteInformation';
 
 const styles = StyleSheet.create({
   container: {
@@ -91,7 +83,6 @@ const RouteDetails: React.FC<RouteDetailsProps> = ({
 
   const colourmap = interpolate(speedMapColours);
   const colours = normalisedSpeeds.map((speed) => colourmap(speed));
-
   return (
     <View style={styles.container}>
       <View style={styles.titleContainer}>
@@ -100,10 +91,6 @@ const RouteDetails: React.FC<RouteDetailsProps> = ({
         </TouchableOpacity>
         <Text style={styles.routeName}>{mapRoute.name}</Text>
       </View>
-      <ScrollView>
-        <RouteInformation route={mapRoute}></RouteInformation>
-        <Text>{mapRoute.checkpoints}</Text>
-      </ScrollView>
       <View style={styles.divider} />
       <View style={styles.gradientContainer}>
         <Text style={styles.text}>Slow</Text>
@@ -117,12 +104,21 @@ const RouteDetails: React.FC<RouteDetailsProps> = ({
       </View>
       <View style={styles.mapContainer}>
         <MapView style={styles.map} region={region} provider="google">
-          <Polyline
-            coordinates={mapRoute.locations}
-            strokeColors={colours}
-            strokeWidth={3}
-          ></Polyline>
+          {colours.map((colour, index) => {
+            return (
+              <Polyline
+                key={index}
+                coordinates={[
+                  mapRoute.locations[index],
+                  mapRoute.locations[index + 1],
+                ]}
+                strokeColor={colour}
+                strokeWidth={3}
+              ></Polyline>
+            );
+          })}
         </MapView>
+        <RouteInformation route={mapRoute}></RouteInformation>
       </View>
     </View>
   );
