@@ -1,5 +1,5 @@
 import { ActivityIndicator, FAB } from 'react-native-paper';
-import React, { useState } from 'react';
+import React from 'react';
 import { StyleSheet } from 'react-native';
 
 const styles = StyleSheet.create({

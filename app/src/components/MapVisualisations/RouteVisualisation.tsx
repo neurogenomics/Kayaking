@@ -65,7 +65,7 @@ export const RouteVisualisation: React.FC<RouteVisualisationProps> = ({
             routeVisualisationColors[index % routeVisualisationColors.length]
           }
           tappable={true}
-          strokeWidth={2}
+          strokeWidth={selectedRouteIndex === index ? 4 : 2}
           onPress={() => setSelectedRouteIndex(index)}
         />
       ))}

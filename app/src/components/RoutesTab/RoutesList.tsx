@@ -1,16 +1,10 @@
-import {
-  FlatList,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from 'react-native';
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { RouteModel, getMapDisplayRegion } from '../../models/routeModel';
-import React, { useCallback } from 'react';
+import React from 'react';
 import { RouteListNavigationProp } from './Routes';
 import MapView, { Polyline } from 'react-native-maps';
 import { Icon } from 'react-native-paper';
-import { routeColors, routeVisualisationColors } from '../../colors';
+import { routeVisualisationColors } from '../../colors';
 
 const styles = StyleSheet.create({
   container: {

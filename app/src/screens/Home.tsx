@@ -16,7 +16,7 @@ import Animated, {
 import WeatherFabs from '../components/WeatherFabs';
 import { GridType } from '../models/gridModel';
 import DateCarousel from '../components/DateCarousel/DateCarousel';
-import { RouteType, UserInput, getDuration } from '../models/userInputModel';
+import { UserInput } from '../models/userInputModel';
 import { WeatherVisualisation } from '../components/MapVisualisations/WeatherVisualisation';
 import { RouteVisualisation } from '../components/MapVisualisations/RouteVisualisation';
 import { RouteModel } from '../models/routeModel';
@@ -24,7 +24,7 @@ import { useNavigation } from '@react-navigation/native';
 import { DataDisplay } from '../components/DataDisplay';
 import { getWeatherDates } from '../services/timeService';
 import SearchFab from '../components/SearchFab';
-import { getCircularRoute, getRoute } from '../services/routeService';
+import { getRoute } from '../services/routeService';
 
 const styles = StyleSheet.create({
   container: {

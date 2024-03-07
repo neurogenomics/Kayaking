@@ -7,7 +7,6 @@ import {
 import RouteDetails from './RouteDetails';
 import RoutesList from './RoutesList';
 import { BottomSheetScrollView } from '@gorhom/bottom-sheet';
-import { View, Text } from 'react-native';
 
 export type RoutesParamList = {
   RouteList: undefined;
