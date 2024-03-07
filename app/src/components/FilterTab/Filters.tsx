@@ -23,7 +23,9 @@ export const Filters: React.FC<FiltersProps> = ({
 }: FiltersProps) => {
   const [startTime, setStartTime] = useState<Date>(new Date());
 
-  const [duration, setDuration] = useState<Date>(new Date(0, 0, 0, 2, 0, 0, 0));
+  const [durationAsDate, setDurationAsDate] = useState<Date>(
+    new Date(0, 0, 0, 2, 0, 0, 0),
+  );
   const [paddleSpeed, setPaddleSpeed] = useState<PaddleSpeed>(
     PaddleSpeed.Normal,
   );
@@ -40,12 +42,12 @@ export const Filters: React.FC<FiltersProps> = ({
     setUserInput((prevUserInput) => ({
       ...prevUserInput,
       startTime: startTime,
-      duration: duration.getMinutes() + duration.getHours() * 60,
+      duration: durationAsDate.getMinutes() + durationAsDate.getHours() * 60,
       paddleSpeed: paddleSpeed,
       routeType: routeType,
       routeDifficulty: routeDifficulty,
     }));
-  }, [startTime, duration, paddleSpeed, routeType, routeDifficulty]);
+  }, [startTime, durationAsDate, paddleSpeed, routeType, routeDifficulty]);
 
   return (
     <View style={styles.container}>
@@ -89,7 +91,7 @@ export const Filters: React.FC<FiltersProps> = ({
         <View style={styles.column}>
           <Text style={styles.title}>Duration</Text>
           <DateTimePicker
-            value={duration}
+            value={durationAsDate}
             mode="time"
             display="default"
             onChange={(
@@ -97,7 +99,7 @@ export const Filters: React.FC<FiltersProps> = ({
               selectedStartTime: Date,
             ) => {
               if (_event.type === 'set') {
-                setDuration(selectedStartTime);
+                setDurationAsDate(selectedStartTime);
               }
             }}
           />
