@@ -30,6 +30,8 @@ class LegTimerTest {
             ),
         )
 
+    private val mockTime = LocalDateTime.of(2024, 3, 3, 6, 30, 40, 50000)
+
     @Test
     fun findsDurationForSingleLeg() {
         assertEquals(legTimer.getDuration(Leg.SingleLeg(loc1, loc2), LocalDateTime.now()), 72204)
@@ -51,7 +53,7 @@ class LegTimerTest {
     @Test
     fun findsCheckPointsForASingleLegRoute() {
         val time = LocalDateTime.now()
-        val route = Route(name, 0.0, leg1)
+        val route = Route(name, 0.0, leg1, mockTime)
         val result = legTimer.getCheckpoints(route, time)
         assertEquals(2, result.size)
         assertEquals(result[0], 0)
@@ -61,7 +63,7 @@ class LegTimerTest {
     @Test
     fun findsCheckPointsForAMultipleLegRoute() {
         val time = LocalDateTime.now()
-        val route = Route(name, 0.0, multiLeg1)
+        val route = Route(name, 0.0, multiLeg1, mockTime)
         val result = legTimer.getCheckpoints(route, time)
         assertEquals(4, result.size)
         assertEquals(result[0], 0)
@@ -75,7 +77,7 @@ class LegTimerTest {
         val dist = 72204L
         val expected = listOf(0, dist, dist * 2, dist * 3, dist * 6 + 1, dist * 7 + 1, dist * 8 + 1, dist * 9 + 1)
         val time = LocalDateTime.now()
-        val route = Route(name, 0.0, Leg.MultipleLegs(listOf(multiLeg1, Leg.SingleLeg(loc4, loc1), multiLeg1)))
+        val route = Route(name, 0.0, Leg.MultipleLegs(listOf(multiLeg1, Leg.SingleLeg(loc4, loc1), multiLeg1)), mockTime)
         val result = legTimer.getCheckpoints(route, time)
         assertEquals(8, result.size)
         assertEquals(expected, result)

@@ -22,6 +22,7 @@ import com.kayak_backend.services.waves.WaveService
 import com.kayak_backend.services.wind.GribWindFetcher
 import com.kayak_backend.services.wind.WindService
 import kotlinx.serialization.Serializable
+import org.locationtech.jts.geom.Polygon
 import java.nio.file.Files
 import java.nio.file.Path
 
@@ -165,7 +166,7 @@ fun getLegDifficulty(): LegDifficulty {
     return LegDifficulty()
 }
 
-fun getRoutePlanner(): RoutePlanner {
+fun getRouteSetup(): Pair<Polygon, List<NamedLocation>> {
     val distanceFromCoast = 500.0
     val coast = IsleOfWightCoastline().getCoastline()
     val route = BaseRoute().createBaseRoute(coast, distanceFromCoast)
@@ -179,6 +180,18 @@ fun getRoutePlanner(): RoutePlanner {
             )
         }
     val startPositions = slipways.plus(beachStarts)
+    return route to startPositions
+}
 
-    return RoutePlanner(route, startPositions)
+fun getRoutePlanner(): RoutePlanner {
+    val setup = getRouteSetup()
+    return RoutePlanner(setup.first, setup.second)
+}
+
+fun getCircularRoutePlanner(
+    tideService: TideService,
+    legTimer: LegTimer,
+): CircularRoutePlanner {
+    val setup = getRouteSetup()
+    return CircularRoutePlanner(setup.first, setup.second, legTimer, tideService)
 }
