@@ -17,12 +17,12 @@ class RoutePlannerTest {
     private val location = Location(0.0, 0.0)
     private val startTime = LocalDateTime.now()
     private val duration = 50L
-    private val startPos: List<StartPos> =
+    private val startPos: List<NamedLocation> =
         listOf(
-            StartPos(Location(1.5, -1.5), "Start1"),
-            StartPos(Location(1.0, -1.0), "Start2"),
-            StartPos(Location(-1.5, -1.5), "Start3"),
-            StartPos(Location(-1.0, 1.0), "Start4"),
+            NamedLocation(Location(1.5, -1.5), "Start1"),
+            NamedLocation(Location(1.0, -1.0), "Start2"),
+            NamedLocation(Location(-1.5, -1.5), "Start3"),
+            NamedLocation(Location(-1.0, 1.0), "Start4"),
         )
 
     private val loc1 = Location(-1.5, -1.5)
@@ -37,6 +37,8 @@ class RoutePlannerTest {
     private val leg3 = Leg.SingleLeg(loc3, loc3)
     private val leg4 = Leg.SingleLeg(loc3, loc4)
     private val leg5 = Leg.SingleLeg(loc4, loc1)
+
+    private val mockTime = LocalDateTime.of(2024, 3, 3, 6, 30, 40, 50000)
 
     init {
         val geometryFactory = GeometryFactory()
@@ -64,6 +66,7 @@ class RoutePlannerTest {
             routePlanner.generateRoutes(
                 { location distanceTo it.location < 1000000000.0 },
                 { legTimerMock.getDuration(it, startTime) < duration },
+                mockTime,
             ).take(5).toList()
         )
 
@@ -75,7 +78,7 @@ class RoutePlannerTest {
 
     @Test
     fun routesGeneratedWhenOnlyOneStartPoint() {
-        val start = StartPos(Location(1.0, 1.0), "test")
+        val start = NamedLocation(Location(1.0, 1.0), "test")
         val routePlanner = RoutePlanner(polygon, listOf(start), 100000000)
 
         every { legTimerMock.getDuration(any(), any()) } returns 4L
@@ -84,6 +87,7 @@ class RoutePlannerTest {
             routePlanner.generateRoutes(
                 { location distanceTo it.location < 1000000 },
                 { legTimerMock.getDuration(it, startTime) < duration },
+                mockTime,
             ).take(5).toList()
         )
 
@@ -105,6 +109,7 @@ class RoutePlannerTest {
             routePlanner.generateRoutes(
                 { location distanceTo it.location < 1000000000.0 },
                 { legTimerMock.getDuration(it, startTime) < smallDuration },
+                mockTime,
             ).take(5).toList()
         )
 
@@ -121,6 +126,7 @@ class RoutePlannerTest {
             routePlanner.generateRoutes(
                 { location distanceTo it.location < 10 },
                 { legTimerMock.getDuration(it, startTime) < duration },
+                mockTime,
             ).take(5).toList()
         )
 
@@ -137,6 +143,7 @@ class RoutePlannerTest {
             routePlanner.generateRoutes(
                 { location distanceTo it.location < 1000000000.0 },
                 { legTimerMock.getDuration(it, startTime) < duration },
+                mockTime,
             ).take(5).toList()
         )
 

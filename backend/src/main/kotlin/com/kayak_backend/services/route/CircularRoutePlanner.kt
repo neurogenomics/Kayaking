@@ -8,12 +8,13 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
 import java.time.temporal.ChronoUnit
+import kotlin.math.abs
 import kotlin.math.cos
 import kotlin.math.sin
 
 class CircularRoutePlanner(
     baseRoutePolygon: Polygon,
-    inStartPositions: List<StartPos>,
+    inStartPositions: List<NamedLocation>,
     private val legTimer: LegTimer,
     private val tideService: TideService,
     maxStartDistance: Int = 1000,
@@ -28,7 +29,7 @@ class CircularRoutePlanner(
         val xResistance = cos(Math.toRadians(bearing))
         val yResistance = sin(Math.toRadians(bearing))
 
-        val resistance = tide.u * xResistance + tide.v * yResistance
+        val resistance = -(tide.u * xResistance + tide.v * yResistance)
         return resistance
     }
 
@@ -51,16 +52,19 @@ class CircularRoutePlanner(
         var currentStart = time
         var currentEnd = time
 
-        val step = if ((getResistance(switchLeg, time) ?: return null) >= 0) 1 else -1
+        val step = if ((getResistance(switchLeg, time) ?: return null) >= 0) -1 else 1
         val legs =
             sectionedRoute.stepFrom(switchLeg.end, step).takeWhile {
                 val newStart = currentStart - Duration.ofSeconds(legTimer.getDuration(it.reverse(), currentStart))
                 val newEnd = currentEnd + Duration.ofSeconds(legTimer.getDuration(it, currentEnd))
-                if ((getResistance(it, newStart) ?: return@takeWhile false) > 0) return@takeWhile false
-                if ((getResistance(it, newEnd) ?: return@takeWhile false) < 0) return@takeWhile false
+                val startResistance = getResistance(it, newStart) ?: return@takeWhile false
+                if (startResistance > 0 && abs(startResistance) > 0.1) return@takeWhile false
+
+                val endResistance = getResistance(it, newEnd) ?: return@takeWhile false
+                if (endResistance < 0 && abs(endResistance) > 0.1) return@takeWhile false
                 currentStart = newStart
                 currentEnd = newEnd
-                Duration.between(currentStart, currentEnd) < minDuration
+                Duration.between(currentStart, currentEnd) <= minDuration
             }.toList()
 
         if (Duration.between(currentStart, currentEnd) < minDuration) return null
@@ -72,12 +76,10 @@ class CircularRoutePlanner(
         switchLeg: Leg,
         minDuration: Duration,
     ): List<Pair<Leg, LocalDateTime>> {
-        assert(switchLeg is Leg.SingleLeg)
         val switchResistances =
             resistances.getOrPut(Pair(switchLeg, date)) {
                 tideService.getTideAllDay(switchLeg.midpoint(), date).mapValues { switchLeg.resistance(it.value) }
             }
-        println(switchResistances)
         val switchpoints =
             switchResistances.mapValues {
                 if (it.key.hour == (switchResistances.keys.min().hour)) {
@@ -107,18 +109,21 @@ class CircularRoutePlanner(
     ): Sequence<Triple<Leg, LocalDateTime, String>> {
         return sectionsShuffled.asSequence().map { createRoute(date, it, minDuration) }.flatMap { it }
             .filter { condition(it.first) }.map {
-                Triple(connectToStart(sectionedRoute, it.first).first, it.second, "")
+                val connected = connectToStart(sectionedRoute, it.first)
+                Triple(connected.first, it.second, connected.second)
             }
     }
 
     fun generateRoutes(
-        condition: (Leg) -> Boolean,
-        date: LocalDate,
+        condition: (Leg) -> Boolean = { true },
+        routeCondition: (Route) -> Boolean = { true },
+        date: LocalDate = LocalDate.now(),
         maxGenerated: Int = 10,
-        minTime: Duration,
+        minTime: Duration = Duration.ofHours(4),
     ): Sequence<Route> {
         val generator = routeGenerator(condition, date, minTime)
-        return generator.take(maxGenerated).map { Route(it.third, it.first.length, it.first, it.second) }
+        return generator.map { Route(it.third, it.first.length, it.first, it.second) }.filter(routeCondition)
+            .take(maxGenerated)
             .sortedByDescending { it.length }
     }
 }

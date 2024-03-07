@@ -2,10 +2,11 @@ package com.kayak_backend.services.route
 
 import com.kayak_backend.models.Location
 import org.locationtech.jts.geom.Polygon
+import java.time.LocalDateTime
 
 class RoutePlanner(
-    baseRoutePolygon: Polygon,
-    inStartPositions: List<StartPos>,
+    private val baseRoutePolygon: Polygon,
+    inStartPositions: List<NamedLocation>,
     maxStartDistance: Int = 1000,
 ) {
     // The base route split into sections by the possible start positions
@@ -54,13 +55,14 @@ class RoutePlanner(
 
     // Generates a sequence of routes starting from the filtered start positions and that all abide by condition
     fun generateRoutes(
-        startPositionFilter: (StartPos) -> Boolean,
+        startPositionFilter: (NamedLocation) -> Boolean,
         condition: (Leg) -> Boolean,
+        startTime: LocalDateTime,
         maxGenerated: Int = 300,
     ): Sequence<Route> {
         val validStarts = sectionedRoute.getStarts(startPositionFilter)
         val generator = routeGenerator(condition, validStarts.values.toList())
-        return generator.take(maxGenerated).map { Route(it.second, it.first.length, it.first) }
+        return generator.take(maxGenerated).map { Route(it.second, it.first.length, it.first, startTime) }
             .sortedByDescending { it.length }
     }
 }

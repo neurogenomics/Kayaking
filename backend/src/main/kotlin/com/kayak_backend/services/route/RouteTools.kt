@@ -2,7 +2,7 @@ package com.kayak_backend.services.route
 
 import com.kayak_backend.models.Location
 
-class StartPos(val location: Location, val name: String)
+class NamedLocation(val location: Location, val name: String)
 
 fun splitRouteIntoSections(
     route: List<Location>,
@@ -20,10 +20,12 @@ fun splitRouteIntoSections(
     }
 
     // Connect first and last section
-    if (sections.isNotEmpty()) {
-        currentLegLocations.addAll(sections.removeFirst().locations)
+    if (route.first() !in startPosOnRoute) {
+        if (sections.isNotEmpty()) {
+            currentLegLocations.addAll(sections.removeFirst().locations)
+        }
+        sections.add(0, Leg.create(currentLegLocations))
     }
-    sections.add(0, Leg.create(currentLegLocations))
     return sections
 }
 

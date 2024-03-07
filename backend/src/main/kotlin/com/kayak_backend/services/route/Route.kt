@@ -15,15 +15,18 @@ open class Route(
     val length: Double,
     val locations: Leg,
     @Serializable(with = LocalDateTimeSerializer::class)
-    val startTime: LocalDateTime? = null,
+    val startTime: LocalDateTime,
 )
 
 @Serializable
-data class TimedRoute(
+data class TimedRankedRoute(
     val name: String,
     val length: Double,
     val locations: Leg,
     val checkpoints: List<Long>,
+    @Serializable(with = LocalDateTimeSerializer::class)
+    val startTime: LocalDateTime,
+    val difficulty: Int,
 )
 
 class BaseRoute {
@@ -59,17 +62,17 @@ class BaseRoute {
 
 class SectionedRoute(
     baseRoutePolygon: Polygon,
-    inStartPositions: List<StartPos>,
+    inStartPositions: List<NamedLocation>,
     maxStartDistance: Int = 1000,
 ) {
     // The base route split into sections by the possible start positions
     val sections: List<Leg>
 
     // Maps the closest point on the base route to a start position(s)
-    private val routeToStarts: Map<Location, MutableList<StartPos>>
+    private val routeToStarts: Map<Location, MutableList<NamedLocation>>
 
     // Maps the closest point on the base route to a start position(s)
-    private val startToRoute: Map<StartPos, Location>
+    private val startToRoute: Map<NamedLocation, Location>
 
     private val routeToNextSectionIndex: Map<Location, Int>
     private val routeToPrevSectionIndex: Map<Location, Int>
@@ -78,15 +81,15 @@ class SectionedRoute(
         // Construct startPositions and routeToStart
         val baseRoute = baseRoutePolygon.coordinates.map { Location(it.x, it.y) }
 
-        val mutableStartToRoute = mutableMapOf<StartPos, Location>()
-        val mutableRouteToStarts = mutableMapOf<Location, MutableList<StartPos>>()
+        val mutableStartToRoute = mutableMapOf<NamedLocation, Location>()
+        val mutableRouteToStarts = mutableMapOf<Location, MutableList<NamedLocation>>()
 
         // Find valid startPositions along the route and connect them to the startPositions
-        for (startPos in inStartPositions) {
-            val closestPoint = baseRoute.minWith(compareBy { it distanceTo startPos.location })
-            if (closestPoint distanceTo startPos.location < maxStartDistance) {
-                mutableRouteToStarts.getOrPut(closestPoint) { mutableListOf() }.add(startPos)
-                mutableStartToRoute[startPos] = closestPoint
+        for (NamedLocation in inStartPositions) {
+            val closestPoint = baseRoute.minWith(compareBy { it distanceTo NamedLocation.location })
+            if (closestPoint distanceTo NamedLocation.location < maxStartDistance) {
+                mutableRouteToStarts.getOrPut(closestPoint) { mutableListOf() }.add(NamedLocation)
+                mutableStartToRoute[NamedLocation] = closestPoint
             }
         }
         startToRoute = mutableStartToRoute
@@ -103,7 +106,7 @@ class SectionedRoute(
         routeToPrevSectionIndex = mutableRouteToPrevSectionIndex
     }
 
-    fun getStartPos(location: Location): StartPos {
+    fun getStartPos(location: Location): NamedLocation {
         return routeToStarts[location]!![0]
     }
 
@@ -132,7 +135,7 @@ class SectionedRoute(
         }.filterNotNull()
     }
 
-    fun getStarts(filter: (StartPos) -> Boolean = { true }): Map<StartPos, Location> {
+    fun getStarts(filter: (NamedLocation) -> Boolean = { true }): Map<NamedLocation, Location> {
         return startToRoute.filter { filter(it.key) }
     }
 }
