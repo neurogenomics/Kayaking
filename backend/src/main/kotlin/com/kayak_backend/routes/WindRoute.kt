@@ -1,5 +1,4 @@
 package com.kayak_backend.routes
-
 import com.kayak_backend.gribReader.GribFileError
 import com.kayak_backend.gribReader.GribIndexError
 import com.kayak_backend.models.Location
@@ -11,6 +10,7 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.util.*
 import kotlinx.datetime.toJavaLocalDateTime
+import org.json.JSONArray
 import java.time.LocalDateTime
 import kotlin.math.max
 import kotlin.math.min
@@ -49,8 +49,16 @@ fun Route.wind(wind: WindService) {
 
     route("/winds") {
         get {
-            val locs = call.parameters.getOrFail<List<List<Double>>>("locs")
-            val checkpoints = call.parameters.getOrFail<List<Int>>("checkpoints")
+            //val locs = emptyArray<List<Double>>() //call.parameters.getOrFail<List<List<Double>>>("locs")
+            //val checkpoints = emptyArray<Int>().toList()
+            //(JSONArray((call.parameters["checkpoints"])) )
+
+            val locsArray = JSONArray(call.parameters.getOrFail<String>("locs"))
+            val checkpointArray = JSONArray(call.parameters.getOrFail<String>("checkpoints"))
+
+            val locs = Array(locsArray.length()) { val json = JSONArray(locsArray.getJSONArray(it)); Array(json.length()) { json.getDouble(it) }}.toList()
+            val checkpoints = Array(checkpointArray.length()) { checkpointArray.getInt(it) }.toList()
+
             val start = getDateParameter(call.parameters, "start")
             val locations = locs.map { (lat, long) ->
                 Location(lat, long)

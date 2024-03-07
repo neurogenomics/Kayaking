@@ -30,14 +30,19 @@ export const RouteInformation: React.FC<RouteInformationProps> = ({
   const times: string[] = [];
   const currentDate = new Date(route.startTime);
 
-  const [windsInfo, setWindsInfo] = useState<number[]>([]);
+  const [windsInfo, setWindsInfo] = useState<number[]>([0]);
 
-  /* useEffect(() => {
+  useEffect(() => {
+    console.log('getting iend');
     void getWindsDirection(
       route.locations,
       route.checkpoints,
       route.startTime,
     ).then((winds) => {
+      console.log('locations');
+      console.log(route.locations);
+      console.log('checkpoiints');
+      console.log(route.checkpoints);
       const speedVectors: Vector[] = [];
       for (let i = 0; i < route.locations.length - 1; i++) {
         const loc1 = route.locations[i];
@@ -62,10 +67,13 @@ export const RouteInformation: React.FC<RouteInformationProps> = ({
         const dotProd = vel.u * vel.u + winds[index].v * winds[index].v;
         return dotProd / velMagnitude;
       });
-
-      setWindsInfo(windScalar);
+      console.log('getting winds at routeInformation component');
+      console.log(windScalar);
+      if (windScalar.length !== 0) {
+        setWindsInfo(windScalar);
+      }
     });
-  }, []); */
+  }, []);
 
   while (currentDate <= route.endTime) {
     const hours = currentDate.getHours().toString().padStart(2, '0');
@@ -77,7 +85,7 @@ export const RouteInformation: React.FC<RouteInformationProps> = ({
   const center = 250 / 2;
 
   return (
-    <ScrollView>
+    <View>
       <Text style={styles.label}>Estimated Speed</Text>
       <Text> {times.join(', ')} </Text>
       <LineChart
@@ -186,7 +194,7 @@ export const RouteInformation: React.FC<RouteInformationProps> = ({
           )}
         </Indicator>
       </Speedometer>
-    </ScrollView>
+    </View>
   );
 };
 export default RouteInformation;

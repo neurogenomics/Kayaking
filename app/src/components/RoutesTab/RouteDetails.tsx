@@ -1,5 +1,11 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  StyleSheet,
+  ScrollView,
+} from 'react-native';
 import { getDistance, RouteModel } from '../../models/routeModel';
 import { RouteListNavigationProp } from './Routes';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
@@ -62,9 +68,13 @@ const RouteDetails: React.FC<RouteDetailsProps> = ({
         <Text
           style={styles.distance}
         >{`Distance covered: ${getDistance(routes[selectedRouteIndex])}km`}</Text>
+        <ScrollView>
+          <RouteInformation
+            route={routes[selectedRouteIndex]}
+          ></RouteInformation>
+          <Text>{routes[selectedRouteIndex].checkpoints}</Text>
+        </ScrollView>
       </View>
-
-      {/* <RouteInformation route={routes[selectedRouteIndex]}></RouteInformation> */}
     </View>
   );
 };
