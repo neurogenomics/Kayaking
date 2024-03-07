@@ -8,7 +8,7 @@ import com.kayak_backend.gribReader.NetCDFGribReader
 import com.kayak_backend.interpolator.SimpleInterpolator
 import com.kayak_backend.services.coastline.IsleOfWightCoastline
 import com.kayak_backend.services.route.*
-import com.kayak_backend.services.route.kayak.WeatherKayak
+import com.kayak_backend.services.route.kayak.BasicKayak
 import com.kayak_backend.services.slipways.BeachesService
 import com.kayak_backend.services.slipways.SlipwayService
 import com.kayak_backend.services.tideTimes.AdmiraltyTideTimeService
@@ -156,9 +156,13 @@ fun getTimeService(conf: Conf): TimeService {
     }
 }
 
-// Once we have the weather kayak, may want to use conf to determine which kayak
+// TODO Once we have the weather kayak, may want to use conf to determine which kayak
 fun getLegTimer(): LegTimer {
-    return LegTimer(WeatherKayak(kayakerSpeed = 1.54))
+    return LegTimer(BasicKayak())
+}
+
+fun getLegDifficulty(): LegDifficulty {
+    return LegDifficulty()
 }
 
 fun getRoutePlanner(): RoutePlanner {
@@ -167,15 +171,14 @@ fun getRoutePlanner(): RoutePlanner {
     val route = BaseRoute().createBaseRoute(coast, distanceFromCoast)
     val slipways = SlipwayService().getAllSlipways()
     val beaches = BeachesService().getAllBeaches()
-    val slipwayStarts = slipways.mapIndexed { index, location -> StartPos(location, "Slipway $index") }
     val beachStarts =
         beaches.map { beachInfo ->
-            StartPos(
+            NamedLocation(
                 beachInfo.avergeLocation,
                 beachInfo.name ?: "Unnamed beach",
             )
         }
-    val startPositions = slipwayStarts.plus(beachStarts)
+    val startPositions = slipways.plus(beachStarts)
 
     return RoutePlanner(route, startPositions)
 }
@@ -189,15 +192,14 @@ fun getCircularRoutePlanner(
     val route = BaseRoute().createBaseRoute(coast, distanceFromCoast)
     val slipways = SlipwayService().getAllSlipways()
     val beaches = BeachesService().getAllBeaches()
-    val slipwayStarts = slipways.mapIndexed { index, location -> StartPos(location, "Slipway $index") }
     val beachStarts =
         beaches.map { beachInfo ->
-            StartPos(
+            NamedLocation(
                 beachInfo.avergeLocation,
                 beachInfo.name ?: "Unnamed beach",
             )
         }
-    val startPositions = slipwayStarts.plus(beachStarts)
+    val startPositions = slipways.plus(beachStarts)
 
     return CircularRoutePlanner(route, startPositions, legTimer, tideService)
 }

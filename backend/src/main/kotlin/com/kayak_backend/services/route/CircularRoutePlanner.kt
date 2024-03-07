@@ -14,7 +14,7 @@ import kotlin.math.sin
 
 class CircularRoutePlanner(
     baseRoutePolygon: Polygon,
-    inStartPositions: List<StartPos>,
+    inStartPositions: List<NamedLocation>,
     private val legTimer: LegTimer,
     private val tideService: TideService,
     maxStartDistance: Int = 1000,

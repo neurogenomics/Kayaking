@@ -7,6 +7,7 @@ import { isleOfWight } from '../../constants';
 import BottomSheet from '@gorhom/bottom-sheet';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
+import Routes from '../components/RoutesTab/Routes';
 import Filters from '../components/FilterTab/Filters';
 import Animated, {
   useAnimatedStyle,
@@ -24,7 +25,6 @@ import RouteFetcher from '../services/routeFetcher';
 import { LocationModel } from '../models/locationModel';
 import { DataDisplay } from '../components/DataDisplay';
 import { getWeatherDates } from '../services/timeService';
-import Routes from '../components/RoutesTab/Routes';
 
 const styles = StyleSheet.create({
   container: {
@@ -169,7 +169,7 @@ const HomeScreen: React.FC<HomeProps> = () => {
           <Tab.Screen name="Routes">
             {() => (
               <Routes
-                routes={routes ?? []}
+                routes={routes}
                 selectedRouteIndex={selectedRouteIndex}
                 setSelectedRouteIndex={setSelectedRouteIndex}
                 navigation={useNavigation()}

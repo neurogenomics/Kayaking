@@ -11,13 +11,12 @@ fun Application.configureRouting(conf: Conf) {
     routing {
         testRouting()
         sunset()
-        slipway()
         beaches()
         tideTimes(getTideTimeService(conf, System.getenv()))
         tide(getTideService(conf))
         wind(getWindService(conf))
         times(getTimeService(conf))
         wave(getWaveService(conf))
-        planRoute(getRoutePlanner(), getCircularRoutePlanner(tideService, legTimer), legTimer)
+        planRoute(getRoutePlanner(), getCircularRoutePlanner(tideService, legTimer), legTimer, getLegDifficulty())
     }
 }

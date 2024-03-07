@@ -4,8 +4,8 @@ import com.kayak_backend.models.Location
 import org.locationtech.jts.geom.Polygon
 
 class RoutePlanner(
-    baseRoutePolygon: Polygon,
-    inStartPositions: List<StartPos>,
+    private val baseRoutePolygon: Polygon,
+    inStartPositions: List<NamedLocation>,
     maxStartDistance: Int = 1000,
 ) {
     // The base route split into sections by the possible start positions
@@ -54,7 +54,7 @@ class RoutePlanner(
 
     // Generates a sequence of routes starting from the filtered start positions and that all abide by condition
     fun generateRoutes(
-        startPositionFilter: (StartPos) -> Boolean,
+        startPositionFilter: (NamedLocation) -> Boolean,
         condition: (Leg) -> Boolean,
         maxGenerated: Int = 300,
     ): Sequence<Route> {

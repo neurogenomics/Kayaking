@@ -23,12 +23,12 @@ class CircularRouteTest {
     private val location = Location(0.0, 0.0)
     private val startTime = LocalDateTime.now()
     private val duration = 50L
-    private val startPos: List<StartPos> =
+    private val startPos: List<NamedLocation> =
         listOf(
-            StartPos(Location(1.5, -1.5), "Start1"),
-            StartPos(Location(1.5, 1.5), "Start2"),
-            StartPos(Location(-1.5, -1.5), "Start3"),
-            StartPos(Location(-1.5, 1.5), "Start4"),
+            NamedLocation(Location(1.5, -1.5), "Start1"),
+            NamedLocation(Location(1.5, 1.5), "Start2"),
+            NamedLocation(Location(-1.5, -1.5), "Start3"),
+            NamedLocation(Location(-1.5, 1.5), "Start4"),
         )
 
     private val loc1 = Location(-1.5, -1.5)
@@ -133,6 +133,7 @@ class CircularRouteTest {
         )
         assert(result.isNotEmpty())
         for (route in result) {
+            println(route.locations.locations)
             assertEquals(7, route.locations.locations.size)
         }
     }
