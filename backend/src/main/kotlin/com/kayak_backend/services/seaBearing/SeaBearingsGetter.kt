@@ -11,7 +11,7 @@ import kotlin.math.sin
 class SeaBearingsGetter(
     private val coastlineService: CoastlineService,
     private val route: BaseRoute,
-    private val routeBuffer: Double = 500.0,
+    private val routeBuffer: Double,
 ) {
     /*
      * Returns list of bearings between each pair of coordinates in the coastline
