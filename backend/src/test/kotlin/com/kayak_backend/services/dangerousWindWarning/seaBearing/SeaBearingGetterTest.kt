@@ -52,7 +52,7 @@ class SeaBearingGetterTest {
     @Test
     fun oneCoordinateCoastlineReturnsEmptyBearings() {
         val mockOut = arrayOf(Coordinate(1.0, 1.0))
-        every { routeMock.createBaseRoute(coastlineMock.getCoastline(), 0.0).coordinates } returns mockOut
+        every { routeMock.createBaseRoute(coastlineMock.getCoastline(), routeBuffer).coordinates } returns mockOut
 
         val result = seaBearingsGetter.getSeaBearings()
 
@@ -68,7 +68,7 @@ class SeaBearingGetterTest {
         val mockOut =
             arrayOf(c1, c1, c2, c1)
 
-        every { routeMock.createBaseRoute(coastlineMock.getCoastline(), 0.0).coordinates } returns mockOut
+        every { routeMock.createBaseRoute(coastlineMock.getCoastline(), routeBuffer).coordinates } returns mockOut
 
         val result = seaBearingsGetter.getSeaBearings()
 
