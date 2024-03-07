@@ -8,7 +8,7 @@ import com.kayak_backend.gribReader.NetCDFGribReader
 import com.kayak_backend.interpolator.SimpleInterpolator
 import com.kayak_backend.services.coastline.IsleOfWightCoastline
 import com.kayak_backend.services.route.*
-import com.kayak_backend.services.route.kayak.BasicKayak
+import com.kayak_backend.services.route.kayak.WeatherKayak
 import com.kayak_backend.services.slipways.BeachesService
 import com.kayak_backend.services.slipways.SlipwayService
 import com.kayak_backend.services.tideTimes.AdmiraltyTideTimeService
@@ -158,7 +158,7 @@ fun getTimeService(conf: Conf): TimeService {
 
 // Once we have the weather kayak, may want to use conf to determine which kayak
 fun getLegTimer(): LegTimer {
-    return LegTimer(BasicKayak())
+    return LegTimer(WeatherKayak(kayakerSpeed = 1.54))
 }
 
 fun getRoutePlanner(): RoutePlanner {

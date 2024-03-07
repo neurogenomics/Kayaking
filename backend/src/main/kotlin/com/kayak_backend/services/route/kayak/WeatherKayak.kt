@@ -50,6 +50,10 @@ class WeatherKayak(
             resultSpeed = findThirdSideOfTriangle(kayakerSpeed, weatherMag, angle)
         }
 
+        if (resultSpeed.isNaN()) {
+            return kayakerSpeed
+        }
+
         return resultSpeed
     }
 
@@ -65,7 +69,7 @@ class WeatherKayak(
 
     companion object {
         // factors that wind and tide speed impact kayaker speed
-        private const val WIND_MULT = 0.2
-        private const val TIDE_MULT = 0.5
+        private const val WIND_MULT = 0.02
+        private const val TIDE_MULT = 0.05
     }
 }
