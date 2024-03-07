@@ -156,9 +156,13 @@ fun getTimeService(conf: Conf): TimeService {
     }
 }
 
-// Once we have the weather kayak, may want to use conf to determine which kayak
+// TODO Once we have the weather kayak, may want to use conf to determine which kayak
 fun getLegTimer(): LegTimer {
     return LegTimer(BasicKayak())
+}
+
+fun getLegDifficulty(): LegDifficulty {
+    return LegDifficulty()
 }
 
 fun getRoutePlanner(): RoutePlanner {

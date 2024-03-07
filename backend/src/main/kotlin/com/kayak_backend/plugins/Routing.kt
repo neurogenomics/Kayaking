@@ -15,6 +15,6 @@ fun Application.configureRouting(conf: Conf) {
         wind(getWindService(conf))
         times(getTimeService(conf))
         wave(getWaveService(conf))
-        planRoute(getRoutePlanner(), getLegTimer())
+        planRoute(getRoutePlanner(), getLegTimer(), getLegDifficulty())
     }
 }
