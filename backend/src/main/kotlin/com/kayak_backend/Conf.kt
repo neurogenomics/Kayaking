@@ -9,7 +9,7 @@ import com.kayak_backend.interpolator.SimpleInterpolator
 import com.kayak_backend.services.coastline.IsleOfWightCoastline
 import com.kayak_backend.services.dangerousWindWarning.seaBearing.SeaBearingService
 import com.kayak_backend.services.route.*
-import com.kayak_backend.services.route.kayak.BasicKayak
+import com.kayak_backend.services.route.kayak.WeatherKayak
 import com.kayak_backend.services.slipways.BeachesService
 import com.kayak_backend.services.slipways.SlipwayService
 import com.kayak_backend.services.tideTimes.AdmiraltyTideTimeService
@@ -23,6 +23,7 @@ import com.kayak_backend.services.waves.WaveService
 import com.kayak_backend.services.wind.GribWindFetcher
 import com.kayak_backend.services.wind.WindService
 import kotlinx.serialization.Serializable
+import org.locationtech.jts.geom.Polygon
 import java.nio.file.Files
 import java.nio.file.Path
 
@@ -159,7 +160,7 @@ fun getTimeService(conf: Conf): TimeService {
 
 // TODO decide here between basic and weather kayak
 fun getLegTimer(): LegTimer {
-    return LegTimer(BasicKayak())
+    return LegTimer(WeatherKayak(kayakerSpeed = 1.54))
 }
 
 // separate to be consistent between the RoutePlanner and the SeaBearingService
@@ -170,20 +171,35 @@ fun getSeaBearingService(): SeaBearingService {
     return SeaBearingService(coastlineService, DISTANCE_FROM_COAST)
 }
 
-fun getRoutePlanner(): RoutePlanner {
+fun getLegDifficulty(): LegDifficulty {
+    return LegDifficulty()
+}
+
+fun getRouteSetup(): Pair<Polygon, List<NamedLocation>> {
     val coast = coastlineService.getCoastline()
     val route = BaseRoute().createBaseRoute(coast, DISTANCE_FROM_COAST)
     val slipways = SlipwayService().getAllSlipways()
     val beaches = BeachesService().getAllBeaches()
-    val slipwayStarts = slipways.mapIndexed { index, location -> StartPos(location, "Slipway $index") }
     val beachStarts =
         beaches.map { beachInfo ->
-            StartPos(
+            NamedLocation(
                 beachInfo.avergeLocation,
                 beachInfo.name ?: "Unnamed beach",
             )
         }
-    val startPositions = slipwayStarts.plus(beachStarts)
+    val startPositions = slipways.plus(beachStarts)
+    return route to startPositions
+}
 
-    return RoutePlanner(route, startPositions)
+fun getRoutePlanner(): RoutePlanner {
+    val setup = getRouteSetup()
+    return RoutePlanner(setup.first, setup.second)
+}
+
+fun getCircularRoutePlanner(
+    tideService: TideService,
+    legTimer: LegTimer,
+): CircularRoutePlanner {
+    val setup = getRouteSetup()
+    return CircularRoutePlanner(setup.first, setup.second, legTimer, tideService)
 }

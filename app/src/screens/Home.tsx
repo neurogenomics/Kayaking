@@ -1,10 +1,10 @@
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList, Route } from '../routes';
 import React, { useEffect, useMemo, useState } from 'react';
-import { SafeAreaView, StyleSheet } from 'react-native';
-import MapView from 'react-native-maps';
+import { SafeAreaView, StyleSheet, View } from 'react-native';
+import MapView, { Region } from 'react-native-maps';
 import { isleOfWight } from '../../constants';
-import BottomSheet from '@gorhom/bottom-sheet';
+import BottomSheet, { BottomSheetScrollView } from '@gorhom/bottom-sheet';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 import Routes from '../components/RoutesTab/Routes';
@@ -21,10 +21,10 @@ import { WeatherVisualisation } from '../components/MapVisualisations/WeatherVis
 import { RouteVisualisation } from '../components/MapVisualisations/RouteVisualisation';
 import { RouteModel } from '../models/routeModel';
 import { useNavigation } from '@react-navigation/native';
-import RouteFetcher from '../services/routeFetcher';
-import { LocationModel } from '../models/locationModel';
 import { DataDisplay } from '../components/DataDisplay';
 import { getWeatherDates } from '../services/timeService';
+import SearchFab from '../components/SearchFab';
+import { getRoute } from '../services/routeService';
 
 const styles = StyleSheet.create({
   container: {
@@ -34,6 +34,10 @@ const styles = StyleSheet.create({
   carouselContainer: {
     backgroundColor: 'rgba(0, 0, 0, 0.3)',
     borderRadius: 12,
+  },
+  searchFabContainer: {
+    flex: 1,
+    pointerEvents: 'box-none',
   },
 });
 
@@ -48,10 +52,20 @@ const HomeScreen: React.FC<HomeProps> = () => {
   const bottomSheetPosition = useSharedValue<number>(0);
   const Tab = createMaterialTopTabNavigator();
   const [userInput, setUserInput] = useState<UserInput>();
-  const [routes, setRoutes] = useState<RouteModel[] | undefined>();
+  const [routes, setRoutes] = useState<RouteModel[]>([]);
   const [selectedRouteIndex, setSelectedRouteIndex] = useState(0);
   const [weatherDates, setWeatherDates] = useState<Date[]>([]);
+  const [region, setRegion] = useState<Region>(isleOfWight);
 
+  const [isSearching, setIsSearching] = useState(false);
+
+  const handleSearch = () => {
+    if (isSearching) {
+      return;
+    }
+    setIsSearching(true);
+    void searchRoutes().finally(() => setIsSearching(false));
+  };
   const inverseBottomSheetStyle = useAnimatedStyle(() => {
     return {
       position: 'absolute',
@@ -94,25 +108,21 @@ const HomeScreen: React.FC<HomeProps> = () => {
     });
   }, []);
 
-  const routeFetcher = new RouteFetcher(setRoutes);
+  const searchRoutes = async () => {
+    if (userInput) {
+      setRoutes(await getRoute(region, userInput));
+    }
+  };
 
   return (
     <GestureHandlerRootView style={styles.container}>
       <MapView
         style={styles.map}
-        initialRegion={isleOfWight}
+        initialRegion={region}
         rotateEnabled={true}
         scrollEnabled={true}
         provider="google"
-        onRegionChangeComplete={(region) => {
-          const location: LocationModel = {
-            latitude: region.latitude,
-            longitude: region.longitude,
-          };
-          if (userInput !== undefined) {
-            routeFetcher.update(userInput, location);
-          }
-        }}
+        onRegionChangeComplete={setRegion}
       >
         {weatherMap !== undefined ? (
           <WeatherVisualisation display={weatherMap} date={mapDate} />
@@ -121,7 +131,7 @@ const HomeScreen: React.FC<HomeProps> = () => {
           <RouteVisualisation
             userInput={userInput}
             routes={routes}
-            setRoutes={setRoutes}
+            region={region}
             selectedRouteIndex={selectedRouteIndex}
             setSelectedRouteIndex={setSelectedRouteIndex}
           />
@@ -134,6 +144,14 @@ const HomeScreen: React.FC<HomeProps> = () => {
           onDateChanged={(date) => setMapDate(date)}
         ></DateCarousel>
       </SafeAreaView>
+
+      <View style={styles.searchFabContainer}>
+        <SearchFab
+          onSearch={handleSearch}
+          isSearching={isSearching}
+        ></SearchFab>
+      </View>
+
       <DataDisplay
         sunsetOn={sunsetOn}
         tideTimesOn={tideHeightOn}
@@ -164,7 +182,14 @@ const HomeScreen: React.FC<HomeProps> = () => {
       >
         <Tab.Navigator>
           <Tab.Screen name="Filter">
-            {() => <Filters setUserInput={setUserInput} />}
+            {() => (
+              <BottomSheetScrollView>
+                <Filters
+                  setUserInput={setUserInput}
+                  onFindRoutesPressed={handleSearch}
+                />
+              </BottomSheetScrollView>
+            )}
           </Tab.Screen>
           <Tab.Screen name="Routes">
             {() => (

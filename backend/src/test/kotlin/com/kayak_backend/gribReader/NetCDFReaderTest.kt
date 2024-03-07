@@ -4,7 +4,9 @@ import com.kayak_backend.models.Range
 import com.kayak_backend.testTideGribConf
 import com.kayak_backend.testWindGribConf
 import org.junit.Assert
+import java.time.LocalDate
 import java.time.LocalDateTime
+import java.time.LocalTime
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
@@ -183,5 +185,99 @@ class NetCDFReaderTest {
         assertEquals(length, timeRange.size)
         assertEquals(startTime, timeRange[0])
         assertEquals(startTime.plusHours(length.toLong() - 1), timeRange.last())
+    }
+
+    @Test
+    fun returnsCorrectDayData() {
+        val date = LocalDate.of(2024, 1, 26)
+        val lat = 50.593
+        val lon = -1.30
+        val data =
+            netCDFGribReader.getDayData(
+                lat,
+                lon,
+                date,
+                testTideGribConf.uTideVarName,
+                testTideGribConf.vTideVarName,
+                testTideGribConf.filePath,
+            )
+        assertEquals(24, data.keys.size)
+
+        val expectedData =
+            mapOf(
+                LocalTime.of(0, 0) to Pair(-0.592, 0.115),
+                LocalTime.of(1, 0) to Pair(-1.041, 0.184),
+                LocalTime.of(2, 0) to Pair(-1.07, 0.177),
+                LocalTime.of(3, 0) to Pair(-0.83, 0.129),
+                LocalTime.of(4, 0) to Pair(-0.406, 0.0523),
+                LocalTime.of(5, 0) to Pair(0.221, -0.058),
+                LocalTime.of(6, 0) to Pair(0.913, -0.177),
+                LocalTime.of(7, 0) to Pair(1.387, -0.253),
+                LocalTime.of(8, 0) to Pair(1.526, -0.27),
+                LocalTime.of(9, 0) to Pair(1.367, -0.238),
+                LocalTime.of(10, 0) to Pair(0.935, -0.159),
+                LocalTime.of(11, 0) to Pair(0.268, -0.038),
+                LocalTime.of(12, 0) to Pair(-0.502, 0.099),
+                LocalTime.of(13, 0) to Pair(-1.053, 0.188),
+                LocalTime.of(14, 0) to Pair(-1.184, 0.199),
+                LocalTime.of(15, 0) to Pair(-1.024, 0.164),
+                LocalTime.of(16, 0) to Pair(-0.697, 0.105),
+                LocalTime.of(17, 0) to Pair(-0.194, 0.016),
+                LocalTime.of(18, 0) to Pair(0.476, -0.102),
+                LocalTime.of(19, 0) to Pair(1.069, -0.201),
+                LocalTime.of(20, 0) to Pair(1.352, -0.242),
+                LocalTime.of(21, 0) to Pair(1.326, -0.231),
+                LocalTime.of(22, 0) to Pair(1.028, -0.175),
+                LocalTime.of(23, 0) to Pair(0.453, -0.07),
+            )
+
+        for ((key, value) in expectedData) {
+            assert(key in data)
+            assertEquals(value.first, data[key]!!.first, 1e-3)
+            assertEquals(value.second, data[key]!!.second, 1e-3)
+        }
+    }
+
+    @Test
+    fun returnsIncompleteDayData() {
+        val date = LocalDate.of(2024, 1, 25)
+        val lat = 50.593
+        val lon = -1.30
+        val data =
+            netCDFGribReader.getDayData(
+                lat,
+                lon,
+                date,
+                testTideGribConf.uTideVarName,
+                testTideGribConf.vTideVarName,
+                testTideGribConf.filePath,
+            )
+        assertEquals(12, data.keys.size)
+        assertEquals(-0.903, data[LocalTime.of(12, 0)]!!.first, 1e-3)
+        assertEquals(0.145, data[LocalTime.of(23, 0)]!!.first, 1e-3)
+    }
+
+    @Test
+    fun interpolatesDayDataCorrectly() {
+        val date = LocalDate.of(2024, 1, 26)
+        val lat = 50.593
+        val lon = -1.27
+        val data =
+            netCDFGribReader.getDayData(
+                lat,
+                lon,
+                date,
+                testTideGribConf.uTideVarName,
+                testTideGribConf.vTideVarName,
+                testTideGribConf.filePath,
+            )
+
+        assertEquals(24, data.keys.size)
+        assert(data.values.none { it.first.isNaN() || it.second.isNaN() })
+
+        val eightval1 = 2.263
+        val eightval2 = 1.526
+        val average = (eightval2 + eightval1) / 2
+        assertEquals(average, data[LocalTime.of(8, 0)]!!.first, 1e-3)
     }
 }

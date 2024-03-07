@@ -1,19 +1,16 @@
-import {
-  FlatList,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from 'react-native';
-import { RouteModel } from '../../models/routeModel';
-import React, { useCallback } from 'react';
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { RouteModel, getMapDisplayRegion } from '../../models/routeModel';
+import React from 'react';
 import { RouteListNavigationProp } from './Routes';
-import { RouteDetailsProps } from './RouteDetails';
 import MapView, { Polyline } from 'react-native-maps';
 import { Icon } from 'react-native-paper';
-import { routeColors } from '../../colors';
+import { routeVisualisationColors } from '../../colors';
 
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: 'red',
+  },
   itemContainer: {
     padding: 10,
     borderBottomWidth: 1,
@@ -33,6 +30,12 @@ const styles = StyleSheet.create({
   },
   mainText: {
     fontSize: 18,
+    marginBottom: 4,
+    textAlign: 'center',
+  },
+  mainTextSelected: {
+    fontSize: 18,
+    fontWeight: 'bold',
     marginBottom: 4,
     textAlign: 'center',
   },
@@ -65,123 +68,99 @@ const styles = StyleSheet.create({
 });
 
 export type RoutesListProps = {
-  routes: RouteModel[] | undefined;
-  selectedRouteIndex: number;
-  setSelectedRouteIndex: React.Dispatch<React.SetStateAction<number>>;
+  routes: RouteModel[];
   navigation: RouteListNavigationProp;
+  setSelectedRouteIndex: React.Dispatch<React.SetStateAction<number>>;
+  selectedRouteIndex: number;
 };
 
 const RoutesList: React.FC<RoutesListProps> = ({
   routes,
-  selectedRouteIndex,
-  setSelectedRouteIndex,
   navigation,
+  setSelectedRouteIndex,
+  selectedRouteIndex,
 }) => {
-  // renders routes in a list where you can select a route
-  const renderItem = useCallback(
-    ({ item, index }: { item: RouteModel; index: number }) => {
-      const route = item;
-      const latitudes = route.locations.map((location) => location.latitude);
-      const longitudes = route.locations.map((location) => location.longitude);
-      const minLat = Math.min(...latitudes);
-      const maxLat = Math.max(...latitudes);
-      const minLng = Math.min(...longitudes);
-      const maxLng = Math.max(...longitudes);
+  const renderItem = (route: RouteModel, index: number) => {
+    const region = getMapDisplayRegion(route);
+    const totalMins = Math.round(
+      route.checkpoints[route.checkpoints.length - 1] / 60,
+    );
+    const mins = totalMins % 60;
+    const hours = Math.floor(totalMins / 60);
 
-      // Calculate deltas for latitude and longitude
-      const deltaLat = (maxLat - minLat) * 1.1; // Add some padding
-      const deltaLng = (maxLng - minLng) * 1.1; // Add some padding
+    let timeDisplayStr = '';
+    if (hours > 0) {
+      timeDisplayStr = `${hours}h `;
+    }
+    timeDisplayStr += `${mins}m`;
 
-      // Calculate center of the region
-      const centerLat = (minLat + maxLat) / 2;
-      const centerLng = (minLng + maxLng) / 2;
-
-      const region = {
-        latitude: centerLat,
-        longitude: centerLng,
-        latitudeDelta: deltaLat,
-        longitudeDelta: deltaLng,
-      };
-
-      const totalMins = Math.round(
-        route.checkpoints[route.checkpoints.length - 1] / 60,
-      );
-      const mins = totalMins % 60;
-      const hours = Math.floor(totalMins / 60);
-
-      let timeDisplayStr = '';
-      if (hours > 0) {
-        timeDisplayStr = `${hours}h `;
-      }
-      timeDisplayStr += `${mins}m`;
-
-      return (
-        <TouchableOpacity onPress={() => selectRouteFromList(index)}>
-          <View style={styles.itemContainer}>
-            <View style={styles.mapContainer}>
-              <MapView
-                style={styles.map}
-                region={region}
-                scrollEnabled={false}
-                zoomEnabled={false}
-              >
-                <Polyline
-                  coordinates={route.locations}
-                  strokeColor={routeColors.selected}
-                  strokeWidth={3}
-                ></Polyline>
-              </MapView>
-            </View>
-            <View style={styles.detailsContainer}>
-              <Text style={styles.mainText}>{route.name}</Text>
-              <View style={styles.rowContainer}>
-                <View style={styles.textContainer}>
-                  <Icon source="kayaking" size={24} />
-                  <Text style={styles.text}>
-                    {(route.length / 1000).toFixed(1)}km
-                  </Text>
-                </View>
-                <View style={styles.textContainer}>
-                  <Icon source="clock-time-eight-outline" size={24} />
-                  <Text style={styles.text}>{timeDisplayStr}</Text>
-                </View>
-                <View style={styles.textContainer}>
-                  {/* TODO: Display difficulty of route here */}
-                  <Text style={styles.text}>Easy</Text>
-                </View>
+    return (
+      <TouchableOpacity
+        onPress={() => {
+          navigation.navigate('RouteDetails', { route: routes[index] });
+          setSelectedRouteIndex(index);
+        }}
+        key={index}
+      >
+        <View style={styles.itemContainer}>
+          <View style={styles.mapContainer}>
+            <MapView
+              style={styles.map}
+              region={region}
+              scrollEnabled={false}
+              zoomEnabled={false}
+            >
+              <Polyline
+                coordinates={route.locations}
+                strokeColor={
+                  routeVisualisationColors[
+                    index % routeVisualisationColors.length
+                  ]
+                }
+                strokeWidth={3}
+              ></Polyline>
+            </MapView>
+          </View>
+          <View style={styles.detailsContainer}>
+            <Text
+              style={
+                selectedRouteIndex === index
+                  ? styles.mainTextSelected
+                  : styles.mainText
+              }
+            >
+              {route.name}
+            </Text>
+            <View style={styles.rowContainer}>
+              <View style={styles.textContainer}>
+                <Icon source="kayaking" size={24} />
+                <Text style={styles.text}>
+                  {(route.length / 1000).toFixed(1)}km
+                </Text>
+              </View>
+              <View style={styles.textContainer}>
+                <Icon source="clock-time-eight-outline" size={24} />
+                <Text style={styles.text}>{timeDisplayStr}</Text>
+              </View>
+              <View style={styles.textContainer}>
+                {/* TODO: Display difficulty of route here */}
+                <Text style={styles.text}>Easy</Text>
               </View>
             </View>
           </View>
-        </TouchableOpacity>
-      );
-    },
-    [routes],
-  );
-
-  const selectRouteFromList = (index: number) => {
-    if (routes !== undefined) {
-      setSelectedRouteIndex(index);
-      const props: RouteDetailsProps = {
-        routes: routes,
-        selectedRouteIndex: selectedRouteIndex,
-        navigation: navigation,
-      };
-      navigation.navigate('RouteDetails', { props });
-    }
+        </View>
+      </TouchableOpacity>
+    );
   };
 
   return (
-    <View>
-      {routes === undefined ? (
-        // TODO make better display than this
-        <Text>Enter filters to get a route</Text>
+    <View style={styles.contentContainer}>
+      {routes.length === 0 ? (
+        <Text>
+          No routes found. Try changing filters or zoom out on the map.
+        </Text>
       ) : (
-        <FlatList
-          data={routes}
-          keyExtractor={(_item, index) => index.toString()}
-          renderItem={renderItem}
-          contentContainerStyle={styles.contentContainer}
-        />
+        <View style={styles.contentContainer}>{routes.map(renderItem)}</View>
       )}
     </View>
   );
