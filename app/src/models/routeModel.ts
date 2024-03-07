@@ -49,7 +49,9 @@ export const getRouteSpeeds = (route: RouteModel) => {
       route.locations[i + 1],
     );
     const time = route.checkpoints[i + 1] - route.checkpoints[i];
-    speeds.push(distance / time);
+    if (time === 0) {
+      speeds.push(i === 0 ? 0 : speeds[i - 1]);
+    } else speeds.push(distance / time);
   }
   return speeds;
 };
