@@ -181,8 +181,6 @@ fun getRouteSetup(): Pair<Polygon, List<NamedLocation>> {
                 beachInfo.name ?: beachNamer.getClosestBeachName(beachInfo.avergeLocation),
             )
         }
-
-    println(beachStarts)
     val startPositions = slipways.plus(beachStarts)
     return route to startPositions
 }

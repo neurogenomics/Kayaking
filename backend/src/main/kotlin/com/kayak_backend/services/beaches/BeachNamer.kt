@@ -4,7 +4,7 @@ import org.json.JSONArray
 import java.io.File
 
 class BeachNamer {
-    private val filePath = "data/beaches/isleOfWight.json"
+    private val filePath = "data/beaches/isleOfWightBeaches.json"
     private val beaches = readBeachesFromFile()
 
     private fun readBeachesFromFile(): List<NamedLocation> {
