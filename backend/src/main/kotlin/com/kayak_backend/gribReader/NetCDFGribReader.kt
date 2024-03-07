@@ -345,8 +345,8 @@ class NetCDFGribReader : GribReader {
         shape[timeDim] = size
 
         val res = List(size) { variable.read(origin, shape).getDouble(it) }
-        return res.mapIndexed { index, it ->
-            if (it.isNaN()) {
+        return res.mapIndexed { index, value ->
+            if (value.isNaN()) {
                 var i = 1
                 var resList: List<Double>
                 do {
@@ -356,7 +356,7 @@ class NetCDFGribReader : GribReader {
                 } while (resList.isEmpty())
                 resList.average()
             } else {
-                it
+                value
             }
         }
     }

@@ -109,7 +109,8 @@ class CircularRoutePlanner(
     ): Sequence<Triple<Leg, LocalDateTime, String>> {
         return sectionsShuffled.asSequence().map { createRoute(date, it, minDuration) }.flatMap { it }
             .filter { condition(it.first) }.map {
-                Triple(connectToStart(sectionedRoute, it.first).first, it.second, "")
+                val connected = connectToStart(sectionedRoute, it.first)
+                Triple(connected.first, it.second, connected.second)
             }
     }
 
