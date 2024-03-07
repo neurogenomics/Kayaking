@@ -30,12 +30,12 @@ export const WeatherVisualisation: React.FC<WeatherVisualisationProps> = ({
 
   // TODO: get constants from server
   const gridStart: LocationModel = {
-    latitude: 49.37,
-    longitude: -1.8,
+    latitude: 50.448253,
+    longitude: -1.770676,
   };
   const gridEnd: LocationModel = {
-    latitude: 51,
-    longitude: 0,
+    latitude: 50.934747,
+    longitude: -0.842729,
   };
   // TODO: add feature so resolution increases as user zooms
   const gridResolution: ResolutionModel = {

@@ -66,40 +66,42 @@ export const Filters: React.FC<FiltersProps> = ({
   ]);
 
   return (
-    <View>
-      <StartEndTimePicker
-        startTime={startTime}
-        setStartTime={setStartTime}
-        endTime={endTime}
-        setEndTime={setEndTime}
-      />
+    <View style={styles.container}>
+      <View style={styles.rowContainer}>
+        <View style={styles.column}>
+          <Text style={styles.title}>Start Date</Text>
+          <DateTimePicker value={breakDuration} mode="date" display="default" />
+        </View>
+        <View style={styles.column}>
+          <Text style={styles.title}>Start Time</Text>
+          <DateTimePicker value={breakDuration} mode="time" display="default" />
+        </View>
+        <View style={styles.column}>
+          <Text style={styles.title}>Duration</Text>
+          <DateTimePicker value={breakDuration} mode="time" display="default" />
+        </View>
+      </View>
+      <View style={styles.divider}></View>
       <SelectButtons
-        label={'Select paddle speed'}
+        label={'Paddle Speed'}
         options={paddleSpeedOptions}
         selectedOption={paddleSpeed}
         onSelect={setPaddleSpeed}
       />
+      <View style={styles.divider}></View>
       <SelectButtons
-        label={'Select route difficulty'}
+        label={'Route Difficulty'}
         options={routeDifficultyOptions}
         selectedOption={routeDifficulty}
         onSelect={setRouteDifficulty}
       />
+      <View style={styles.divider}></View>
       <SelectButtons
-        label={'Select route type'}
+        label={'Route Type'}
         options={routeTypeOptions}
         selectedOption={routeType}
         onSelect={setRouteType}
       />
-      <View style={styles.pickerContainer}>
-        <Text style={styles.label}>Break time duration</Text>
-        <DateTimePicker
-          value={breakDuration}
-          mode="time"
-          is24Hour={true}
-          onChange={onBreakDurationChange}
-        />
-      </View>
     </View>
   );
 };
@@ -107,6 +109,10 @@ export const Filters: React.FC<FiltersProps> = ({
 export default Filters;
 
 const styles = StyleSheet.create({
+  container: {
+    marginVertical: 10,
+    marginHorizontal: 20,
+  },
   timePickerContainer: {
     flexDirection: 'row',
     justifyContent: 'space-evenly',
@@ -120,5 +126,24 @@ const styles = StyleSheet.create({
     fontSize: 18,
     marginBottom: 5,
     margin: 10,
+  },
+  rowContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    alignItems: 'center',
+  },
+  column: {
+    alignItems: 'center',
+    flex: 1,
+  },
+  title: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    marginBottom: 10,
+  },
+  divider: {
+    height: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.1)',
+    marginVertical: 10,
   },
 });
