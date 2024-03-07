@@ -57,6 +57,15 @@ const HomeScreen: React.FC<HomeProps> = () => {
   const [weatherDates, setWeatherDates] = useState<Date[]>([]);
   const [region, setRegion] = useState<Region>(isleOfWight);
 
+  const [isSearching, setIsSearching] = useState(false);
+
+  const handleSearch = () => {
+    if (isSearching) {
+      return;
+    }
+    setIsSearching(true);
+    void searchRoutes().finally(() => setIsSearching(false));
+  };
   const inverseBottomSheetStyle = useAnimatedStyle(() => {
     return {
       position: 'absolute',
@@ -101,11 +110,8 @@ const HomeScreen: React.FC<HomeProps> = () => {
 
   const searchRoutes = async () => {
     if (userInput) {
-      if (userInput.routeType === RouteType.PointToPoint) {
-        setRoutes(await getRoute(region, userInput));
-      } else {
-        setRoutes(await getCircularRoute(userInput));
-      }
+      console.log(userInput);
+      setRoutes(await getRoute(region, userInput));
     }
   };
 
@@ -141,7 +147,10 @@ const HomeScreen: React.FC<HomeProps> = () => {
       </SafeAreaView>
 
       <View style={styles.searchFabContainer}>
-        <SearchFab onSearch={searchRoutes}></SearchFab>
+        <SearchFab
+          onSearch={handleSearch}
+          isSearching={isSearching}
+        ></SearchFab>
       </View>
 
       <DataDisplay
@@ -176,7 +185,10 @@ const HomeScreen: React.FC<HomeProps> = () => {
           <Tab.Screen name="Filter">
             {() => (
               <BottomSheetScrollView>
-                <Filters setUserInput={setUserInput} />
+                <Filters
+                  setUserInput={setUserInput}
+                  onFindRoutesPressed={handleSearch}
+                />
               </BottomSheetScrollView>
             )}
           </Tab.Screen>

@@ -62,6 +62,7 @@ const styles = StyleSheet.create({
   label: {
     fontSize: 14,
     marginBottom: 5,
+    fontWeight: 'bold',
   },
   paddleButtonContainer: {
     flexDirection: 'row',

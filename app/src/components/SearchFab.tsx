@@ -22,25 +22,19 @@ const styles = StyleSheet.create({
 });
 
 type SearchFabProps = {
-  onSearch: () => Promise<void>;
+  onSearch: () => void;
+  isSearching: boolean;
 };
 
-const SearchFab: React.FC<SearchFabProps> = ({ onSearch }: SearchFabProps) => {
-  const [isSearching, setIsSearching] = useState(false);
-
-  const handleSearch = () => {
-    if (isSearching) {
-      return;
-    }
-    setIsSearching(true);
-    void onSearch().finally(() => setIsSearching(false));
-  };
-
+const SearchFab: React.FC<SearchFabProps> = ({
+  onSearch,
+  isSearching,
+}: SearchFabProps) => {
   return (
     <FAB
       style={styles.fab}
       icon={isSearching ? () => <ActivityIndicator /> : 'magnify'}
-      onPress={handleSearch}
+      onPress={onSearch}
     />
   );
 };

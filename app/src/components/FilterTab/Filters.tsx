@@ -10,20 +10,20 @@ import {
   UserInput,
 } from '../../models/userInputModel';
 import { generateOptions, SelectButtons } from './SelectionButtons';
-import { StartEndTimePicker } from './StartEndTimePicker';
-import { eastCowes } from '../../../constants';
+import { Button } from 'react-native-paper';
 
 type FiltersProps = {
   setUserInput: React.Dispatch<React.SetStateAction<UserInput>>;
+  onFindRoutesPressed: () => void;
 };
 
 export const Filters: React.FC<FiltersProps> = ({
   setUserInput,
+  onFindRoutesPressed,
 }: FiltersProps) => {
   const [startTime, setStartTime] = useState<Date>(new Date());
-  const endDate = new Date();
-  endDate.setHours(endDate.getHours() + 1);
-  const [endTime, setEndTime] = useState<Date>(endDate);
+
+  const [duration, setDuration] = useState<Date>(new Date(0, 0, 0, 2, 0, 0, 0));
   const [paddleSpeed, setPaddleSpeed] = useState<PaddleSpeed>(
     PaddleSpeed.Normal,
   );
@@ -31,15 +31,6 @@ export const Filters: React.FC<FiltersProps> = ({
   const [routeDifficulty, setRouteDifficulty] = useState<RouteDifficulty>(
     RouteDifficulty.Medium,
   );
-  const [breakDuration, setBreakDuration] = useState(new Date(0));
-
-  const onBreakDurationChange = (
-    _event: DateTimePickerEvent,
-    selectedBreakDuration: Date,
-  ) => {
-    const currentBreak: Date = selectedBreakDuration || breakDuration;
-    setBreakDuration(currentBreak);
-  };
 
   const paddleSpeedOptions = generateOptions(PaddleSpeed);
   const routeTypeOptions = generateOptions(RouteType);
@@ -48,37 +39,68 @@ export const Filters: React.FC<FiltersProps> = ({
   useEffect(() => {
     setUserInput((prevUserInput) => ({
       ...prevUserInput,
-      location: eastCowes, // TODO: change this once we have location from map
       startTime: startTime,
-      endTime: endTime,
+      duration: duration.getMinutes() + duration.getHours() * 60,
       paddleSpeed: paddleSpeed,
       routeType: routeType,
       routeDifficulty: routeDifficulty,
-      breakTime: breakDuration,
     }));
-  }, [
-    startTime,
-    endTime,
-    paddleSpeed,
-    routeType,
-    routeDifficulty,
-    breakDuration,
-  ]);
+  }, [startTime, duration, paddleSpeed, routeType, routeDifficulty]);
 
   return (
     <View style={styles.container}>
+      <Button mode="contained" onPress={onFindRoutesPressed}>
+        <Text>Find Routes</Text>
+      </Button>
+      <View style={styles.divider}></View>
       <View style={styles.rowContainer}>
         <View style={styles.column}>
           <Text style={styles.title}>Start Date</Text>
-          <DateTimePicker value={breakDuration} mode="date" display="default" />
+          <DateTimePicker
+            value={startTime}
+            mode="date"
+            display="default"
+            onChange={(
+              _event: DateTimePickerEvent,
+              selectedStartTime: Date,
+            ) => {
+              if (_event.type === 'set') {
+                setStartTime(selectedStartTime);
+              }
+            }}
+          />
         </View>
         <View style={styles.column}>
           <Text style={styles.title}>Start Time</Text>
-          <DateTimePicker value={breakDuration} mode="time" display="default" />
+          <DateTimePicker
+            value={startTime}
+            mode="time"
+            display="default"
+            onChange={(
+              _event: DateTimePickerEvent,
+              selectedStartTime: Date,
+            ) => {
+              if (_event.type === 'set') {
+                setStartTime(selectedStartTime);
+              }
+            }}
+          />
         </View>
         <View style={styles.column}>
           <Text style={styles.title}>Duration</Text>
-          <DateTimePicker value={breakDuration} mode="time" display="default" />
+          <DateTimePicker
+            value={duration}
+            mode="time"
+            display="default"
+            onChange={(
+              _event: DateTimePickerEvent,
+              selectedStartTime: Date,
+            ) => {
+              if (_event.type === 'set') {
+                setDuration(selectedStartTime);
+              }
+            }}
+          />
         </View>
       </View>
       <View style={styles.divider}></View>

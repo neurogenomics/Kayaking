@@ -1,10 +1,13 @@
-import { Double } from 'react-native/Libraries/Types/CodegenTypes';
-import { LocationModel } from '../models/locationModel';
 import { RouteModel } from '../models/routeModel';
 import { getData } from './utils';
 import { format } from 'date-fns';
 import { Region } from 'react-native-maps';
-import { UserInput, getDuration } from '../models/userInputModel';
+import {
+  PaddleSpeed,
+  RouteDifficulty,
+  RouteType,
+  UserInput,
+} from '../models/userInputModel';
 
 type BoundingBox = {
   latFrom: number;
@@ -20,25 +23,48 @@ const regionToBoundingBox = (region: Region): BoundingBox => {
     latTo: region.latitude + region.latitudeDelta / 2,
     lonTo: region.longitude + region.longitudeDelta / 2,
   };
-  console.log(box.latFrom + ', ' + box.lonFrom);
-  console.log(box.latTo + ', ' + box.lonTo);
   return box;
+};
+
+const paddleSpeedToString = (paddleSpeed: PaddleSpeed) => {
+  switch (paddleSpeed) {
+    case PaddleSpeed.Fast:
+      return 'Fast';
+    case PaddleSpeed.Normal:
+      return 'Normal';
+    case PaddleSpeed.Slow:
+      return 'Slow';
+  }
+};
+
+const difficultyToString = (paddleSpeed: RouteDifficulty) => {
+  switch (paddleSpeed) {
+    case RouteDifficulty.Easy:
+      return 'Easy';
+    case RouteDifficulty.Medium:
+      return 'Medium';
+    case RouteDifficulty.Hard:
+      return 'Hard';
+  }
 };
 
 export const getRoute = async (
   region: Region,
   userInput: UserInput,
 ): Promise<RouteModel[]> => {
-  const boundingBox = regionToBoundingBox(region);
-  let url = `planRoute?latFrom=${boundingBox.latFrom}&latTo=${boundingBox.latTo}&lonFrom=${boundingBox.lonFrom}&lonTo=${boundingBox.lonTo}&duration=${getDuration(userInput)}`;
-  url += `&startDateTime=${format(userInput.startTime, "yyyy-MM-dd'T'HH:mm:ss")}`;
-  return await getData<RouteModel[]>(url);
-};
+  let url =
+    userInput.routeType === RouteType.PointToPoint
+      ? 'planRoute'
+      : 'planCircularRoute';
+  url += `?startDateTime=${format(userInput.startTime, "yyyy-MM-dd'T'HH:mm:ss")}`;
+  url += `&duration=${userInput.duration}`;
+  url += `&paddleSpeed=${paddleSpeedToString(userInput.paddleSpeed)}`;
+  url += `&difficulty=${difficultyToString(userInput.routeDifficulty)}`;
 
-export const getCircularRoute = async (
-  userInput: UserInput,
-): Promise<RouteModel[]> => {
-  let url = `planCircularRoute?duration=${getDuration(userInput)}`;
-  url += `&startDateTime=${format(userInput.startTime, "yyyy-MM-dd'T'HH:mm:ss")}`;
+  if (userInput.routeType === RouteType.PointToPoint) {
+    const boundingBox = regionToBoundingBox(region);
+    url += `&latFrom=${boundingBox.latFrom}&latTo=${boundingBox.latTo}&lonFrom=${boundingBox.lonFrom}&lonTo=${boundingBox.lonTo}`;
+  }
+
   return await getData<RouteModel[]>(url);
 };
