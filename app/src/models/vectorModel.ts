@@ -3,7 +3,7 @@ export type Vector = {
   v: number;
 };
 
-export function normalVector(angle: number): Vector {
+export function unitVector(angle: number): Vector {
   const radianAngle = angle * (Math.PI / 180);
 
   const u = Math.cos(radianAngle + Math.PI / 2);

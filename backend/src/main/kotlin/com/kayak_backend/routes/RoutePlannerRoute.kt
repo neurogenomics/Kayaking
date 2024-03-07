@@ -51,7 +51,7 @@ fun Route.planRoute(
     route("/planCircularRoute") {
         get {
             val duration = call.parameters.getOrFail<Double>("duration")
-            val date = getDateParameter(call.parameters, "date")
+            val date = getDateParameter(call.parameters, "startDateTime")
             val routes =
                 circularRoutePlanner.generateRoutes(
                     { true },

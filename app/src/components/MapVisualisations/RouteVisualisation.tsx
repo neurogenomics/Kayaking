@@ -6,7 +6,7 @@ import {
   LocationModel,
   angleBetweenLocations,
 } from '../../models/locationModel';
-import { Vector, normalVector } from '../../models/vectorModel';
+import { Vector, unitVector } from '../../models/vectorModel';
 import { routeVisualisationColors } from '../../colors';
 
 type RouteVisualisationProps = {
@@ -40,7 +40,7 @@ export const RouteVisualisation: React.FC<RouteVisualisationProps> = ({
     const end = route.locations[route.locations.length - 1];
 
     const angle = angleBetweenLocations(start, end);
-    const normal = normalVector(angle);
+    const normal = unitVector(angle);
 
     const offsetLocations = route.locations.slice(1, -1).map((location) => {
       const locationKey = JSON.stringify(location);

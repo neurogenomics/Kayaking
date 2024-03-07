@@ -110,7 +110,6 @@ const HomeScreen: React.FC<HomeProps> = () => {
 
   const searchRoutes = async () => {
     if (userInput) {
-      console.log(userInput);
       setRoutes(await getRoute(region, userInput));
     }
   };

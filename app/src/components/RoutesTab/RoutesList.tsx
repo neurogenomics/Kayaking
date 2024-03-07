@@ -156,7 +156,9 @@ const RoutesList: React.FC<RoutesListProps> = ({
   return (
     <View style={styles.contentContainer}>
       {routes.length === 0 ? (
-        <Text>Use the search button to find routes.</Text>
+        <Text>
+          No routes found. Try changing filters or zoom out on the map.
+        </Text>
       ) : (
         <View style={styles.contentContainer}>{routes.map(renderItem)}</View>
       )}
