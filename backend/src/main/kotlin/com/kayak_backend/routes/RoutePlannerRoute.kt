@@ -1,6 +1,5 @@
 package com.kayak_backend.routes
 
-import com.kayak_backend.models.Location
 import com.kayak_backend.services.route.*
 import com.kayak_backend.services.route.CircularRoutePlanner
 import io.ktor.server.application.*

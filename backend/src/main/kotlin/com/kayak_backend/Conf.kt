@@ -195,25 +195,3 @@ fun getCircularRoutePlanner(
     val setup = getRouteSetup()
     return CircularRoutePlanner(setup.first, setup.second, legTimer, tideService)
 }
-
-fun getCircularRoutePlanner(
-    tideService: TideService,
-    legTimer: LegTimer,
-): CircularRoutePlanner {
-    val distanceFromCoast = 500.0
-    val coast = IsleOfWightCoastline().getCoastline()
-    val route = BaseRoute().createBaseRoute(coast, distanceFromCoast)
-    val slipways = SlipwayService().getAllSlipways()
-    val beaches = BeachesService().getAllBeaches()
-    val slipwayStarts = slipways.mapIndexed { index, location -> StartPos(location, "Slipway $index") }
-    val beachStarts =
-        beaches.map { beachInfo ->
-            StartPos(
-                beachInfo.avergeLocation,
-                beachInfo.name ?: "Unnamed beach",
-            )
-        }
-    val startPositions = slipwayStarts.plus(beachStarts)
-
-    return CircularRoutePlanner(route, startPositions, legTimer, tideService)
-}
