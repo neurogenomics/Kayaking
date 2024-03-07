@@ -38,6 +38,8 @@ class RoutePlannerTest {
     private val leg4 = Leg.SingleLeg(loc3, loc4)
     private val leg5 = Leg.SingleLeg(loc4, loc1)
 
+    private val mockTime = LocalDateTime.of(2024, 3, 3, 6, 30, 40, 50000)
+
     init {
         val geometryFactory = GeometryFactory()
         val linearRing =
@@ -64,6 +66,7 @@ class RoutePlannerTest {
             routePlanner.generateRoutes(
                 { location distanceTo it.location < 1000000000.0 },
                 { legTimerMock.getDuration(it, startTime) < duration },
+                mockTime,
             ).take(5).toList()
         )
 
@@ -84,6 +87,7 @@ class RoutePlannerTest {
             routePlanner.generateRoutes(
                 { location distanceTo it.location < 1000000 },
                 { legTimerMock.getDuration(it, startTime) < duration },
+                mockTime,
             ).take(5).toList()
         )
 
@@ -105,6 +109,7 @@ class RoutePlannerTest {
             routePlanner.generateRoutes(
                 { location distanceTo it.location < 1000000000.0 },
                 { legTimerMock.getDuration(it, startTime) < smallDuration },
+                mockTime,
             ).take(5).toList()
         )
 
@@ -121,6 +126,7 @@ class RoutePlannerTest {
             routePlanner.generateRoutes(
                 { location distanceTo it.location < 10 },
                 { legTimerMock.getDuration(it, startTime) < duration },
+                mockTime,
             ).take(5).toList()
         )
 
@@ -137,6 +143,7 @@ class RoutePlannerTest {
             routePlanner.generateRoutes(
                 { location distanceTo it.location < 1000000000.0 },
                 { legTimerMock.getDuration(it, startTime) < duration },
+                mockTime,
             ).take(5).toList()
         )
 

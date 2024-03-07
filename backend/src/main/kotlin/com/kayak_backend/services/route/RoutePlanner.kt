@@ -2,6 +2,7 @@ package com.kayak_backend.services.route
 
 import com.kayak_backend.models.Location
 import org.locationtech.jts.geom.Polygon
+import java.time.LocalDateTime
 
 class RoutePlanner(
     private val baseRoutePolygon: Polygon,
@@ -56,11 +57,12 @@ class RoutePlanner(
     fun generateRoutes(
         startPositionFilter: (NamedLocation) -> Boolean,
         condition: (Leg) -> Boolean,
+        startTime: LocalDateTime,
         maxGenerated: Int = 300,
     ): Sequence<Route> {
         val validStarts = sectionedRoute.getStarts(startPositionFilter)
         val generator = routeGenerator(condition, validStarts.values.toList())
-        return generator.take(maxGenerated).map { Route(it.second, it.first.length, it.first) }
+        return generator.take(maxGenerated).map { Route(it.second, it.first.length, it.first, startTime) }
             .sortedByDescending { it.length }
     }
 }

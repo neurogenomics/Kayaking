@@ -32,7 +32,7 @@ class RoutePlannerRouteTest {
     val mockPolygon = GeometryFactory().createPolygon(coordinates)
 
     init {
-        every { routePlannerMock.generateRoutes(any(), any()).take(5).toList() } returns
+        every { routePlannerMock.generateRoutes(any(), any(), any()).take(5).toList() } returns
             listOf()
         every { legTimerMock.getDuration(any(), any()) } returns 0L
     }

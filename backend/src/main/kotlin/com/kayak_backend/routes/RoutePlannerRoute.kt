@@ -28,6 +28,7 @@ fun Route.planRoute(
                 routePlanner.generateRoutes(
                     { location distanceTo it.location < startPositionFilterDistance },
                     { legTimer.getDuration(it, startTime) < duration * 60 },
+                    startTime,
                 ).take(20).toList()
 
             val timedRoutes = routes.map { Pair(it, legTimer.getCheckpoints(it, startTime)) }
@@ -39,7 +40,8 @@ fun Route.planRoute(
                         route.length,
                         route.locations,
                         checkpoints,
-                        difficulty = legDifficulty.getDifficulty(route, startTime, checkpoints),
+                        startTime,
+                        legDifficulty.getDifficulty(route, startTime, checkpoints),
                     )
                 },
             )
@@ -53,11 +55,11 @@ fun Route.planRoute(
             val routes =
                 circularRoutePlanner.generateRoutes(
                     { true },
-                    { it.startTime!! >= date },
+                    { it.startTime >= date },
                     date.toLocalDate(),
                     minTime = Duration.ofMinutes(duration.toLong()),
                 ).take(10).toList()
-            val timedRoutes = routes.map { Pair(it, legTimer.getCheckpoints(it, it.startTime!!)) }
+            val timedRoutes = routes.map { Pair(it, legTimer.getCheckpoints(it, it.startTime)) }
             call.respond(
                 timedRoutes.map {
                         (route, checkpoints) ->
@@ -66,7 +68,8 @@ fun Route.planRoute(
                         route.length,
                         route.locations,
                         checkpoints,
-                        difficulty = legDifficulty.getDifficulty(route, route.startTime!!, checkpoints),
+                        route.startTime,
+                        legDifficulty.getDifficulty(route, route.startTime, checkpoints),
                     )
                 },
             )

@@ -15,7 +15,7 @@ open class Route(
     val length: Double,
     val locations: Leg,
     @Serializable(with = LocalDateTimeSerializer::class)
-    val startTime: LocalDateTime? = null,
+    val startTime: LocalDateTime,
 )
 
 @Serializable
@@ -25,7 +25,7 @@ data class TimedRankedRoute(
     val locations: Leg,
     val checkpoints: List<Long>,
     @Serializable(with = LocalDateTimeSerializer::class)
-    val startTime: LocalDateTime? = null,
+    val startTime: LocalDateTime,
     val difficulty: Int,
 )
 

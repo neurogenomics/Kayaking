@@ -41,9 +41,11 @@ class LegDifficultyTest {
     private val multipleLeg2 =
         Leg.MultipleLegs(listOf(leg1, multipleLeg1))
 
+    private val mockTime = LocalDateTime.of(2024, 3, 3, 6, 30, 40, 50000)
+
     @Test
     fun calculatesDifficultyForSingleLeg() {
-        val route = Route("name", 1.0, leg1)
+        val route = Route("name", 1.0, leg1, mockTime)
         every { windMock.getWind(loc2, any()) } returns WindInfo(1.0, 1.0)
         every { waveMock.getWave(loc2, any()) } returns WaveInfo(1.0, 1.0)
 
@@ -54,7 +56,7 @@ class LegDifficultyTest {
 
     @Test
     fun retrievesValueFromCacheIfAlreadyThere() {
-        val route = Route("name", 1.0, leg1)
+        val route = Route("name", 1.0, leg1, mockTime)
         every { windMock.getWind(loc2, any()) } returns WindInfo(1.0, 1.0)
         every { waveMock.getWave(loc2, any()) } returns WaveInfo(1.0, 1.0)
 
@@ -67,7 +69,7 @@ class LegDifficultyTest {
 
     @Test
     fun recalculatesSameLegIfAtDifferentTime() {
-        val route = Route("name", 1.0, leg1)
+        val route = Route("name", 1.0, leg1, mockTime)
         every { windMock.getWind(loc2, any()) } returns WindInfo(1.0, 1.0)
         every { waveMock.getWave(loc2, any()) } returns WaveInfo(1.0, 1.0)
 
@@ -80,7 +82,7 @@ class LegDifficultyTest {
 
     @Test
     fun whenWaveHeightGreaterThanWaveLevelsReturnsLevel12() {
-        val route = Route("name", 1.0, leg1)
+        val route = Route("name", 1.0, leg1, mockTime)
         every { windMock.getWind(loc2, any()) } returns WindInfo(1.0, 1.0)
         every { waveMock.getWave(loc2, any()) } returns WaveInfo(20.0, 1.0)
 
@@ -91,7 +93,7 @@ class LegDifficultyTest {
 
     @Test
     fun forMultipleLegReturnsMaxDifficultyOfLegsInside() {
-        val route = Route("name", 1.0, multipleLeg2)
+        val route = Route("name", 1.0, multipleLeg2, mockTime)
         every { windMock.getWind(loc2, dateTime) } returns WindInfo(1.0, 1.0)
         every { waveMock.getWave(loc2, dateTime) } returns WaveInfo(1.0, 1.0)
 
@@ -108,9 +110,9 @@ class LegDifficultyTest {
 
     @Test
     fun forMultipleLegReturnsMaxDifficultyOfLegsInsideWhenSomeAreCached() {
-        val route1 = Route("name", 1.0, multipleLeg2)
-        val route2 = Route("name", 1.0, leg1)
-        val route3 = Route("name", 1.0, leg3)
+        val route1 = Route("name", 1.0, multipleLeg2, mockTime)
+        val route2 = Route("name", 1.0, leg1, mockTime)
+        val route3 = Route("name", 1.0, leg3, mockTime)
 
         every { windMock.getWind(loc2, dateTime) } returns WindInfo(1.0, 1.0)
         every { waveMock.getWave(loc2, dateTime) } returns WaveInfo(1.0, 1.0)
