@@ -73,8 +73,8 @@ class CircularRouteTest {
 
         val result = (
             routePlanner.generateRoutes(
-                { true },
-                LocalDate.of(2024, 7, 4),
+                condition = { true },
+                date = LocalDate.of(2024, 7, 4),
                 minTime = Duration.ofHours(4),
             ).take(5).toList()
         )
@@ -91,8 +91,8 @@ class CircularRouteTest {
 
         val result = (
             routePlanner.generateRoutes(
-                { true },
-                LocalDate.of(2024, 7, 4),
+                condition = { true },
+                date = LocalDate.of(2024, 7, 4),
                 minTime = Duration.ofHours(4),
             ).take(5).toList()
         )
@@ -108,8 +108,8 @@ class CircularRouteTest {
 
         val result = (
             routePlanner.generateRoutes(
-                { true },
-                LocalDate.of(2024, 7, 4),
+                condition = { true },
+                date = LocalDate.of(2024, 7, 4),
                 minTime = Duration.ofHours(4),
             ).take(5).toList()
         )
@@ -126,8 +126,8 @@ class CircularRouteTest {
 
         val result = (
             routePlanner.generateRoutes(
-                { true },
-                LocalDate.of(2024, 7, 4),
+                condition = { true },
+                date = LocalDate.of(2024, 7, 4),
                 minTime = Duration.ofHours(4),
             ).take(5).toList()
         )
@@ -143,8 +143,8 @@ class CircularRouteTest {
 
         val result = (
             routePlanner.generateRoutes(
-                { true },
-                LocalDate.of(2024, 7, 4),
+                condition = { true },
+                date = LocalDate.of(2024, 7, 4),
                 minTime = Duration.ofHours(4),
             ).take(5).toList()
         )

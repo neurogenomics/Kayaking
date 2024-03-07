@@ -8,6 +8,7 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
 import java.time.temporal.ChronoUnit
+import kotlin.math.abs
 import kotlin.math.cos
 import kotlin.math.sin
 
@@ -56,8 +57,11 @@ class CircularRoutePlanner(
             sectionedRoute.stepFrom(switchLeg.end, step).takeWhile {
                 val newStart = currentStart - Duration.ofSeconds(legTimer.getDuration(it.reverse(), currentStart))
                 val newEnd = currentEnd + Duration.ofSeconds(legTimer.getDuration(it, currentEnd))
-                if ((getResistance(it, newStart) ?: return@takeWhile false) > 0) return@takeWhile false
-                if ((getResistance(it, newEnd) ?: return@takeWhile false) < 0) return@takeWhile false
+                val startResistance = getResistance(it, newStart) ?: return@takeWhile false
+                if (startResistance > 0 && abs(startResistance) > 0.1) return@takeWhile false
+
+                val endResistance = getResistance(it, newEnd) ?: return@takeWhile false
+                if (endResistance < 0 && abs(endResistance) > 0.1) return@takeWhile false
                 currentStart = newStart
                 currentEnd = newEnd
                 Duration.between(currentStart, currentEnd) <= minDuration
@@ -110,13 +114,15 @@ class CircularRoutePlanner(
     }
 
     fun generateRoutes(
-        condition: (Leg) -> Boolean,
-        date: LocalDate,
+        condition: (Leg) -> Boolean = { true },
+        routeCondition: (Route) -> Boolean = { true },
+        date: LocalDate = LocalDate.now(),
         maxGenerated: Int = 10,
-        minTime: Duration,
+        minTime: Duration = Duration.ofHours(4),
     ): Sequence<Route> {
         val generator = routeGenerator(condition, date, minTime)
-        return generator.take(maxGenerated).map { Route(it.third, it.first.length, it.first, it.second) }
+        return generator.map { Route(it.third, it.first.length, it.first, it.second) }.filter(routeCondition)
+            .take(maxGenerated)
             .sortedByDescending { it.length }
     }
 }

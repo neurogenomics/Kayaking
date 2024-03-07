@@ -50,6 +50,7 @@ fun Route.planRoute(
             val routes =
                 circularRoutePlanner.generateRoutes(
                     { true },
+                    { it.startTime!! >= date },
                     date.toLocalDate(),
                     minTime = Duration.ofMinutes(duration.toLong()),
                 ).take(10).toList()
