@@ -17,12 +17,12 @@ class RoutePlannerTest {
     private val location = Location(0.0, 0.0)
     private val startTime = LocalDateTime.now()
     private val duration = 50L
-    private val startPos: List<StartPos> =
+    private val startPos: List<NamedLocation> =
         listOf(
-            StartPos(Location(1.5, -1.5), "Start1"),
-            StartPos(Location(1.0, -1.0), "Start2"),
-            StartPos(Location(-1.5, -1.5), "Start3"),
-            StartPos(Location(-1.0, 1.0), "Start4"),
+            NamedLocation(Location(1.5, -1.5), "Start1"),
+            NamedLocation(Location(1.0, -1.0), "Start2"),
+            NamedLocation(Location(-1.5, -1.5), "Start3"),
+            NamedLocation(Location(-1.0, 1.0), "Start4"),
         )
 
     private val loc1 = Location(-1.5, -1.5)
@@ -75,7 +75,7 @@ class RoutePlannerTest {
 
     @Test
     fun routesGeneratedWhenOnlyOneStartPoint() {
-        val start = StartPos(Location(1.0, 1.0), "test")
+        val start = NamedLocation(Location(1.0, 1.0), "test")
         val routePlanner = RoutePlanner(polygon, listOf(start), 100000000)
 
         every { legTimerMock.getDuration(any(), any()) } returns 4L

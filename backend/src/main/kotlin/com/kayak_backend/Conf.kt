@@ -167,15 +167,14 @@ fun getRoutePlanner(): RoutePlanner {
     val route = BaseRoute().createBaseRoute(coast, distanceFromCoast)
     val slipways = SlipwayService().getAllSlipways()
     val beaches = BeachesService().getAllBeaches()
-    val slipwayStarts = slipways.mapIndexed { index, location -> StartPos(location, "Slipway $index") }
     val beachStarts =
         beaches.map { beachInfo ->
-            StartPos(
+            NamedLocation(
                 beachInfo.avergeLocation,
                 beachInfo.name ?: "Unnamed beach",
             )
         }
-    val startPositions = slipwayStarts.plus(beachStarts)
+    val startPositions = slipways.plus(beachStarts)
 
     return RoutePlanner(route, startPositions)
 }
