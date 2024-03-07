@@ -82,6 +82,7 @@ const RouteDetails: React.FC<RouteDetailsProps> = ({
 
   const colourmap = interpolate(speedMapColours);
   const colours = normalisedSpeeds.map((speed) => colourmap(speed));
+
   return (
     <View style={styles.container}>
       <View style={styles.titleContainer}>
@@ -103,19 +104,11 @@ const RouteDetails: React.FC<RouteDetailsProps> = ({
       </View>
       <View style={styles.mapContainer}>
         <MapView style={styles.map} region={region} provider="google">
-          {colours.map((colour, index) => {
-            return (
-              <Polyline
-                key={index}
-                coordinates={[
-                  mapRoute.locations[index],
-                  mapRoute.locations[index + 1],
-                ]}
-                strokeColor={colour}
-                strokeWidth={3}
-              ></Polyline>
-            );
-          })}
+          <Polyline
+            coordinates={mapRoute.locations}
+            strokeColors={colours}
+            strokeWidth={3}
+          ></Polyline>
         </MapView>
       </View>
     </View>
