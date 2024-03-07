@@ -1,5 +1,6 @@
 package com.kayak_backend
 
+import BeachNamer
 import com.charleskorn.kaml.Yaml
 import com.kayak_backend.gribFetcher.GribFetcher
 import com.kayak_backend.gribFetcher.OpenSkironGribFetcher
@@ -172,11 +173,12 @@ fun getRouteSetup(): Pair<Polygon, List<NamedLocation>> {
     val route = BaseRoute().createBaseRoute(coast, distanceFromCoast)
     val slipways = SlipwayService().getAllSlipways()
     val beaches = BeachesService().getAllBeaches()
+    val beachNamer = BeachNamer()
     val beachStarts =
         beaches.map { beachInfo ->
             NamedLocation(
                 beachInfo.avergeLocation,
-                beachInfo.name ?: "Unnamed beach",
+                beachInfo.name ?: beachNamer.getClosestBeachName(beachInfo.avergeLocation),
             )
         }
     val startPositions = slipways.plus(beachStarts)
