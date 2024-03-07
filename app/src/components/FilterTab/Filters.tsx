@@ -10,20 +10,22 @@ import {
   UserInput,
 } from '../../models/userInputModel';
 import { generateOptions, SelectButtons } from './SelectionButtons';
-import { StartEndTimePicker } from './StartEndTimePicker';
-import { eastCowes } from '../../../constants';
+import { Button } from 'react-native-paper';
 
 type FiltersProps = {
   setUserInput: React.Dispatch<React.SetStateAction<UserInput>>;
+  onFindRoutesPressed: () => void;
 };
 
 export const Filters: React.FC<FiltersProps> = ({
   setUserInput,
+  onFindRoutesPressed,
 }: FiltersProps) => {
   const [startTime, setStartTime] = useState<Date>(new Date());
-  const endDate = new Date();
-  endDate.setHours(endDate.getHours() + 1);
-  const [endTime, setEndTime] = useState<Date>(endDate);
+
+  const [durationAsDate, setDurationAsDate] = useState<Date>(
+    new Date(0, 0, 0, 2, 0, 0, 0),
+  );
   const [paddleSpeed, setPaddleSpeed] = useState<PaddleSpeed>(
     PaddleSpeed.Normal,
   );
@@ -31,15 +33,6 @@ export const Filters: React.FC<FiltersProps> = ({
   const [routeDifficulty, setRouteDifficulty] = useState<RouteDifficulty>(
     RouteDifficulty.Medium,
   );
-  const [breakDuration, setBreakDuration] = useState(new Date(0));
-
-  const onBreakDurationChange = (
-    _event: DateTimePickerEvent,
-    selectedBreakDuration: Date,
-  ) => {
-    const currentBreak: Date = selectedBreakDuration || breakDuration;
-    setBreakDuration(currentBreak);
-  };
 
   const paddleSpeedOptions = generateOptions(PaddleSpeed);
   const routeTypeOptions = generateOptions(RouteType);
@@ -48,65 +41,102 @@ export const Filters: React.FC<FiltersProps> = ({
   useEffect(() => {
     setUserInput((prevUserInput) => ({
       ...prevUserInput,
-      location: eastCowes, // TODO: change this once we have location from map
       startTime: startTime,
-      endTime: endTime,
+      duration: durationAsDate.getMinutes() + durationAsDate.getHours() * 60,
       paddleSpeed: paddleSpeed,
       routeType: routeType,
       routeDifficulty: routeDifficulty,
-      breakTime: breakDuration,
     }));
-  }, [
-    startTime,
-    endTime,
-    paddleSpeed,
-    routeType,
-    routeDifficulty,
-    breakDuration,
-  ]);
+  }, [startTime, durationAsDate, paddleSpeed, routeType, routeDifficulty]);
 
   return (
-    <ScrollView>
-      <StartEndTimePicker
-        startTime={startTime}
-        setStartTime={setStartTime}
-        endTime={endTime}
-        setEndTime={setEndTime}
-      />
+    <View style={styles.container}>
+      <Button mode="contained" onPress={onFindRoutesPressed}>
+        <Text>Find Routes</Text>
+      </Button>
+      <View style={styles.divider}></View>
+      <View style={styles.rowContainer}>
+        <View style={styles.column}>
+          <Text style={styles.title}>Start Date</Text>
+          <DateTimePicker
+            value={startTime}
+            mode="date"
+            display="default"
+            onChange={(
+              _event: DateTimePickerEvent,
+              selectedStartTime: Date,
+            ) => {
+              if (_event.type === 'set') {
+                setStartTime(selectedStartTime);
+              }
+            }}
+          />
+        </View>
+        <View style={styles.column}>
+          <Text style={styles.title}>Start Time</Text>
+          <DateTimePicker
+            value={startTime}
+            mode="time"
+            display="default"
+            onChange={(
+              _event: DateTimePickerEvent,
+              selectedStartTime: Date,
+            ) => {
+              if (_event.type === 'set') {
+                setStartTime(selectedStartTime);
+              }
+            }}
+          />
+        </View>
+        <View style={styles.column}>
+          <Text style={styles.title}>Duration</Text>
+          <DateTimePicker
+            value={durationAsDate}
+            mode="time"
+            display="default"
+            onChange={(
+              _event: DateTimePickerEvent,
+              selectedStartTime: Date,
+            ) => {
+              if (_event.type === 'set') {
+                setDurationAsDate(selectedStartTime);
+              }
+            }}
+          />
+        </View>
+      </View>
+      <View style={styles.divider}></View>
       <SelectButtons
-        label={'Select paddle speed'}
+        label={'Paddle Speed'}
         options={paddleSpeedOptions}
         selectedOption={paddleSpeed}
         onSelect={setPaddleSpeed}
       />
+      <View style={styles.divider}></View>
       <SelectButtons
-        label={'Select route difficulty'}
+        label={'Route Difficulty'}
         options={routeDifficultyOptions}
         selectedOption={routeDifficulty}
         onSelect={setRouteDifficulty}
       />
+      <View style={styles.divider}></View>
       <SelectButtons
-        label={'Select route type'}
+        label={'Route Type'}
         options={routeTypeOptions}
         selectedOption={routeType}
         onSelect={setRouteType}
       />
-      <View style={styles.pickerContainer}>
-        <Text style={styles.label}>Break time duration</Text>
-        <DateTimePicker
-          value={breakDuration}
-          mode="time"
-          is24Hour={true}
-          onChange={onBreakDurationChange}
-        />
-      </View>
-    </ScrollView>
+    </View>
   );
 };
 
 export default Filters;
 
 const styles = StyleSheet.create({
+  container: {
+    marginVertical: 10,
+    marginHorizontal: 20,
+  },
   timePickerContainer: {
     flexDirection: 'row',
     justifyContent: 'space-evenly',
@@ -120,5 +150,24 @@ const styles = StyleSheet.create({
     fontSize: 18,
     marginBottom: 5,
     margin: 10,
+  },
+  rowContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    alignItems: 'center',
+  },
+  column: {
+    alignItems: 'center',
+    flex: 1,
+  },
+  title: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    marginBottom: 10,
+  },
+  divider: {
+    height: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.1)',
+    marginVertical: 10,
   },
 });

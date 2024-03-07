@@ -32,3 +32,28 @@ export function calculateDistanceBetweenLocations(
 function toRadians(degrees: number): number {
   return degrees * (Math.PI / 180);
 }
+
+export function angleBetweenLocations(
+  point1: LocationModel,
+  point2: LocationModel,
+): number {
+  const lat1 = point1.latitude;
+  const lon1 = point1.longitude;
+  const lat2 = point2.latitude;
+  const lon2 = point2.longitude;
+
+  const dLon = lon2 - lon1;
+  const y = Math.sin(dLon) * Math.cos(lat2);
+  const x =
+    Math.cos(lat1) * Math.sin(lat2) -
+    Math.sin(lat1) * Math.cos(lat2) * Math.cos(dLon);
+
+  let angle = Math.atan2(y, x);
+  angle = (angle * 180) / Math.PI;
+
+  if (angle < 0) {
+    angle += 360;
+  }
+
+  return angle;
+}

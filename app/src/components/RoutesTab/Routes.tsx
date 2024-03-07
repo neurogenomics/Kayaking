@@ -6,6 +6,7 @@ import {
 } from '@react-navigation/stack';
 import RouteDetails from './RouteDetails';
 import RoutesList from './RoutesList';
+import { BottomSheetScrollView } from '@gorhom/bottom-sheet';
 
 export type RoutesParamList = {
   RouteList: undefined;
@@ -36,12 +37,14 @@ const Routes: React.FC<RoutesProps> = ({
     <Stack.Navigator initialRouteName={'RouteList'}>
       <Stack.Screen name="RouteList" options={{ headerShown: false }}>
         {() => (
-          <RoutesList
-            routes={routes}
-            navigation={navigation}
-            setSelectedRouteIndex={setSelectedRouteIndex}
-            selectedRouteIndex={selectedRouteIndex}
-          />
+          <BottomSheetScrollView>
+            <RoutesList
+              routes={routes}
+              navigation={navigation}
+              setSelectedRouteIndex={setSelectedRouteIndex}
+              selectedRouteIndex={selectedRouteIndex}
+            />
+          </BottomSheetScrollView>
         )}
       </Stack.Screen>
       <Stack.Screen

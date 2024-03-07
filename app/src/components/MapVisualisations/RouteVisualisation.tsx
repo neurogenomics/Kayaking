@@ -1,93 +1,74 @@
-import React, { useEffect } from 'react';
-import { getDuration, UserInput } from '../../models/userInputModel';
-import { Marker, Polyline } from 'react-native-maps';
-import { getDistance, RouteModel } from '../../models/routeModel';
-import { getRoute } from '../../services/routeService';
-import { routeColors } from '../../colors';
-import { StyleSheet, View } from 'react-native';
-
-const styles = StyleSheet.create({
-  selected: {
-    strokeWidth: 5,
-    strokeColor: routeColors.selected,
-    zIndex: 3,
-  },
-  unselected: {
-    strokeWidth: 2,
-    strokeColor: routeColors.unselected,
-    zIndex: 2,
-  },
-});
+import React from 'react';
+import { UserInput } from '../../models/userInputModel';
+import { Polyline, Region } from 'react-native-maps';
+import { RouteModel } from '../../models/routeModel';
+import {
+  LocationModel,
+  angleBetweenLocations,
+} from '../../models/locationModel';
+import { Vector, unitVector } from '../../models/vectorModel';
+import { routeVisualisationColors } from '../../colors';
 
 type RouteVisualisationProps = {
   userInput: UserInput;
-  routes: RouteModel[] | undefined;
-  setRoutes: React.Dispatch<React.SetStateAction<RouteModel[] | undefined>>;
+  routes: RouteModel[];
   selectedRouteIndex: number;
+  region: Region;
   setSelectedRouteIndex: React.Dispatch<React.SetStateAction<number>>;
 };
 
 export const RouteVisualisation: React.FC<RouteVisualisationProps> = ({
-  userInput,
   routes,
-  setRoutes,
   selectedRouteIndex,
   setSelectedRouteIndex,
 }: RouteVisualisationProps) => {
-  const getRoutes = async (userInput: UserInput) => {
-    try {
-      const routes: RouteModel[] = await getRoute(
-        userInput.location,
-        getDuration(userInput),
-        userInput.startTime,
-      );
-      setRoutes(routes);
-    } catch (error) {
-      console.log('Error getting routes: ', error);
-    }
+  const offsetLocation = (
+    location: LocationModel,
+    index: number,
+    direction: Vector,
+  ): LocationModel => {
+    return {
+      latitude: location.latitude + index * 0.0005 * direction.u,
+      longitude: location.longitude + index * 0.0005 * direction.v,
+    };
   };
 
-  useEffect(() => {
-    void getRoutes(userInput);
-  }, [userInput, selectedRouteIndex]);
+  const duplicateLocationCount: Map<string, number> = new Map();
+
+  const offsetRoutes = routes.map((route) => {
+    const start = route.locations[0];
+    const end = route.locations[route.locations.length - 1];
+
+    const angle = angleBetweenLocations(start, end);
+    const normal = unitVector(angle);
+
+    const offsetLocations = route.locations.slice(1, -1).map((location) => {
+      const locationKey = JSON.stringify(location);
+      const count = duplicateLocationCount.get(locationKey) ?? 0;
+      const newLocation = offsetLocation(location, count, normal);
+      duplicateLocationCount.set(locationKey, count + 1);
+      return newLocation;
+    });
+    return {
+      ...route,
+      locations: [start, ...offsetLocations, end],
+    };
+  });
 
   return (
     <>
-      {routes !== undefined && selectedRouteIndex < routes.length ? (
-        // Plots a marker at the head of the selected route
-        <Marker
-          title={routes[selectedRouteIndex].name}
-          description={`Distance covered: ${getDistance(routes[selectedRouteIndex])}km`}
-          coordinate={routes[selectedRouteIndex].locations[0]}
-          isPreselected={true}
-        ></Marker>
-      ) : null}
-      {routes !== undefined
-        ? routes.map((route, index) => (
-            <View key={`polyline-${index}`}>
-              <Polyline
-                coordinates={route.locations}
-                strokeWidth={
-                  index === selectedRouteIndex
-                    ? styles.selected.strokeWidth
-                    : styles.unselected.strokeWidth
-                }
-                strokeColor={
-                  index === selectedRouteIndex
-                    ? styles.selected.strokeColor
-                    : styles.unselected.strokeColor
-                }
-                zIndex={
-                  index === selectedRouteIndex
-                    ? styles.selected.zIndex
-                    : styles.unselected.zIndex
-                }
-                tappable={true}
-                onPress={() => setSelectedRouteIndex(index)}
-              />
-            </View>
-          ))
-        : null}
+      {offsetRoutes.map((route, index) => (
+        <Polyline
+          key={`polyline-${index}`}
+          coordinates={route.locations}
+          strokeColor={
+            routeVisualisationColors[index % routeVisualisationColors.length]
+          }
+          tappable={true}
+          strokeWidth={selectedRouteIndex === index ? 4 : 2}
+          onPress={() => setSelectedRouteIndex(index)}
+        />
+      ))}
     </>
   );
 };

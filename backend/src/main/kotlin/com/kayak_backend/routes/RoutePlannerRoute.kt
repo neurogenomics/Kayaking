@@ -1,6 +1,5 @@
 package com.kayak_backend.routes
 
-import com.kayak_backend.models.Location
 import com.kayak_backend.services.route.*
 import com.kayak_backend.services.route.CircularRoutePlanner
 import io.ktor.server.application.*
@@ -19,14 +18,15 @@ fun Route.planRoute(
 ) {
     route("/planRoute") {
         get {
-            val lat = call.parameters.getOrFail<Double>("lat")
-            val lng = call.parameters.getOrFail<Double>("lon")
+            val latFrom = call.parameters.getOrFail<Double>("latFrom")
+            val lonFrom = call.parameters.getOrFail<Double>("lonFrom")
+            val latTo = call.parameters.getOrFail<Double>("latTo")
+            val lonTo = call.parameters.getOrFail<Double>("lonTo")
             val duration = call.parameters.getOrFail<Double>("duration")
             val startTime = getDateParameter(call.parameters, "startDateTime")
-            val location = Location(lat, lng)
             val routes =
                 routePlanner.generateRoutes(
-                    { location distanceTo it.location < startPositionFilterDistance },
+                    { it.location.latitude in latFrom..latTo && it.location.longitude in lonFrom..lonTo },
                     { legTimer.getDuration(it, startTime) < duration * 60 },
                     startTime,
                 ).take(20).toList()
@@ -51,7 +51,7 @@ fun Route.planRoute(
     route("/planCircularRoute") {
         get {
             val duration = call.parameters.getOrFail<Double>("duration")
-            val date = getDateParameter(call.parameters, "date")
+            val date = getDateParameter(call.parameters, "startDateTime")
             val routes =
                 circularRoutePlanner.generateRoutes(
                     { true },
