@@ -32,6 +32,16 @@ sealed class Leg {
         override val length: Double by lazy { legs.sumOf { it.length } }
         override val start: Location by lazy { legs.first().start }
         override val end: Location by lazy { legs.last().end }
-        override val locations by lazy { legs.flatMap { leg -> leg.locations } } // Need to fix
+        override val locations by lazy {
+            // Remove last location from each leg as its equal to first location of next leg
+            // Except for final leg
+            legs.flatMapIndexed { index, leg ->
+                if (index == legs.size - 1) {
+                    leg.locations
+                } else {
+                    leg.locations.dropLast(1)
+                }
+            }
+        }
     }
 }

@@ -34,46 +34,53 @@ export const RouteInformation: React.FC<RouteInformationProps> = ({
 
   useEffect(() => {
     console.log('getting iend');
-    void getWindsDirection(
-      route.locations,
-      route.checkpoints,
-      route.startTime,
-    ).then((winds) => {
-      console.log('locations');
-      console.log(route.locations);
-      console.log('checkpoiints');
-      console.log(route.checkpoints);
-      const speedVectors: Vector[] = [];
-      for (let i = 0; i < route.locations.length - 1; i++) {
-        const loc1 = route.locations[i];
-        const loc2 = route.locations[i + 1];
-        const time = route.checkpoints[i + 1] - route.checkpoints[i]; // Time taken to travel from loc1 to loc2
+    console.log(route);
 
-        const displacement = {
-          u: loc2.latitude - loc1.latitude, // Assuming lat represents u component
-          v: loc2.longitude - loc1.longitude, // Assuming long represents v component
-        };
+    getWindsDirection(route.locations, route.checkpoints, route.startTime)
+      .then((winds) => {
+        console.log(winds);
+      })
+      .catch((err) => console.error(err));
+    // void getWindsDirection(
+    //   route.locations,
+    //   route.checkpoints,
+    //   route.startTime,
+    // ).then((winds) => {
+    //   console.log('locations');
+    //   console.log(route.locations);
+    //   console.log('checkpoiints');
+    //   console.log(route.checkpoints);
+    //   const speedVectors: Vector[] = [];
+    //   for (let i = 0; i < route.locations.length - 1; i++) {
+    //     const loc1 = route.locations[i];
+    //     const loc2 = route.locations[i + 1];
+    //     const time = route.checkpoints[i + 1] - route.checkpoints[i]; // Time taken to travel from loc1 to loc2
 
-        const speed = {
-          u: displacement.u / time,
-          v: displacement.v / time,
-        };
+    //     const displacement = {
+    //       u: loc2.latitude - loc1.latitude, // Assuming lat represents u component
+    //       v: loc2.longitude - loc1.longitude, // Assuming long represents v component
+    //     };
 
-        speedVectors.push(speed);
-      }
+    //     const speed = {
+    //       u: displacement.u / time,
+    //       v: displacement.v / time,
+    //     };
 
-      const windScalar: number[] = speedVectors.map((vel, index) => {
-        const velMagnitude = Math.sqrt(vel.u ** 2 + vel.v ** 2);
-        const dotProd = vel.u * vel.u + winds[index].v * winds[index].v;
-        return dotProd / velMagnitude;
-      });
-      console.log('getting winds at routeInformation component');
-      console.log(windScalar);
-      if (windScalar.length !== 0) {
-        setWindsInfo(windScalar);
-      }
-    });
-  }, []);
+    //     speedVectors.push(speed);
+    //   }
+
+    //   const windScalar: number[] = speedVectors.map((vel, index) => {
+    //     const velMagnitude = Math.sqrt(vel.u ** 2 + vel.v ** 2);
+    //     const dotProd = vel.u * vel.u + winds[index].v * winds[index].v;
+    //     return dotProd / velMagnitude;
+    //   });
+    //   console.log('getting winds at routeInformation component');
+    //   console.log(windScalar);
+    //   if (windScalar.length !== 0) {
+    //     setWindsInfo(windScalar);
+    //   }
+    // });
+  }, [route]);
 
   while (currentDate <= route.endTime) {
     const hours = currentDate.getHours().toString().padStart(2, '0');
