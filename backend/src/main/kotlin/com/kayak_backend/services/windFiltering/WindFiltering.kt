@@ -10,7 +10,7 @@ import kotlin.math.abs
 import kotlin.math.atan2
 import kotlin.math.sqrt
 
-private const val BAD_WIND_LIMIT = 90
+private const val BAD_WIND_LIMIT = 60
 
 // TODO figure out what this limit should be and if it should just be a component
 private const val BAD_WIND_MAGNITUDE_LIMIT = 2
