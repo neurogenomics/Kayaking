@@ -5,7 +5,6 @@ import com.kayak_backend.models.TideInfo
 import com.kayak_backend.services.tides.TideService
 import io.mockk.every
 import io.mockk.mockk
-import org.junit.Ignore
 import org.junit.Test
 import org.locationtech.jts.geom.Coordinate
 import org.locationtech.jts.geom.GeometryFactory
@@ -76,7 +75,7 @@ class CircularRouteTest {
             routePlanner.generateRoutes(
                 { true },
                 LocalDate.of(2024, 7, 4),
-                minTime = Duration.ofHours(2),
+                minTime = Duration.ofHours(4),
             ).take(5).toList()
         )
         assert(result.isNotEmpty())
@@ -94,7 +93,7 @@ class CircularRouteTest {
             routePlanner.generateRoutes(
                 { true },
                 LocalDate.of(2024, 7, 4),
-                minTime = Duration.ofHours(2),
+                minTime = Duration.ofHours(4),
             ).take(5).toList()
         )
         assert(result.isNotEmpty())
@@ -111,7 +110,7 @@ class CircularRouteTest {
             routePlanner.generateRoutes(
                 { true },
                 LocalDate.of(2024, 7, 4),
-                minTime = Duration.ofHours(2),
+                minTime = Duration.ofHours(4),
             ).take(5).toList()
         )
         assert(result.isNotEmpty())
@@ -122,7 +121,6 @@ class CircularRouteTest {
     }
 
     @Test
-    @Ignore
     fun routeIsRightLength() {
         val routePlanner = CircularRoutePlanner(polygon, startPos, legTimerMock, tideServiceMock, 10000)
 
@@ -130,12 +128,12 @@ class CircularRouteTest {
             routePlanner.generateRoutes(
                 { true },
                 LocalDate.of(2024, 7, 4),
-                minTime = Duration.ofHours(2),
+                minTime = Duration.ofHours(4),
             ).take(5).toList()
         )
         assert(result.isNotEmpty())
         for (route in result) {
-            assertEquals(5, route.locations.locations.size)
+            assertEquals(7, route.locations.locations.size)
         }
     }
 
@@ -147,7 +145,7 @@ class CircularRouteTest {
             routePlanner.generateRoutes(
                 { true },
                 LocalDate.of(2024, 7, 4),
-                minTime = Duration.ofHours(2),
+                minTime = Duration.ofHours(4),
             ).take(5).toList()
         )
         assert(result.isNotEmpty())

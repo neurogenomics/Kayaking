@@ -20,10 +20,12 @@ fun splitRouteIntoSections(
     }
 
     // Connect first and last section
-    if (sections.isNotEmpty()) {
-        currentLegLocations.addAll(sections.removeFirst().locations)
+    if (route.first() !in startPosOnRoute) {
+        if (sections.isNotEmpty()) {
+            currentLegLocations.addAll(sections.removeFirst().locations)
+        }
+        sections.add(0, Leg.create(currentLegLocations))
     }
-    sections.add(0, Leg.create(currentLegLocations))
     return sections
 }
 
