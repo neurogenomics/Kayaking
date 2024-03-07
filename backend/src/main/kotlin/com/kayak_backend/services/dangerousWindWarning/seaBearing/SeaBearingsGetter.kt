@@ -1,4 +1,4 @@
-package com.kayak_backend.services.seaBearing
+package com.kayak_backend.services.dangerousWindWarning.seaBearing
 
 import com.kayak_backend.models.Location
 import com.kayak_backend.services.coastline.CoastlineService
@@ -17,19 +17,19 @@ class SeaBearingsGetter(
      * Returns list of bearings between each pair of coordinates in the coastline
      * Requires the coastline service to return the coordinates in a clockwise order.
      * */
-    fun getSeaBearings(): List<SeaBearingInfo> {
+    fun getSeaBearings(): Map<Location, Double> {
         val coastline = route.createBaseRoute(coastlineService.getCoastline(), routeBuffer).coordinates
 
         return coastline.toList().zipWithNext {
                 a: Coordinate, b: Coordinate ->
             if (a != b) {
-                val brng = seaDirection(b, a)
-                SeaBearingInfo(brng, Location(a.x, a.y))
+                val bearing = seaDirection(b, a)
+                (Location(a.x, a.y) to bearing)
             } else {
                 // Null for the case the same coordinate is twice in a row, to avoid non-meaningful bearings
                 null
             }
-        }.filterNotNull()
+        }.filterNotNull().toMap()
     }
 
     /*

@@ -1,9 +1,9 @@
-package com.kayak_backend.services.windFiltering
+package com.kayak_backend.services.dangerousWindWarning
 
 import com.kayak_backend.models.Location
 import com.kayak_backend.models.WindInfo
-import com.kayak_backend.services.seaBearing.SeaBearingInfo
-import com.kayak_backend.services.seaBearing.SeaBearingService
+import com.kayak_backend.services.dangerousWindWarning.seaBearing.SeaBearingInfo
+import com.kayak_backend.services.dangerousWindWarning.seaBearing.SeaBearingService
 import com.kayak_backend.services.wind.WindService
 import io.mockk.every
 import io.mockk.mockk

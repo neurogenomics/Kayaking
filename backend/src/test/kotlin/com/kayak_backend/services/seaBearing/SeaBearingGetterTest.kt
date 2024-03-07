@@ -1,5 +1,6 @@
 package com.kayak_backend.services.seaBearing
 import com.kayak_backend.services.coastline.CoastlineService
+import com.kayak_backend.services.dangerousWindWarning.seaBearing.SeaBearingsGetter
 import com.kayak_backend.services.route.BaseRoute
 import io.mockk.every
 import io.mockk.mockk
