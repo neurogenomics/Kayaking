@@ -22,7 +22,14 @@ export const getWindsDirection = async (
   console.log(locations);
   console.log(date);
 
-  let url = `winds?locs=${JSON.stringify(locations)}&checkpoints=${JSON.stringify(checkpoints)}`;
+  const latitudes: number[] = locations.map((location) => location.latitude);
+  const longitudes: number[] = locations.map((location) => location.longitude);
+
+  let url = `winds?lats=${JSON.stringify(latitudes)}&longs=${JSON.stringify(longitudes)}`;
+
+  url += `&checkpoints=${JSON.stringify(checkpoints)}`;
+
+  //let url = `winds?locs=${JSON.stringify(locations)}&checkpoints=${JSON.stringify(checkpoints)}`;
   if (date) {
     url += `&date=${format(date, "yyyy-MM-dd'T'HH:mm:ss")}`;
   }

@@ -53,16 +53,22 @@ fun Route.wind(wind: WindService) {
             //val checkpoints = emptyArray<Int>().toList()
             //(JSONArray((call.parameters["checkpoints"])) )
 
-            val locsArray = JSONArray(call.parameters.getOrFail<String>("locs"))
+            //val locsArray = JSONArray(call.parameters.getOrFail<String>("locs"))
+
+            val latsArray = JSONArray(call.parameters.getOrFail<String>("lats"))
+            val longsArray = JSONArray(call.parameters.getOrFail<String>("longs"))
             val checkpointArray = JSONArray(call.parameters.getOrFail<String>("checkpoints"))
 
-            val locs = Array(locsArray.length()) { val json = JSONArray(locsArray.getJSONArray(it)); Array(json.length()) { json.getDouble(it) }}.toList()
+            //val locs = Array(locsArray.length()) { val json = JSONArray(locsArray.getJSONArray(it)); Array(json.length()) { json.getDouble(it) }}.toList()
             val checkpoints = Array(checkpointArray.length()) { checkpointArray.getInt(it) }.toList()
+            val lats = Array(latsArray.length()) { latsArray.getDouble(it) }.toList()
+            val longs = Array(longsArray.length()) { longsArray.getDouble(it) }.toList()
 
             val start = getDateParameter(call.parameters, "start")
-            val locations = locs.map { (lat, long) ->
+            val locations = lats.zip(longs).map { (lat, long) ->
                 Location(lat, long)
             }
+            println(locations)
 
             try {
                 call.respond(wind.getWindRoute(locations, checkpoints, start))
