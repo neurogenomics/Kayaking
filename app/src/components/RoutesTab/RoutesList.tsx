@@ -1,13 +1,9 @@
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import {
-  RouteModel,
-  getDifficultyLabel,
-  getMapDisplayRegion,
-} from '../../models/routeModel';
+import { RouteModel, getMapDisplayRegion } from '../../models/routeModel';
 import React from 'react';
 import { RouteListNavigationProp } from './Routes';
 import MapView, { Polyline } from 'react-native-maps';
-import { Icon } from 'react-native-paper';
+import { RouteInfoRow } from './RouteInfoRow';
 import { routeVisualisationColors } from '../../colors';
 
 const styles = StyleSheet.create({
@@ -101,7 +97,10 @@ const RoutesList: React.FC<RoutesListProps> = ({
     return (
       <TouchableOpacity
         onPress={() => {
-          navigation.navigate('RouteDetails', { route: routes[index] });
+          navigation.navigate('RouteDetails', {
+            route: routes[index],
+            timeDisplayStr: timeDisplayStr,
+          });
           setSelectedRouteIndex(index);
         }}
         key={index}
@@ -135,23 +134,10 @@ const RoutesList: React.FC<RoutesListProps> = ({
             >
               {route.name}
             </Text>
-            <View style={styles.rowContainer}>
-              <View style={styles.textContainer}>
-                <Icon source="kayaking" size={24} />
-                <Text style={styles.text}>
-                  {(route.length / 1000).toFixed(1)}km
-                </Text>
-              </View>
-              <View style={styles.textContainer}>
-                <Icon source="clock-time-eight-outline" size={24} />
-                <Text style={styles.text}>{timeDisplayStr}</Text>
-              </View>
-              <View style={styles.textContainer}>
-                <Text style={styles.text}>
-                  {getDifficultyLabel(route.difficulty)}
-                </Text>
-              </View>
-            </View>
+            <RouteInfoRow
+              route={routes[selectedRouteIndex]}
+              timeDisplayStr={timeDisplayStr}
+            />
           </View>
         </View>
       </TouchableOpacity>

@@ -10,7 +10,7 @@ import { BottomSheetScrollView } from '@gorhom/bottom-sheet';
 
 export type RoutesParamList = {
   RouteList: undefined;
-  RouteDetails: { route: RouteModel };
+  RouteDetails: { route: RouteModel; timeDisplayStr: string };
 };
 
 export type RouteListNavigationProp = StackNavigationProp<

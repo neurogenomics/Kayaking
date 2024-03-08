@@ -10,7 +10,8 @@ import interpolate from 'color-interpolate';
 import { LinearGradient } from 'expo-linear-gradient';
 import { speedMapColours } from '../../colors';
 import RouteInformation from '../RouteInformation';
-import { ScrollView } from 'react-native-gesture-handler';
+import { RouteInfoRow } from './RouteInfoRow';
+import { BottomSheetScrollView } from '@gorhom/bottom-sheet';
 
 const styles = StyleSheet.create({
   container: {
@@ -94,7 +95,11 @@ const RouteDetails: React.FC<RouteDetailsProps> = ({
         <Text style={styles.routeName}>{mapRoute.name}</Text>
       </View>
       <View style={styles.divider} />
-      <ScrollView>
+      <RouteInfoRow
+        route={mapRoute}
+        timeDisplayStr={route.params.timeDisplayStr}
+      />
+      <BottomSheetScrollView>
         <View style={styles.gradientContainer}>
           <Text style={styles.text}>Slow</Text>
           <LinearGradient
@@ -106,7 +111,13 @@ const RouteDetails: React.FC<RouteDetailsProps> = ({
           <Text style={styles.text}>Fast</Text>
         </View>
         <View style={styles.mapContainer}>
-          <MapView style={styles.map} region={region} provider="google">
+          <MapView
+            style={styles.map}
+            region={region}
+            provider="google"
+            zoomEnabled={false}
+            scrollEnabled={false}
+          >
             {colours.map((colour, index) => {
               return (
                 <Polyline
@@ -125,7 +136,7 @@ const RouteDetails: React.FC<RouteDetailsProps> = ({
         <View>
           <RouteInformation route={mapRoute}></RouteInformation>
         </View>
-      </ScrollView>
+      </BottomSheetScrollView>
     </View>
   );
 };
