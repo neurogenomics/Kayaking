@@ -2,12 +2,11 @@ package com.kayak_backend.services.dangerousWindWarning.seaBearing
 
 import com.kayak_backend.models.Location
 import com.kayak_backend.services.coastline.CoastlineService
-import com.kayak_backend.services.coastline.IsleOfWightCoastline
 import com.kayak_backend.services.route.BaseRoute
 
 class SeaBearingService(
-    coastlineService: CoastlineService = IsleOfWightCoastline(),
-    routeBuffer: Double = 500.0,
+    coastlineService: CoastlineService,
+    routeBuffer: Double,
 ) {
     private var seaBearings: Map<Location, Double> = emptyMap()
 
