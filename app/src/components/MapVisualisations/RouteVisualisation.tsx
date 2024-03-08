@@ -29,7 +29,7 @@ type IndexCheckpoint = {
   checkpoint: number;
 };
 
-type LocationIndiciesCheckpoints = {
+type LocationIndexCheckpoints = {
   location: LocationModel;
   indexCheckpoints: IndexCheckpoint[];
 };
@@ -95,41 +95,42 @@ export const RouteVisualisation: React.FC<RouteVisualisationProps> = ({
     };
   });
 
-  const filterCoordinates = (
-    locationAndIndicies: LocationIndiciesCheckpoints[],
-  ): LocationIndiciesCheckpoints[] => {
-    const filteredCoordinates: LocationIndiciesCheckpoints[] = [];
+  // Filters LocationIndexCheckpoints by removing any that are too close to eachotehr
+  const removeNearbyCoordinates = (
+    locationIndexCheckpoints: LocationIndexCheckpoints[],
+    minDistance: number,
+  ): LocationIndexCheckpoints[] => {
+    const filteredCoordinates: LocationIndexCheckpoints[] = [];
 
-    if (locationAndIndicies.length > 0) {
-      filteredCoordinates.push(locationAndIndicies[0]);
+    if (locationIndexCheckpoints.length > 0) {
+      filteredCoordinates.push(locationIndexCheckpoints[0]);
     }
-    for (let i = 1; i < locationAndIndicies.length; i++) {
+    for (let i = 1; i < locationIndexCheckpoints.length; i++) {
       let shouldAddCoord = true;
       for (let j = 0; j < filteredCoordinates.length; j++) {
         if (
           calculateDistanceBetweenLocations(
             filteredCoordinates[j].location,
-            locationAndIndicies[i].location,
-          ) < 500
+            locationIndexCheckpoints[i].location,
+          ) < minDistance
         ) {
           shouldAddCoord = false;
           break;
         }
       }
       if (shouldAddCoord) {
-        filteredCoordinates.push(locationAndIndicies[i]);
+        filteredCoordinates.push(locationIndexCheckpoints[i]);
       }
     }
 
     return filteredCoordinates;
   };
 
-  const potentiallyDangerousAreas = filterCoordinates(
+  const potentiallyDangerousAreas = removeNearbyCoordinates(
     Array.from(duplicateLocationIndicies.entries()).map(
       ([locationKey, indexCheckpoints]) => {
         const location = JSON.parse(locationKey) as LocationModel;
-
-        const locationAndIndicies: LocationIndiciesCheckpoints = {
+        const locationAndIndicies: LocationIndexCheckpoints = {
           location,
           indexCheckpoints,
         };
@@ -137,10 +138,11 @@ export const RouteVisualisation: React.FC<RouteVisualisationProps> = ({
         return locationAndIndicies;
       },
     ),
+    500,
   );
 
   const [dangerousAreas, setDangerousAreas] = useState<
-    LocationIndiciesCheckpoints[]
+    LocationIndexCheckpoints[]
   >([]);
 
   useEffect(() => {
@@ -172,7 +174,7 @@ export const RouteVisualisation: React.FC<RouteVisualisationProps> = ({
         .then((wind) => {
           let index = 0;
 
-          const dangerousAreas: LocationIndiciesCheckpoints[] = [];
+          const dangerousAreas: LocationIndexCheckpoints[] = [];
           for (let i = 0; i < potentiallyDangerousAreas.length; i++) {
             const locationAndIndicies = potentiallyDangerousAreas[i];
 
@@ -203,7 +205,7 @@ export const RouteVisualisation: React.FC<RouteVisualisationProps> = ({
             }
 
             if (indexCheckpoints.length > 0) {
-              const result: LocationIndiciesCheckpoints = {
+              const result: LocationIndexCheckpoints = {
                 location: locationAndIndicies.location,
                 indexCheckpoints,
               };
