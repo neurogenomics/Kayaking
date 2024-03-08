@@ -1,22 +1,11 @@
 import { StyleSheet, View, Text } from 'react-native';
-import {
-  LineChart,
-  BarChart,
-  PieChart,
-  ProgressChart,
-  ContributionGraph,
-  StackedBarChart,
-} from 'react-native-chart-kit';
+import { LineChart } from 'react-native-chart-kit';
 import Speedometer, {
-  Background,
   Arc,
-  Needle,
   Progress,
-  Marks,
   Indicator,
 } from 'react-native-cool-speedometer';
 import { RouteModel, getRouteSpeeds } from '../models/routeModel';
-import { ScrollView } from 'react-native-gesture-handler';
 import { getWindsDirection } from '../services/windService';
 import { useEffect, useState } from 'react';
 import { Vector } from '../models/vectorModel';
@@ -83,7 +72,7 @@ export const RouteInformation: React.FC<RouteInformationProps> = ({
   );
   const times: string[] = ['0:00'];
   for (let i = 0; i < halfHours; i++) {
-    times.push(`${Math.floor((i + 1)/2)}:${i % 2 !== 0 ? '00' : '30'}`); // Assuming you want the hour numbers starting from 1
+    times.push(`${Math.floor((i + 1) / 2)}:${i % 2 !== 0 ? '00' : '30'}`); // Assuming you want the hour numbers starting from 1
   }
 
   console.log('hey these are the times');
