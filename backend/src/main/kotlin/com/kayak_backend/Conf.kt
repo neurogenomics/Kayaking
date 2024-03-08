@@ -164,6 +164,13 @@ fun getLegTimer(): LegTimer {
     return LegTimer(WeatherKayak(kayakerSpeed = 1.54))
 }
 
+fun getLegTimers(): LegTimers {
+    val slowLegTimer = LegTimer(WeatherKayak(kayakerSpeed = 0.7))
+    val normalLegTimer = LegTimer(WeatherKayak(kayakerSpeed = 1.54))
+    val fastLegTimer = LegTimer(WeatherKayak(kayakerSpeed = 2.0))
+    return LegTimers(slowLegTimer, normalLegTimer, fastLegTimer)
+}
+
 fun getLegDifficulty(): LegDifficulty {
     return LegDifficulty()
 }

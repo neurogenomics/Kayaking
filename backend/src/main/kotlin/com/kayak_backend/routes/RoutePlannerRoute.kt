@@ -9,12 +9,37 @@ import io.ktor.server.routing.Route
 import io.ktor.server.util.*
 import java.time.Duration
 
+enum class PaddleSpeed {
+    SLOW,
+    NORMAL,
+    FAST,
+}
+
+fun parsePaddleSpeed(input: String): PaddleSpeed {
+    return when (input.lowercase()) {
+        "slow" -> PaddleSpeed.SLOW
+        "normal" -> PaddleSpeed.NORMAL
+        "fast" -> PaddleSpeed.FAST
+        else -> throw IllegalArgumentException("Invalid paddleSpeed: $input")
+    }
+}
+
+fun paddleSpeedToLegTimer(
+    paddleSpeed: PaddleSpeed,
+    legTimers: LegTimers,
+): LegTimer {
+    return when (paddleSpeed) {
+        PaddleSpeed.SLOW -> legTimers.slowLegTimer
+        PaddleSpeed.NORMAL -> legTimers.normalLegTimer
+        PaddleSpeed.FAST -> legTimers.fastLegTimer
+    }
+}
+
 fun Route.planRoute(
     routePlanner: RoutePlanner,
     circularRoutePlanner: CircularRoutePlanner,
-    legTimer: LegTimer,
+    legTimers: LegTimers,
     legDifficulty: LegDifficulty,
-    startPositionFilterDistance: Double = 1000.0,
 ) {
     route("/planRoute") {
         get {
@@ -24,6 +49,9 @@ fun Route.planRoute(
             val lonTo = call.parameters.getOrFail<Double>("lonTo")
             val duration = call.parameters.getOrFail<Double>("duration")
             val startTime = getDateParameter(call.parameters, "startDateTime")
+            val paddleSpeed = parsePaddleSpeed(call.parameters["paddleSpeed"] ?: "normal")
+            val legTimer = paddleSpeedToLegTimer(paddleSpeed, legTimers)
+
             val routes =
                 routePlanner.generateRoutes(
                     { it.location.latitude in latFrom..latTo && it.location.longitude in lonFrom..lonTo },
@@ -59,7 +87,7 @@ fun Route.planRoute(
                     date.toLocalDate(),
                     minTime = Duration.ofMinutes(duration.toLong()),
                 ).take(10).toList()
-            val timedRoutes = routes.map { Pair(it, legTimer.getCheckpoints(it, it.startTime)) }
+            val timedRoutes = routes.map { Pair(it, legTimers.normalLegTimer.getCheckpoints(it, it.startTime)) }
             call.respond(
                 timedRoutes.map {
                         (route, checkpoints) ->

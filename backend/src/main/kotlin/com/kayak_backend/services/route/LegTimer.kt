@@ -6,6 +6,8 @@ import java.time.LocalDateTime
 import java.time.ZoneOffset
 import kotlin.math.roundToLong
 
+class LegTimers(val slowLegTimer: LegTimer, val normalLegTimer: LegTimer, val fastLegTimer: LegTimer)
+
 class LegTimer(private val kayak: Kayak) {
     // TODO change duration cache to have 15 minute periods
     // TODO find way to remove old entries after a period
