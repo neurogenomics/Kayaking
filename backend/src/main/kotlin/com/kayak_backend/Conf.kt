@@ -173,13 +173,6 @@ fun getDifficultyLegTimers(): DifficultyLegTimers {
     return DifficultyLegTimers(slowLegTimer, normalLegTimer, fastLegTimer)
 }
 
-fun getLegTimers(): LegTimers {
-    val slowLegTimer = LegTimer(WeatherKayak(kayakerSpeed = 0.7))
-    val normalLegTimer = LegTimer(WeatherKayak(kayakerSpeed = 1.54))
-    val fastLegTimer = LegTimer(WeatherKayak(kayakerSpeed = 2.0))
-    return LegTimers(slowLegTimer, normalLegTimer, fastLegTimer)
-}
-
 // separate to be consistent between the RoutePlanner and the SeaBearingService
 private const val DISTANCE_FROM_COAST = 500.0
 private val coastlineService = IsleOfWightCoastline()
