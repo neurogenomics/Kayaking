@@ -9,6 +9,7 @@ import com.kayak_backend.gribReader.GribReader
 import com.kayak_backend.gribReader.NetCDFGribReader
 import com.kayak_backend.interpolator.SimpleInterpolator
 import com.kayak_backend.services.coastline.IsleOfWightCoastline
+import com.kayak_backend.services.dangerousWindWarning.DangerousWindService
 import com.kayak_backend.services.dangerousWindWarning.seaBearing.SeaBearingService
 import com.kayak_backend.services.route.*
 import com.kayak_backend.services.route.kayak.WeatherKayak
@@ -106,6 +107,10 @@ fun getWindService(conf: Conf): WindService {
 
         else -> throw UnsupportedOperationException("Wind service type non existent")
     }
+}
+
+fun getDangerousWindService(conf: Conf): DangerousWindService {
+    return DangerousWindService((getWindService(conf)))
 }
 
 fun getWaveService(conf: Conf): WaveService {
