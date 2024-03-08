@@ -14,7 +14,7 @@ import Animated, {
   useSharedValue,
 } from 'react-native-reanimated';
 import WeatherFabs from '../components/WeatherFabs';
-import { GridType } from '../models/gridModel';
+import { WeatherGridType } from '../models/weatherGridModel';
 import DateCarousel from '../components/DateCarousel/DateCarousel';
 import { UserInput } from '../models/userInputModel';
 import { WeatherVisualisation } from '../components/MapVisualisations/WeatherVisualisation';
@@ -25,6 +25,7 @@ import { DataDisplay } from '../components/DataDisplay';
 import { getWeatherDates } from '../services/timeService';
 import SearchFab from '../components/SearchFab';
 import { getRoute } from '../services/routeService';
+import { WaveHeightVisualisation } from '../components/MapVisualisations/WaveHeightVisualisation';
 
 const styles = StyleSheet.create({
   container: {
@@ -44,9 +45,9 @@ const styles = StyleSheet.create({
 type HomeProps = NativeStackScreenProps<RootStackParamList, Route.HOME>;
 const HomeScreen: React.FC<HomeProps> = () => {
   const [fabsVisible, setFabsVisible] = useState(true);
-  const [weatherMap, setWeatherMap] = useState<GridType>();
+  const [weatherMap, setWeatherMap] = useState<WeatherGridType>();
   const [sunsetOn, setSunsetOn] = useState(false);
-  const [tideHeightOn, setTideTimesOn] = useState(false);
+  const [waveHeightOn, setWaveHeightOn] = useState(false);
   const snapPoints = useMemo(() => ['15%', '50%', '90%'], []);
   const [mapDate, setMapDate] = useState<Date>(new Date());
   const bottomSheetPosition = useSharedValue<number>(0);
@@ -102,6 +103,16 @@ const HomeScreen: React.FC<HomeProps> = () => {
     return dates.indexOf(pastDates[closestIndex]);
   }
 
+  const getWeatherMap = (weatherMap: WeatherGridType | undefined) => {
+    if (
+      weatherMap === WeatherGridType.WIND ||
+      weatherMap === WeatherGridType.TIDE
+    ) {
+      return <WeatherVisualisation display={weatherMap} date={mapDate} />;
+    }
+    return null;
+  };
+
   useEffect(() => {
     void getWeatherDates().then((dates) => {
       setWeatherDates(dates);
@@ -124,9 +135,8 @@ const HomeScreen: React.FC<HomeProps> = () => {
         provider="google"
         onRegionChangeComplete={setRegion}
       >
-        {weatherMap !== undefined ? (
-          <WeatherVisualisation display={weatherMap} date={mapDate} />
-        ) : null}
+        {getWeatherMap(weatherMap)}
+        {waveHeightOn ? <WaveHeightVisualisation date={mapDate} /> : null}
         {userInput !== undefined ? (
           <RouteVisualisation
             userInput={userInput}
@@ -154,7 +164,7 @@ const HomeScreen: React.FC<HomeProps> = () => {
 
       <DataDisplay
         sunsetOn={sunsetOn}
-        tideTimesOn={tideHeightOn}
+        tideTimesOn={waveHeightOn}
         // TODO get from map?
         location={{
           longitude: isleOfWight.longitude,
@@ -168,7 +178,7 @@ const HomeScreen: React.FC<HomeProps> = () => {
           visible={fabsVisible}
           setWeatherMap={setWeatherMap}
           setSunsetOn={setSunsetOn}
-          setTideTimesOn={setTideTimesOn}
+          setWaveHeightOn={setWaveHeightOn}
         ></WeatherFabs>
       </Animated.View>
       <BottomSheet

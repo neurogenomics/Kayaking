@@ -2,7 +2,7 @@ import { FAB } from 'react-native-paper';
 import React, { useState } from 'react';
 import { StyleSheet } from 'react-native';
 import { COLORS } from '../colors';
-import { GridType } from '../models/gridModel';
+import { WeatherGridType } from '../models/weatherGridModel';
 
 const styles = StyleSheet.create({
   fabGroup: {
@@ -16,9 +16,11 @@ const styles = StyleSheet.create({
 
 type WeatherFabsProps = {
   visible: boolean;
-  setWeatherMap: React.Dispatch<React.SetStateAction<GridType | undefined>>;
+  setWeatherMap: React.Dispatch<
+    React.SetStateAction<WeatherGridType | undefined>
+  >;
   setSunsetOn: React.Dispatch<React.SetStateAction<boolean>>;
-  setTideTimesOn: React.Dispatch<React.SetStateAction<boolean>>;
+  setWaveHeightOn: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
 export enum WeatherFab {
@@ -32,7 +34,7 @@ const WeatherFabs: React.FC<WeatherFabsProps> = ({
   visible,
   setWeatherMap,
   setSunsetOn,
-  setTideTimesOn,
+  setWaveHeightOn,
 }: WeatherFabsProps) => {
   const [layersOpen, setLayersOpen] = useState(false);
   const icons = [
@@ -49,7 +51,7 @@ const WeatherFabs: React.FC<WeatherFabsProps> = ({
   ];
   const [layers, setLayers] = useState(new Array(icons.length).fill(false));
 
-  const handleWeatherPress = (weather: GridType) => {
+  const handleWeatherPress = (weather: WeatherGridType) => {
     setWeatherMap((prevWeather) => {
       if (prevWeather && prevWeather !== weather) {
         setLayers((prevState) => ({
@@ -77,11 +79,11 @@ const WeatherFabs: React.FC<WeatherFabsProps> = ({
         onPress: () => {
           switch (names[index]) {
             case WeatherFab.WIND: {
-              handleWeatherPress(GridType.WIND);
+              handleWeatherPress(WeatherGridType.WIND);
               break;
             }
             case WeatherFab.TIDE: {
-              handleWeatherPress(GridType.TIDE);
+              handleWeatherPress(WeatherGridType.TIDE);
               break;
             }
             case WeatherFab.SUNSET: {
@@ -89,7 +91,7 @@ const WeatherFabs: React.FC<WeatherFabsProps> = ({
               break;
             }
             case WeatherFab.WAVE_HEIGHT: {
-              setTideTimesOn((prevState) => !prevState);
+              setWaveHeightOn((prevState) => !prevState);
               break;
             }
           }

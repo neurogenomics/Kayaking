@@ -1,13 +1,17 @@
 import { Polyline } from 'react-native-maps';
 import React, { useEffect, useState } from 'react';
 import { LocationModel } from '../../models/locationModel';
-import { GridModel, GridType, ResolutionModel } from '../../models/gridModel';
-import { getGrid } from '../../services/gridService';
+import {
+  WeatherGridModel,
+  WeatherGridType,
+  ResolutionModel,
+} from '../../models/weatherGridModel';
+import { getWeatherGrid } from '../../services/weatherGridService';
 import { interpolateColor } from 'react-native-reanimated';
 import { mapVisColours } from '../../colors';
 
 type WeatherVisualisationProps = {
-  display: GridType;
+  display: WeatherGridType;
   date: Date;
 };
 
@@ -109,7 +113,7 @@ export const WeatherVisualisation: React.FC<WeatherVisualisationProps> = ({
     setCoords(arrows);
   };
 
-  const getWeatherVectors = (grid: GridModel) => {
+  const getWeatherVectors = (grid: WeatherGridModel) => {
     const vectors: WeatherVector[] = [];
     let minMag: number = Infinity;
     let maxMag: number = 0;
@@ -145,13 +149,15 @@ export const WeatherVisualisation: React.FC<WeatherVisualisationProps> = ({
 
   const getArrowColour = (scale: number) => {
     const outputRange =
-      display === GridType.WIND ? mapVisColours.wind : mapVisColours.tide;
+      display === WeatherGridType.WIND
+        ? mapVisColours.wind
+        : mapVisColours.tide;
     return interpolateColor(scale, [0, 1], outputRange);
   };
 
   const getArrowGrid = async (date: Date) => {
     try {
-      const grid = await getGrid(
+      const grid = await getWeatherGrid(
         display,
         gridStart,
         gridEnd,

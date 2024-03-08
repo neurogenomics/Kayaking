@@ -1,16 +1,20 @@
 import { LocationModel } from '../models/locationModel';
-import { GridModel, GridType, ResolutionModel } from '../models/gridModel';
+import {
+  ResolutionModel,
+  WeatherGridModel,
+  WeatherGridType,
+} from '../models/weatherGridModel';
 import { getData } from './utils';
 import { format } from 'date-fns';
 
-export const getGrid = async (
-  type: GridType,
+export const getWeatherGrid = async (
+  type: WeatherGridType,
   fromLocation: LocationModel,
   toLocation: LocationModel,
   resolution: ResolutionModel,
   date?: Date,
-): Promise<GridModel> => {
-  let url = type === GridType.TIDE ? 'tideGrid' : 'windGrid';
+): Promise<WeatherGridModel> => {
+  let url = type === WeatherGridType.TIDE ? 'tideGrid' : 'windGrid';
   url += `?latFrom=${fromLocation.latitude}&latTo=${toLocation.latitude}&lonFrom=${fromLocation.longitude}&lonTo=${toLocation.longitude}&latRes=${resolution.latRes}&lonRes=${resolution.lonRes}`;
   if (date) {
     url += `&datetime=${format(date, "yyyy-MM-dd'T'HH:mm:ss")}`;

@@ -7,11 +7,10 @@ export const COLORS = {
 export const mapVisColours = {
   wind: ['#0000FF', '#FF0000'],
   tide: ['#32CD32', '#0000FF'],
-};
-
-export const routeColors = {
-  selected: '#FF0000',
-  unselected: '#999999',
+  wave: [
+    'rgba(255, 0, 0, 0.25)', // Red with 50% transparency
+    'rgba(0, 255, 0, 0.25)', // Green with 50% transparency
+  ],
 };
 
 export const speedMapColours = [
