@@ -28,16 +28,7 @@ export const getWindsDirection = async (
     start: date,
   };
 
-  //const latitudes: number[] = locations.map((location) => location.latitude);
-  //const longitudes: number[] = locations.map((location) => location.longitude);
   const url = 'winds';
-  //let url = `winds?lats=${JSON.stringify(latitudes)}&longs=${JSON.stringify(longitudes)}`;
 
-  //url += `&checkpoints=${JSON.stringify(checkpoints)}`;
-
-  //let url = `winds?locs=${JSON.stringify(locations)}&checkpoints=${JSON.stringify(checkpoints)}`;
-  //if (date) {
-  //  url += `&date=${format(date, "yyyy-MM-dd'T'HH:mm:ss")}`;
-  //}
   return await postData<Vector[]>(url, payload);
 };

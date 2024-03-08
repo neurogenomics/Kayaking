@@ -10,6 +10,7 @@ import {
   calculateDistanceBetweenLocations,
   toRadians,
 } from '../models/locationModel';
+import { COLORS } from '../colors';
 type RouteInformationProps = {
   route: RouteModel;
 };
@@ -68,11 +69,8 @@ export const RouteInformation: React.FC<RouteInformationProps> = ({
   );
   const times: string[] = ['0:00'];
   for (let i = 0; i < halfHours; i++) {
-    times.push(`${Math.floor((i + 1) / 2)}:${i % 2 !== 0 ? '00' : '30'}`); // Assuming you want the hour numbers starting from 1
+    times.push(`${Math.floor((i + 1) / 2)}:${i % 2 !== 0 ? '00' : '30'}`); // 0:00, 0:30, 1:00, etc
   }
-
-  console.log('hey these are the times');
-  console.log(times);
 
   return (
     <View>
@@ -87,19 +85,19 @@ export const RouteInformation: React.FC<RouteInformationProps> = ({
               },
             ],
           }}
-          width={Dimensions.get('window').width} // from react-native
+          width={Dimensions.get('window').width}
           height={200}
           yAxisLabel=""
           yAxisSuffix="m/s"
-          yAxisInterval={4} // optional, defaults to 1
+          yAxisInterval={4}
           fromZero={true}
           chartConfig={{
-            backgroundColor: '#CC99FF',
-            backgroundGradientFrom: '#CC99FF',
-            backgroundGradientTo: '#CC99FF',
+            backgroundColor: COLORS.fabSelected,
+            backgroundGradientFrom: COLORS.fabSelected,
+            backgroundGradientTo: COLORS.fabSelected,
             fillShadowGradientFromOpacity: 0,
             fillShadowGradientToOpacity: 0,
-            decimalPlaces: 0, // optional, defaults to 2dp
+            decimalPlaces: 0,
             color: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
             labelColor: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
             style: {
@@ -129,18 +127,18 @@ export const RouteInformation: React.FC<RouteInformationProps> = ({
               },
             ],
           }}
-          width={Dimensions.get('window').width} // from react-native
+          width={Dimensions.get('window').width}
           height={200}
           yAxisLabel=""
           yAxisSuffix="m/s"
-          yAxisInterval={4} // optional, defaults to 1
+          yAxisInterval={4}
           chartConfig={{
-            backgroundColor: '#CC99FF',
-            backgroundGradientFrom: '#CC99FF',
-            backgroundGradientTo: '#CC99FF',
+            backgroundColor: COLORS.fabSelected,
+            backgroundGradientFrom: COLORS.fabSelected,
+            backgroundGradientTo: COLORS.fabSelected,
             fillShadowGradientFromOpacity: 0,
             fillShadowGradientToOpacity: 0,
-            decimalPlaces: 0, // optional, defaults to 2dp
+            decimalPlaces: 0,
             color: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
             labelColor: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
             style: {
@@ -149,7 +147,7 @@ export const RouteInformation: React.FC<RouteInformationProps> = ({
             propsForDots: {
               r: '0',
               strokeWidth: '2',
-              stroke: '#CC99FF',
+              stroke: COLORS.fabSelected,
             },
           }}
           style={{
@@ -164,7 +162,7 @@ export const RouteInformation: React.FC<RouteInformationProps> = ({
         max={10}
         angle={180}
         lineCap="round"
-        accentColor="rgb(204, 153, 255)"
+        accentColor={COLORS.fabSelected}
       >
         <Arc arcWidth={40} />
         <Progress arcWidth={40} />
