@@ -60,15 +60,12 @@ fun Route.wind(wind: WindService) {
 
     route("/winds") {
         post {
-
             val requestBody = call.receiveText()
             val data = Json.decodeFromString<Data>(requestBody)
 
             try {
-
                 // Call your wind.getWindRoute() function with the extracted data
                 call.respond(wind.getWindRoute(data.locations, data.checkpoints, data.start))
-
             } catch (e: Exception) {
                 // Handle errors
                 call.respond(HttpStatusCode.BadRequest, "Invalid request")
@@ -101,4 +98,3 @@ fun Route.wind(wind: WindService) {
         }
     }
 }
-
