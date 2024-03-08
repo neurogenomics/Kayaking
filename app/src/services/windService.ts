@@ -14,7 +14,6 @@ export const getWindDirection = async (
   return await getData<Vector>(url);
 };
 
-
 export const getWindDangerousWind = async (
   locations: LocationModel[],
   checkpoints: number[],
@@ -25,7 +24,8 @@ export const getWindDangerousWind = async (
     locations,
     checkpoints,
     date: format(date, "yyyy-MM-dd'T'HH:mm:ss"),
-});
+  });
+};
 
 export const getWindsDirection = async (
   locations: LocationModel[],

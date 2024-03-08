@@ -14,17 +14,18 @@ import Animated, {
   useSharedValue,
 } from 'react-native-reanimated';
 import WeatherFabs from '../components/WeatherFabs';
-import { GridType } from '../models/gridModel';
+import { WeatherGridType } from '../models/weatherGridModel';
 import DateCarousel from '../components/DateCarousel/DateCarousel';
 import { UserInput } from '../models/userInputModel';
 import { WeatherVisualisation } from '../components/MapVisualisations/WeatherVisualisation';
 import { RouteVisualisation } from '../components/MapVisualisations/RouteVisualisation';
 import { RouteModel } from '../models/routeModel';
 import { useNavigation } from '@react-navigation/native';
-import { DataDisplay } from '../components/DataDisplay';
+import { DataDisplay } from '../components/MapVisualisations/DataDisplay';
 import { getWeatherDates } from '../services/timeService';
 import SearchFab from '../components/SearchFab';
 import { getRoute } from '../services/routeService';
+import { WaveHeightVisualisation } from '../components/MapVisualisations/WaveHeightVisualisation';
 
 const styles = StyleSheet.create({
   container: {
@@ -44,9 +45,10 @@ const styles = StyleSheet.create({
 type HomeProps = NativeStackScreenProps<RootStackParamList, Route.HOME>;
 const HomeScreen: React.FC<HomeProps> = () => {
   const [fabsVisible, setFabsVisible] = useState(true);
-  const [weatherMap, setWeatherMap] = useState<GridType>();
+  const [weatherMap, setWeatherMap] = useState<WeatherGridType>();
   const [sunsetOn, setSunsetOn] = useState(false);
-  const [tideHeightOn, setTideTimesOn] = useState(false);
+  const [tideTimesOn, setTideTimesOn] = useState(false);
+  const [waveHeightOn, setWaveHeightOn] = useState(false);
   const snapPoints = useMemo(() => ['15%', '50%', '90%'], []);
   const [mapDate, setMapDate] = useState<Date>(new Date());
   const bottomSheetPosition = useSharedValue<number>(0);
@@ -102,6 +104,16 @@ const HomeScreen: React.FC<HomeProps> = () => {
     return dates.indexOf(pastDates[closestIndex]);
   }
 
+  const getWeatherMap = (weatherMap: WeatherGridType | undefined) => {
+    if (
+      weatherMap === WeatherGridType.WIND ||
+      weatherMap === WeatherGridType.TIDE
+    ) {
+      return <WeatherVisualisation display={weatherMap} date={mapDate} />;
+    }
+    return null;
+  };
+
   useEffect(() => {
     void getWeatherDates().then((dates) => {
       setWeatherDates(dates);
@@ -124,16 +136,15 @@ const HomeScreen: React.FC<HomeProps> = () => {
         provider="google"
         onRegionChangeComplete={setRegion}
       >
-        {weatherMap !== undefined ? (
-          <WeatherVisualisation display={weatherMap} date={mapDate} />
-        ) : null}
+        {getWeatherMap(weatherMap)}
+        {waveHeightOn ? <WaveHeightVisualisation date={mapDate} /> : null}
         {userInput !== undefined ? (
           <RouteVisualisation
             userInput={userInput}
             routes={routes}
             selectedRouteIndex={selectedRouteIndex}
             setSelectedRouteIndex={setSelectedRouteIndex}
-            showWindWarnings={weatherMap === GridType.WIND}
+            showWindWarnings={weatherMap === WeatherGridType.WIND}
           />
         ) : null}
       </MapView>
@@ -144,30 +155,25 @@ const HomeScreen: React.FC<HomeProps> = () => {
           onDateChanged={(date) => setMapDate(date)}
         ></DateCarousel>
       </SafeAreaView>
-
+      <DataDisplay
+        sunsetOn={sunsetOn}
+        tideTimesOn={tideTimesOn}
+        location={region}
+        date={mapDate}
+      />
       <View style={styles.searchFabContainer}>
         <SearchFab
           onSearch={handleSearch}
           isSearching={isSearching}
         ></SearchFab>
       </View>
-
-      <DataDisplay
-        sunsetOn={sunsetOn}
-        tideTimesOn={tideHeightOn}
-        // TODO get from map?
-        location={{
-          longitude: isleOfWight.longitude,
-          latitude: isleOfWight.latitude,
-        }}
-        date={mapDate}
-      />
       {/*<Text style={{ fontSize: 100 }}>put here</Text>*/}
       <Animated.View style={inverseBottomSheetStyle} pointerEvents="box-none">
         <WeatherFabs
           visible={fabsVisible}
           setWeatherMap={setWeatherMap}
           setSunsetOn={setSunsetOn}
+          setWaveHeightOn={setWaveHeightOn}
           setTideTimesOn={setTideTimesOn}
         ></WeatherFabs>
       </Animated.View>
