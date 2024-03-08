@@ -7,8 +7,7 @@ import {
   ResolutionModel,
 } from '../../models/weatherGridModel';
 import { getWeatherGrid } from '../../services/weatherGridService';
-import { interpolateColor } from 'react-native-reanimated';
-import { mapVisColours } from '../../colors';
+import { getInterpolatedColor, mapVisColours } from '../../colors';
 import { gridStart, gridEnd, gridResolution } from '../../../constants';
 
 type WeatherVisualisationProps = {
@@ -24,6 +23,7 @@ type WeatherVector = {
 
 type ArrowCoords = {
   coords: LocationModel[];
+  magnitude: number;
   scale: number;
 };
 
@@ -32,6 +32,8 @@ export const WeatherVisualisation: React.FC<WeatherVisualisationProps> = ({
   date,
 }) => {
   const [coords, setCoords] = useState<ArrowCoords[]>();
+  const [colorMap, setColorMap] = useState<string[]>();
+  const [weatherScale, setWeatherScale] = useState<number[]>();
 
   // According to the Beaufort wind scale converted to m/s
   const maxWind = 30;
@@ -103,6 +105,7 @@ export const WeatherVisualisation: React.FC<WeatherVisualisationProps> = ({
           arrowheadPoint2,
         ],
         scale: scale,
+        magnitude: mag,
       };
       arrows.push(coords);
     }
@@ -137,14 +140,6 @@ export const WeatherVisualisation: React.FC<WeatherVisualisationProps> = ({
     getArrows(vectors, gridResolution);
   };
 
-  const getArrowColour = (scale: number) => {
-    const outputRange =
-      display === WeatherGridType.WIND
-        ? mapVisColours.wind
-        : mapVisColours.tide;
-    return interpolateColor(scale, [0, 1], outputRange);
-  };
-
   const getArrowGrid = async (date: Date) => {
     try {
       const grid = await getWeatherGrid(
@@ -163,18 +158,32 @@ export const WeatherVisualisation: React.FC<WeatherVisualisationProps> = ({
   useEffect(() => {
     if (display !== null) {
       void getArrowGrid(date);
+      switch (display) {
+        case WeatherGridType.TIDE:
+          setColorMap(mapVisColours.tide);
+          setWeatherScale(tideScale);
+          break;
+        case WeatherGridType.WIND:
+          setColorMap(mapVisColours.wind);
+          setWeatherScale(windScale);
+          break;
+      }
     }
   }, [display, date]);
 
   return (
     <>
-      {coords
+      {coords && weatherScale !== undefined && colorMap !== undefined
         ? coords.map((coord, index) => (
             <Polyline
               key={index}
               coordinates={coord.coords}
               strokeWidth={1 + coord.scale * 2}
-              strokeColor={getArrowColour(coord.scale)}
+              strokeColor={getInterpolatedColor(
+                coord.magnitude,
+                weatherScale,
+                colorMap,
+              )}
               zIndex={0}
             />
           ))

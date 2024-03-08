@@ -1,3 +1,5 @@
+import { interpolateColor } from 'react-native-reanimated';
+
 export const COLORS = {
   fabUnselected: '#fafafa',
   fabSelected: '#6ca0dc',
@@ -42,3 +44,13 @@ export const routeVisualisationColors: string[] = [
   '#4169E1', // Royal Blue
   '#8A2BE2', // Blue Violet
 ];
+
+export const getInterpolatedColor = (
+  val: number,
+  scale: number[],
+  colourScale: string[],
+) => {
+  const max = scale[scale.length - 1];
+  const num = val > max ? max : val;
+  return interpolateColor(num, scale, colourScale);
+};

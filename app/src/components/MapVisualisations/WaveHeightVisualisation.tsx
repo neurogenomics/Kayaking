@@ -2,8 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { ResolutionModel } from '../../models/weatherGridModel';
 import { LocationModel } from '../../models/locationModel';
 import { Polygon } from 'react-native-maps';
-import { mapVisColours } from '../../colors';
-import { interpolateColor } from 'react-native-reanimated';
+import { getInterpolatedColor, mapVisColours } from '../../colors';
 import { getWaveGrid } from '../../services/waveGridService';
 import { WaveGridModel } from '../../models/waveGridModel';
 import { gridStart, gridEnd, gridResolution } from '../../../constants';
@@ -67,11 +66,6 @@ export const WaveHeightVisualisation: React.FC<
     setPolyCoords(waveHeights);
   };
 
-  const getPolyColor = (height: number) => {
-    const scale = height > maxHeight ? maxHeight : height;
-    return interpolateColor(scale, waveHeightScale, mapVisColours.wave);
-  };
-
   const getWaveHeightGrid = async (date: Date) => {
     try {
       const grid = await getWaveGrid(gridStart, gridEnd, gridResolution, date);
@@ -92,8 +86,16 @@ export const WaveHeightVisualisation: React.FC<
             <Polygon
               key={index}
               coordinates={coord.coords}
-              strokeColor={getPolyColor(coord.height)}
-              fillColor={getPolyColor(coord.height)}
+              strokeColor={getInterpolatedColor(
+                coord.height,
+                waveHeightScale,
+                mapVisColours.wave,
+              )}
+              fillColor={getInterpolatedColor(
+                coord.height,
+                waveHeightScale,
+                mapVisColours.wave,
+              )}
               tappable={true}
             />
           ))
