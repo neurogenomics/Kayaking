@@ -15,7 +15,7 @@ import kotlin.math.min
 
 private const val BAD_WIND_ANGLE_LIMIT = 90
 
-// TODO figure out what this limit should be and if it should just be a component
+// TODO figure out what this limit should be
 private const val BAD_WIND_MAGNITUDE_LIMIT = 2
 
 class DangerousWindService(
