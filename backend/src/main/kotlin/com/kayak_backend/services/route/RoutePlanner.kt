@@ -37,6 +37,10 @@ class RoutePlanner(
         val iterators = sequences.map { it.iterator() }.toMutableList()
 
         fun nextValue(): T? {
+            if (iterators.size == 0) {
+                return null
+            }
+
             val iterator = iterators[random.nextInt(iterators.size)]
             if (iterator.hasNext()) {
                 return iterator.next()
