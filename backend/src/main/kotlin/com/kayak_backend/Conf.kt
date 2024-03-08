@@ -1,12 +1,15 @@
 package com.kayak_backend
 
+import BeachNamer
 import com.charleskorn.kaml.Yaml
 import com.kayak_backend.gribFetcher.GribFetcher
 import com.kayak_backend.gribFetcher.OpenSkironGribFetcher
+import com.kayak_backend.gribReader.CachingGribReader
 import com.kayak_backend.gribReader.GribReader
 import com.kayak_backend.gribReader.NetCDFGribReader
 import com.kayak_backend.interpolator.SimpleInterpolator
 import com.kayak_backend.services.coastline.IsleOfWightCoastline
+import com.kayak_backend.services.dangerousWindWarning.seaBearing.SeaBearingService
 import com.kayak_backend.services.route.*
 import com.kayak_backend.services.route.kayak.WeatherKayak
 import com.kayak_backend.services.slipways.BeachesService
@@ -78,6 +81,7 @@ fun getConf(filePath: String): Conf {
 fun getGribReader(implementation: String): GribReader {
     return when (implementation) {
         "NetCDFGribReader" -> NetCDFGribReader()
+        "CachingNetCDFGribReader" -> CachingGribReader(NetCDFGribReader())
         else -> throw UnsupportedOperationException("Grib Reader Implementation Non Existent")
     }
 }
@@ -157,9 +161,19 @@ fun getTimeService(conf: Conf): TimeService {
     }
 }
 
-// TODO Once we have the weather kayak, may want to use conf to determine which kayak
-fun getLegTimer(): LegTimer {
-    return LegTimer(WeatherKayak(kayakerSpeed = 1.54))
+fun getDifficultyLegTimers(): DifficultyLegTimers {
+    val slowLegTimer = LegTimer(WeatherKayak(kayakerSpeed = 0.7))
+    val normalLegTimer = LegTimer(WeatherKayak(kayakerSpeed = 1.54))
+    val fastLegTimer = LegTimer(WeatherKayak(kayakerSpeed = 2.0))
+    return DifficultyLegTimers(slowLegTimer, normalLegTimer, fastLegTimer)
+}
+
+// separate to be consistent between the RoutePlanner and the SeaBearingService
+private const val DISTANCE_FROM_COAST = 500.0
+private val coastlineService = IsleOfWightCoastline()
+
+fun getSeaBearingService(): SeaBearingService {
+    return SeaBearingService(coastlineService, DISTANCE_FROM_COAST)
 }
 
 fun getLegDifficulty(): LegDifficulty {
@@ -167,16 +181,16 @@ fun getLegDifficulty(): LegDifficulty {
 }
 
 fun getRouteSetup(): Pair<Polygon, List<NamedLocation>> {
-    val distanceFromCoast = 500.0
-    val coast = IsleOfWightCoastline().getCoastline()
-    val route = BaseRoute().createBaseRoute(coast, distanceFromCoast)
+    val coast = coastlineService.getCoastline()
+    val route = BaseRoute().createBaseRoute(coast, DISTANCE_FROM_COAST)
     val slipways = SlipwayService().getAllSlipways()
     val beaches = BeachesService().getAllBeaches()
+    val beachNamer = BeachNamer()
     val beachStarts =
         beaches.map { beachInfo ->
             NamedLocation(
                 beachInfo.avergeLocation,
-                beachInfo.name ?: "Unnamed beach",
+                beachInfo.name ?: beachNamer.getClosestBeachName(beachInfo.avergeLocation),
             )
         }
     val startPositions = slipways.plus(beachStarts)

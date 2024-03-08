@@ -60,12 +60,13 @@ class RoutePlannerTest {
     fun generatesRoutesWhichStartAndEndAtValidPoints() {
         val routePlanner = RoutePlanner(polygon, startPos, 100000000)
 
-        every { legTimerMock.getDuration(any(), any()) } returns 4L
+        every { legTimerMock.getDuration(any(), any()) } returns 62L
 
         val result = (
             routePlanner.generateRoutes(
                 { location distanceTo it.location < 1000000000.0 },
-                { legTimerMock.getDuration(it, startTime) < duration },
+                { legTimerMock.getDuration(it, startTime) >= duration },
+                { legTimerMock.getDuration(it, startTime) < duration * 1.5 },
                 mockTime,
             ).take(5).toList()
         )
@@ -81,12 +82,13 @@ class RoutePlannerTest {
         val start = NamedLocation(Location(1.0, 1.0), "test")
         val routePlanner = RoutePlanner(polygon, listOf(start), 100000000)
 
-        every { legTimerMock.getDuration(any(), any()) } returns 4L
+        every { legTimerMock.getDuration(any(), any()) } returns 62L
 
         val result = (
             routePlanner.generateRoutes(
                 { location distanceTo it.location < 1000000 },
-                { legTimerMock.getDuration(it, startTime) < duration },
+                { legTimerMock.getDuration(it, startTime) >= duration },
+                { legTimerMock.getDuration(it, startTime) < duration * 1.5 },
                 mockTime,
             ).take(5).toList()
         )
@@ -103,12 +105,13 @@ class RoutePlannerTest {
         val routePlanner = RoutePlanner(polygon, startPos, 100000000)
         val smallDuration = 1L
 
-        every { legTimerMock.getDuration(any(), any()) } returns 4L
+        every { legTimerMock.getDuration(any(), any()) } returns 62L
 
         val result = (
             routePlanner.generateRoutes(
                 { location distanceTo it.location < 1000000000.0 },
-                { legTimerMock.getDuration(it, startTime) < smallDuration },
+                { legTimerMock.getDuration(it, startTime) >= smallDuration },
+                { legTimerMock.getDuration(it, startTime) < smallDuration * 1.5 },
                 mockTime,
             ).take(5).toList()
         )
@@ -120,36 +123,18 @@ class RoutePlannerTest {
     fun returnsEmptySequenceWhenNoStartingPointsCloseEnough() {
         val routePlanner = RoutePlanner(polygon, startPos, 100000000)
 
-        every { legTimerMock.getDuration(any(), any()) } returns 4L
+        every { legTimerMock.getDuration(any(), any()) } returns 62L
 
         val result = (
             routePlanner.generateRoutes(
                 { location distanceTo it.location < 10 },
-                { legTimerMock.getDuration(it, startTime) < duration },
+                { legTimerMock.getDuration(it, startTime) >= duration },
+                { legTimerMock.getDuration(it, startTime) < duration * 1.5 },
                 mockTime,
             ).take(5).toList()
         )
 
         assert(result.isEmpty())
-    }
-
-    @Test
-    fun returnsLongestRoutesFirstOutOfThoseGenerated() {
-        val routePlanner = RoutePlanner(polygon, startPos, 100000000)
-
-        every { legTimerMock.getDuration(any(), any()) } returns 4L
-
-        val result = (
-            routePlanner.generateRoutes(
-                { location distanceTo it.location < 1000000000.0 },
-                { legTimerMock.getDuration(it, startTime) < duration },
-                mockTime,
-            ).take(5).toList()
-        )
-
-        result.zipWithNext { a, b ->
-            assert(a.length >= b.length)
-        }
     }
 
     // SectionIterator tests
