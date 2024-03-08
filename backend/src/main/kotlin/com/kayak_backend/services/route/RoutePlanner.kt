@@ -3,6 +3,7 @@ package com.kayak_backend.services.route
 import com.kayak_backend.models.Location
 import org.locationtech.jts.geom.Polygon
 import java.time.LocalDateTime
+import kotlin.random.Random
 
 class RoutePlanner(
     private val baseRoutePolygon: Polygon,
@@ -31,6 +32,15 @@ class RoutePlanner(
         }
     }
 
+    fun <T> randomSequence(sequences: List<Sequence<T>>): Sequence<T> {
+        val random = Random.Default
+        val iterators = sequences.map { it.iterator() }.toMutableList()
+
+        return generateSequence {
+            iterators[random.nextInt(iterators.size)].next()
+        }
+    }
+
     // Given the start locations, generate a sequence of routes that all abide by condition
     private fun routeGenerator(
         condition: (Leg) -> Boolean,
@@ -39,18 +49,28 @@ class RoutePlanner(
         val forwardRoutes =
             routeLocations.map { routeLocation ->
                 sectionedRoute.stepFromAccumulating(routeLocation).map { connectToStart(sectionedRoute, it) }
-                    .takeWhile { condition(it.first) }
             }
 
-        // TODO combines these
-        //        val backwardsRoutes =
-        //            routeLocations.map { routeLocation ->
-        //                SectionCombiner(
-        //                    routeToNextSectionIndex[routeLocation]!!, -1
-        //                ).asSequence().map { connectToStart(it) }.takeWhile(condition)
-        //            }
-
         return alternate(forwardRoutes)
+    }
+
+    private fun getRouteGenerators(
+        condition: (Leg) -> Boolean,
+        routeLocations: List<Location>,
+    ): List<Sequence<Pair<Leg, String>>> {
+        val forwardRoutes =
+            routeLocations.map { routeLocation ->
+                sectionedRoute.stepFromAccumulating(routeLocation)
+            }
+        val backwardsRoutes =
+            routeLocations.map { routeLocation ->
+                sectionedRoute.stepFromAccumulating(routeLocation, -1)
+            }
+        return (forwardRoutes.plus(backwardsRoutes)).map { generator ->
+            generator.filter {
+                condition(it)
+            }.map { connectToStart(sectionedRoute, it) }
+        }
     }
 
     // Generates a sequence of routes starting from the filtered start positions and that all abide by condition
@@ -58,11 +78,9 @@ class RoutePlanner(
         startPositionFilter: (NamedLocation) -> Boolean,
         condition: (Leg) -> Boolean,
         startTime: LocalDateTime,
-        maxGenerated: Int = 300,
     ): Sequence<Route> {
         val validStarts = sectionedRoute.getStarts(startPositionFilter)
-        val generator = routeGenerator(condition, validStarts.values.toList())
-        return generator.take(maxGenerated).map { Route(it.second, it.first.length, it.first, startTime) }
-            .sortedByDescending { it.length }
+        val generators = getRouteGenerators(condition, validStarts.values.toList())
+        return randomSequence(generators).map { Route(it.second, it.first.length, it.first, startTime) }
     }
 }

@@ -27,9 +27,9 @@ fun Route.planRoute(
             val routes =
                 routePlanner.generateRoutes(
                     { it.location.latitude in latFrom..latTo && it.location.longitude in lonFrom..lonTo },
-                    { legTimer.getDuration(it, startTime) < duration * 60 },
+                    { legTimer.getDuration(it, startTime) >= duration * 60 },
                     startTime,
-                ).take(20).toList()
+                ).take(10).sortedBy { it.length }.toList()
 
             val timedRoutes = routes.map { Pair(it, legTimer.getCheckpoints(it, startTime)) }
             call.respond(
