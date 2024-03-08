@@ -3,6 +3,7 @@ package com.kayak_backend.services.route
 import com.kayak_backend.models.Location
 import org.locationtech.jts.geom.Polygon
 import java.time.LocalDateTime
+import kotlin.random.Random
 
 class RoutePlanner(
     private val baseRoutePolygon: Polygon,
@@ -31,38 +32,59 @@ class RoutePlanner(
         }
     }
 
-    // Given the start locations, generate a sequence of routes that all abide by condition
-    private fun routeGenerator(
-        condition: (Leg) -> Boolean,
-        routeLocations: List<Location>,
-    ): Sequence<Pair<Leg, String>> {
-        val forwardRoutes =
-            routeLocations.map { routeLocation ->
-                sectionedRoute.stepFromAccumulating(routeLocation).map { connectToStart(sectionedRoute, it) }
-                    .takeWhile { condition(it.first) }
+    private fun <T> randomSequence(sequences: List<Sequence<T>>): Sequence<T> {
+        val random = Random.Default
+        val iterators = sequences.map { it.iterator() }.toMutableList()
+
+        fun nextValue(): T? {
+            if (iterators.size == 0) {
+                return null
             }
 
-        // TODO combines these
-        //        val backwardsRoutes =
-        //            routeLocations.map { routeLocation ->
-        //                SectionCombiner(
-        //                    routeToNextSectionIndex[routeLocation]!!, -1
-        //                ).asSequence().map { connectToStart(it) }.takeWhile(condition)
-        //            }
+            val iterator = iterators[random.nextInt(iterators.size)]
+            if (iterator.hasNext()) {
+                return iterator.next()
+            } else {
+                iterators.remove(iterator)
+                if (iterators.isNotEmpty()) {
+                    return nextValue()
+                }
+            }
+            return null
+        }
 
-        return alternate(forwardRoutes)
+        return generateSequence { nextValue() }
+    }
+
+    private fun getRouteGenerators(
+        condition: (Leg) -> Boolean,
+        endCondition: (Leg) -> Boolean,
+        routeLocations: List<Location>,
+    ): List<Sequence<Pair<Leg, String>>> {
+        val forwardRoutes =
+            routeLocations.map { routeLocation ->
+                sectionedRoute.stepFromAccumulating(routeLocation)
+            }
+        val backwardsRoutes =
+            routeLocations.map { routeLocation ->
+                sectionedRoute.stepFromAccumulating(routeLocation, -1)
+            }
+        return (forwardRoutes.plus(backwardsRoutes)).map { generator ->
+            generator.map { connectToStart(sectionedRoute, it) }.filter {
+                condition(it.first)
+            }.takeWhile { endCondition(it.first) }
+        }
     }
 
     // Generates a sequence of routes starting from the filtered start positions and that all abide by condition
     fun generateRoutes(
         startPositionFilter: (NamedLocation) -> Boolean,
         condition: (Leg) -> Boolean,
+        endCondition: (Leg) -> Boolean,
         startTime: LocalDateTime,
-        maxGenerated: Int = 300,
     ): Sequence<Route> {
         val validStarts = sectionedRoute.getStarts(startPositionFilter)
-        val generator = routeGenerator(condition, validStarts.values.toList())
-        return generator.take(maxGenerated).map { Route(it.second, it.first.length, it.first, startTime) }
-            .sortedByDescending { it.length }
+        val generators = getRouteGenerators(condition, endCondition, validStarts.values.toList())
+        return randomSequence(generators).map { Route(it.second, it.first.length, it.first, startTime) }
     }
 }
