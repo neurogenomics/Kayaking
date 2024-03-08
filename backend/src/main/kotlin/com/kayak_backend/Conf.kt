@@ -3,6 +3,7 @@ package com.kayak_backend
 import com.charleskorn.kaml.Yaml
 import com.kayak_backend.gribFetcher.GribFetcher
 import com.kayak_backend.gribFetcher.OpenSkironGribFetcher
+import com.kayak_backend.gribReader.CachingGribReader
 import com.kayak_backend.gribReader.GribReader
 import com.kayak_backend.gribReader.NetCDFGribReader
 import com.kayak_backend.interpolator.SimpleInterpolator
@@ -78,6 +79,7 @@ fun getConf(filePath: String): Conf {
 fun getGribReader(implementation: String): GribReader {
     return when (implementation) {
         "NetCDFGribReader" -> NetCDFGribReader()
+        "CachingNetCDFGribReader" -> CachingGribReader(NetCDFGribReader())
         else -> throw UnsupportedOperationException("Grib Reader Implementation Non Existent")
     }
 }
