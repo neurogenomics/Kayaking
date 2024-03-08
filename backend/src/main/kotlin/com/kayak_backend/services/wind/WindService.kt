@@ -15,7 +15,7 @@ interface WindService {
         locs: List<Location>,
         checkpoints: List<Int>,
         startTime: LocalDateTime,
-    ) : List<WindInfo>
+    ): List<WindInfo>
 
     fun getWindGrid(
         cornerSW: Location,

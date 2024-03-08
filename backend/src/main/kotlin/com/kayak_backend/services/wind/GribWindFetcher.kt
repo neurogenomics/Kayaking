@@ -31,7 +31,11 @@ class GribWindFetcher(
         return WindInfo(u = pair.first, v = pair.second)
     }
 
-    override fun getWindRoute(locs: List<Location>, checkpoints: List<Int>, startTime: LocalDateTime): List<WindInfo> {
+    override fun getWindRoute(
+        locs: List<Location>,
+        checkpoints: List<Int>,
+        startTime: LocalDateTime,
+    ): List<WindInfo> {
         val checkpoints1 = checkpoints.map { startTime.plusSeconds(it.toLong()) }
         println("trying to get winds")
         return locs.zip(checkpoints1).map { (loc, time) ->

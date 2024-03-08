@@ -1,4 +1,5 @@
 package com.kayak_backend.routes
+
 import com.kayak_backend.gribReader.GribFileError
 import com.kayak_backend.gribReader.GribIndexError
 import com.kayak_backend.models.Location
@@ -49,25 +50,26 @@ fun Route.wind(wind: WindService) {
 
     route("/winds") {
         get {
-            //val locs = emptyArray<List<Double>>() //call.parameters.getOrFail<List<List<Double>>>("locs")
-            //val checkpoints = emptyArray<Int>().toList()
-            //(JSONArray((call.parameters["checkpoints"])) )
+            // val locs = emptyArray<List<Double>>() //call.parameters.getOrFail<List<List<Double>>>("locs")
+            // val checkpoints = emptyArray<Int>().toList()
+            // (JSONArray((call.parameters["checkpoints"])) )
 
-            //val locsArray = JSONArray(call.parameters.getOrFail<String>("locs"))
+            // val locsArray = JSONArray(call.parameters.getOrFail<String>("locs"))
 
             val latsArray = JSONArray(call.parameters.getOrFail<String>("lats"))
             val longsArray = JSONArray(call.parameters.getOrFail<String>("longs"))
             val checkpointArray = JSONArray(call.parameters.getOrFail<String>("checkpoints"))
 
-            //val locs = Array(locsArray.length()) { val json = JSONArray(locsArray.getJSONArray(it)); Array(json.length()) { json.getDouble(it) }}.toList()
+            // val locs = Array(locsArray.length()) { val json = JSONArray(locsArray.getJSONArray(it)); Array(json.length()) { json.getDouble(it) }}.toList()
             val checkpoints = Array(checkpointArray.length()) { checkpointArray.getInt(it) }.toList()
             val lats = Array(latsArray.length()) { latsArray.getDouble(it) }.toList()
             val longs = Array(longsArray.length()) { longsArray.getDouble(it) }.toList()
 
             val start = getDateParameter(call.parameters, "start")
-            val locations = lats.zip(longs).map { (lat, long) ->
-                Location(lat, long)
-            }
+            val locations =
+                lats.zip(longs).map { (lat, long) ->
+                    Location(lat, long)
+                }
             println(locations)
 
             try {
