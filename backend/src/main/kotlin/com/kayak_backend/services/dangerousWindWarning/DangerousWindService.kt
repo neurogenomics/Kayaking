@@ -20,6 +20,7 @@ class DangerousWindService(
     private val windService: WindService = getWindService(getConf("./config.yaml")),
     private val seaBearings: Map<Location, Double> = getSeaBearingService().getSeaBearings(),
 ) {
+    // assumes locations and checkpoints are the same length
     fun findBadWinds(
         locations: List<Location>,
         checkpoints: List<Long>,
@@ -31,6 +32,7 @@ class DangerousWindService(
         }
     }
 
+    // returns true if that location with that wind is dangerous
     // if location not on the basic route, we default to it not being dangerous (so starting points)
     // could include starting points with a second seaBearingService for the actual coastline
     private fun dangerousArea(

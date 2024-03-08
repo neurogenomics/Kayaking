@@ -15,6 +15,7 @@ class SeaBearingsGetter(
 ) {
     /*
      * Returns list of bearings between each pair of coordinates in the coastline
+     * assigns this bearing to the first of the pair of coordinates
      * Requires the coastline service to return the coordinates in a clockwise order.
      * */
     fun getSeaBearings(): Map<Location, Double> {

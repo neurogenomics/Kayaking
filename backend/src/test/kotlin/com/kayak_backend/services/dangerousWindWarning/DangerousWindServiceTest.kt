@@ -17,6 +17,7 @@ class DangerousWindServiceTest {
 
     private val loc1 = Location(0.0, 0.0)
     private val loc2 = Location(1.0, 0.0)
+    private val loc3 = Location(3.0, 0.0)
     private val time = LocalDateTime.now()
 
     private val windServiceMock = mockk<WindService>()
@@ -85,12 +86,44 @@ class DangerousWindServiceTest {
     }
 
     @Test
-    fun weakBadWindMarkedGood() {
+    fun weakOutToSeaWindMarkedGood() {
         every {
             windServiceMock.getWind(loc1, any())
         } returns WindInfo(0.1, 0.1)
 
         val result = dangerousWindService.findBadWinds(listOf(loc1), listOf(0), time)
         assertFalse(result[0])
+    }
+
+    @Test
+    fun locationNotInSeaBearingsAssumedGood() {
+        every {
+            windServiceMock.getWind(loc3, any())
+        } returns WindInfo(6.0, 0.0)
+
+        val result = dangerousWindService.findBadWinds(listOf(loc3), listOf(0), time)
+        assertEquals(1, result.size)
+        assertFalse(result[0])
+    }
+
+    @Test
+    fun returnsListOfBooleansMatchingIndexesToLocationsInput() {
+        val expected = listOf(false, true, false)
+
+        every {
+            windServiceMock.getWind(loc1, any())
+        } returns WindInfo(0.1, 0.1)
+        every {
+            windServiceMock.getWind(loc2, any())
+        } returns WindInfo(0.0, 10.0)
+        every {
+            windServiceMock.getWind(loc3, any())
+        } returns WindInfo(6.0, 0.0)
+
+        val result = dangerousWindService.findBadWinds(listOf(loc1, loc2, loc3), listOf(0, 1, 2), time)
+        assertEquals(3, result.size)
+        for (i in expected.indices) {
+            assertEquals(expected[i], result[i])
+        }
     }
 }
