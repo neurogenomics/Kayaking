@@ -10,6 +10,7 @@ import interpolate from 'color-interpolate';
 import { LinearGradient } from 'expo-linear-gradient';
 import { speedMapColours } from '../../colors';
 import RouteInformation from '../RouteInformation';
+import { ScrollView } from 'react-native-gesture-handler';
 
 const styles = StyleSheet.create({
   container: {
@@ -83,6 +84,7 @@ const RouteDetails: React.FC<RouteDetailsProps> = ({
 
   const colourmap = interpolate(speedMapColours);
   const colours = normalisedSpeeds.map((speed) => colourmap(speed));
+
   return (
     <View style={styles.container}>
       <View style={styles.titleContainer}>
@@ -92,34 +94,38 @@ const RouteDetails: React.FC<RouteDetailsProps> = ({
         <Text style={styles.routeName}>{mapRoute.name}</Text>
       </View>
       <View style={styles.divider} />
-      <View style={styles.gradientContainer}>
-        <Text style={styles.text}>Slow</Text>
-        <LinearGradient
-          colors={speedMapColours}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 0 }}
-          style={styles.linearGradient}
-        />
-        <Text style={styles.text}>Fast</Text>
-      </View>
-      <View style={styles.mapContainer}>
-        <MapView style={styles.map} region={region} provider="google">
-          {colours.map((colour, index) => {
-            return (
-              <Polyline
-                key={index}
-                coordinates={[
-                  mapRoute.locations[index],
-                  mapRoute.locations[index + 1],
-                ]}
-                strokeColor={colour}
-                strokeWidth={3}
-              ></Polyline>
-            );
-          })}
-        </MapView>
-        <RouteInformation route={mapRoute}></RouteInformation>
-      </View>
+      <ScrollView>
+        <View style={styles.gradientContainer}>
+          <Text style={styles.text}>Slow</Text>
+          <LinearGradient
+            colors={speedMapColours}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 0 }}
+            style={styles.linearGradient}
+          />
+          <Text style={styles.text}>Fast</Text>
+        </View>
+        <View style={styles.mapContainer}>
+          <MapView style={styles.map} region={region} provider="google">
+            {colours.map((colour, index) => {
+              return (
+                <Polyline
+                  key={index}
+                  coordinates={[
+                    mapRoute.locations[index],
+                    mapRoute.locations[index + 1],
+                  ]}
+                  strokeColor={colour}
+                  strokeWidth={3}
+                ></Polyline>
+              );
+            })}
+          </MapView>
+        </View>
+        <View>
+          <RouteInformation route={mapRoute}></RouteInformation>
+        </View>
+      </ScrollView>
     </View>
   );
 };

@@ -15,11 +15,16 @@ import Speedometer, {
   Marks,
   Indicator,
 } from 'react-native-cool-speedometer';
-import { RouteModel } from '../models/routeModel';
+import { RouteModel, getRouteSpeeds } from '../models/routeModel';
 import { ScrollView } from 'react-native-gesture-handler';
 import { getWindsDirection } from '../services/windService';
 import { useEffect, useState } from 'react';
 import { Vector } from '../models/vectorModel';
+import {
+  angleBetweenLocations,
+  calculateDistanceBetweenLocations,
+  toRadians,
+} from '../models/locationModel';
 type RouteInformationProps = {
   route: RouteModel;
 };
@@ -27,96 +32,90 @@ type RouteInformationProps = {
 export const RouteInformation: React.FC<RouteInformationProps> = ({
   route,
 }: RouteInformationProps) => {
-  const times: string[] = [];
-  const currentDate = new Date(route.startTime);
-
   const [windsInfo, setWindsInfo] = useState<number[]>([0]);
 
   useEffect(() => {
-    console.log('getting iend');
-    console.log(route);
-
     getWindsDirection(route.locations, route.checkpoints, route.startTime)
-      .then((winds) => {
-        console.log(winds);
-      })
+      .then(() => {})
       .catch((err) => console.error(err));
-    // void getWindsDirection(
-    //   route.locations,
-    //   route.checkpoints,
-    //   route.startTime,
-    // ).then((winds) => {
-    //   console.log('locations');
-    //   console.log(route.locations);
-    //   console.log('checkpoiints');
-    //   console.log(route.checkpoints);
-    //   const speedVectors: Vector[] = [];
-    //   for (let i = 0; i < route.locations.length - 1; i++) {
-    //     const loc1 = route.locations[i];
-    //     const loc2 = route.locations[i + 1];
-    //     const time = route.checkpoints[i + 1] - route.checkpoints[i]; // Time taken to travel from loc1 to loc2
+    void getWindsDirection(
+      route.locations,
+      route.checkpoints,
+      route.startTime,
+    ).then((winds) => {
+      //vectors of speed kayaker is going at
+      const speedVectors: Vector[] = [];
+      for (let i = 0; i < route.locations.length - 1; i++) {
+        const loc1 = route.locations[i];
+        const loc2 = route.locations[i + 1];
+        const time = route.checkpoints[i + 1] - route.checkpoints[i]; // Time taken to travel from loc1 to loc2
 
-    //     const displacement = {
-    //       u: loc2.latitude - loc1.latitude, // Assuming lat represents u component
-    //       v: loc2.longitude - loc1.longitude, // Assuming long represents v component
-    //     };
+        const distance = calculateDistanceBetweenLocations(loc1, loc2);
+        const angle = toRadians(angleBetweenLocations(loc1, loc2));
 
-    //     const speed = {
-    //       u: displacement.u / time,
-    //       v: displacement.v / time,
-    //     };
-
-    //     speedVectors.push(speed);
-    //   }
-
-    //   const windScalar: number[] = speedVectors.map((vel, index) => {
-    //     const velMagnitude = Math.sqrt(vel.u ** 2 + vel.v ** 2);
-    //     const dotProd = vel.u * vel.u + winds[index].v * winds[index].v;
-    //     return dotProd / velMagnitude;
-    //   });
-    //   console.log('getting winds at routeInformation component');
-    //   console.log(windScalar);
-    //   if (windScalar.length !== 0) {
-    //     setWindsInfo(windScalar);
-    //   }
-    // });
+        const displacement = {
+          u: distance * Math.cos(angle), // Assuming lat represents u component
+          v: distance * Math.sin(angle), // Assuming long represents v component
+        };
+        if (time === 0) {
+          speedVectors.push(i === 0 ? { u: 0, v: 0 } : speedVectors[i - 1]);
+        } else {
+          speedVectors.push({
+            u: displacement.u / time,
+            v: displacement.v / time,
+          });
+        }
+      }
+      const windScalar: number[] = speedVectors.map((vel, index) => {
+        //wind projected onto velocity
+        const w_dot_v = vel.u * winds[index].u + winds[index].v * vel.v;
+        const v_dot_v = vel.u * vel.u + vel.v * vel.v;
+        return (w_dot_v / v_dot_v).toFixed(2);
+      });
+      if (windScalar.length !== 0) {
+        setWindsInfo(windScalar);
+      }
+    });
   }, [route]);
 
-  while (currentDate <= route.endTime) {
-    const hours = currentDate.getHours().toString().padStart(2, '0');
-    const minutes = currentDate.getMinutes().toString().padStart(2, '0');
-    times.push(`${hours}:${minutes}`);
-    currentDate.setMinutes(currentDate.getMinutes() + 60);
+  const halfHours = Math.floor(
+    route.checkpoints[route.checkpoints.length - 1] / 1800,
+  );
+  const times: string[] = ['0:00'];
+  for (let i = 0; i < halfHours; i++) {
+    times.push(`${Math.floor((i + 1)/2)}:${i % 2 !== 0 ? '00' : '30'}`); // Assuming you want the hour numbers starting from 1
   }
+
+  console.log('hey these are the times');
+  console.log(times);
 
   const center = 250 / 2;
 
   return (
     <View>
-      <Text style={styles.label}>Estimated Speed</Text>
-      <Text> {times.join(', ')} </Text>
+      <Text style={styles.label}>Paddling speed</Text>
       <LineChart
         data={{
           labels: times,
           datasets: [
             {
-              data: Array.from({ length: 30 }, () =>
-                Math.floor(Math.random() * 50),
-              ),
+              data: getRouteSpeeds(route),
             },
           ],
         }}
-        width={380} //{Dimensions.get('window').width} // from react-native
-        height={250}
-        yAxisLabel=" "
+        width={400} //{Dimensions.get('window').width} // from react-native
+        height={200}
+        yAxisLabel=""
         yAxisSuffix="m/s"
-        yAxisInterval={5} // optional, defaults to 1
+        yAxisInterval={4} // optional, defaults to 1
         fromZero={true}
         chartConfig={{
           backgroundColor: '#CC99FF',
           backgroundGradientFrom: '#CC99FF',
           backgroundGradientTo: '#CC99FF',
-          decimalPlaces: 2, // optional, defaults to 2dp
+          fillShadowGradientFromOpacity: 0,
+          fillShadowGradientToOpacity: 0,
+          decimalPlaces: 0, // optional, defaults to 2dp
           color: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
           labelColor: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
           style: {
@@ -125,25 +124,21 @@ export const RouteInformation: React.FC<RouteInformationProps> = ({
           propsForDots: {
             r: '0',
             strokeWidth: '2',
-            stroke: '#ffa726',
+            stroke: '#CC99FF',
           },
         }}
-        bezier
         style={{
           marginVertical: 8,
-          borderRadius: 10,
+          borderRadius: 16,
         }}
       />
-      <Text style={styles.label}>Support winds</Text>
+      <Text style={styles.label}>Wind Support</Text>
       <LineChart
         data={{
-          labels: ['January', 'February', 'March', 'April', 'May', 'June'],
+          labels: times,
           datasets: [
             {
-              data: windsInfo,
-            },
-            {
-              data: [0, 0, 0, 0, 0, 0],
+              data: windsInfo.length === 0 ? [0] : windsInfo,
             },
           ],
         }}
@@ -151,7 +146,7 @@ export const RouteInformation: React.FC<RouteInformationProps> = ({
         height={200}
         yAxisLabel=""
         yAxisSuffix="m/s"
-        yAxisInterval={1} // optional, defaults to 1
+        yAxisInterval={4} // optional, defaults to 1
         chartConfig={{
           backgroundColor: '#CC99FF',
           backgroundGradientFrom: '#CC99FF',
