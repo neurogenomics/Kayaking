@@ -15,6 +15,7 @@ fun Application.configureRouting(conf: Conf) {
         tideTimes(getTideTimeService(conf, System.getenv()))
         tide(getTideService(conf))
         wind(getWindService(conf))
+        dangerousWind(getDangerousWindService(conf))
         times(getTimeService(conf))
         wave(getWaveService(conf))
         planRoute(getRoutePlanner(), getCircularRoutePlanner(tideService, legTimers.slowLegTimer), legTimers, getLegDifficulty())

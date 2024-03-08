@@ -1,6 +1,6 @@
 import { LocationModel } from '../models/locationModel';
 import { Vector } from '../models/vectorModel';
-import { getData } from './utils';
+import { getData, postData } from './utils';
 import { format } from 'date-fns';
 
 export const getWindDirection = async (
@@ -12,4 +12,17 @@ export const getWindDirection = async (
     url += `&date=${format(date, "yyyy-MM-dd'T'HH:mm:ss")}`;
   }
   return await getData<Vector>(url);
+};
+
+export const getWindDangerousWind = async (
+  locations: LocationModel[],
+  checkpoints: number[],
+  date: Date,
+): Promise<boolean[]> => {
+  const url = 'dangerouswind';
+  return await postData<boolean[]>(url, {
+    locations,
+    checkpoints,
+    date: format(date, "yyyy-MM-dd'T'HH:mm:ss"),
+  });
 };
