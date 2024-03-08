@@ -8,8 +8,6 @@ import io.ktor.server.testing.*
 import io.mockk.every
 import io.mockk.mockk
 import org.junit.Test
-import org.locationtech.jts.geom.Coordinate
-import org.locationtech.jts.geom.GeometryFactory
 import kotlin.test.assertEquals
 
 class RoutePlannerRouteTest {
@@ -21,16 +19,6 @@ class RoutePlannerRouteTest {
     private val legTimersMock = LegTimers(slowLegTimer, normalLegTimer, fastLegTimer)
     private val circularRoutePlannerMock = mockk<CircularRoutePlanner>()
     private val legDifficultyMock = mockk<LegDifficulty>()
-
-    val coordinates =
-        arrayOf(
-            Coordinate(0.0, 0.0),
-            Coordinate(1.0, 0.0),
-            Coordinate(1.0, 1.0),
-            Coordinate(0.0, 0.0),
-        )
-
-    val mockPolygon = GeometryFactory().createPolygon(coordinates)
 
     init {
         every { routePlannerMock.generateRoutes(any(), any(), any(), any()).take(5).toList() } returns

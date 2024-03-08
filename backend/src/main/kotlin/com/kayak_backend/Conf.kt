@@ -9,6 +9,7 @@ import com.kayak_backend.gribReader.GribReader
 import com.kayak_backend.gribReader.NetCDFGribReader
 import com.kayak_backend.interpolator.SimpleInterpolator
 import com.kayak_backend.services.coastline.IsleOfWightCoastline
+import com.kayak_backend.services.dangerousWindWarning.seaBearing.SeaBearingService
 import com.kayak_backend.services.route.*
 import com.kayak_backend.services.route.kayak.WeatherKayak
 import com.kayak_backend.services.slipways.BeachesService
@@ -160,7 +161,7 @@ fun getTimeService(conf: Conf): TimeService {
     }
 }
 
-// TODO Once we have the weather kayak, may want to use conf to determine which kayak
+// TODO decide here between basic and weather kayak
 fun getLegTimer(): LegTimer {
     return LegTimer(WeatherKayak(kayakerSpeed = 1.54))
 }
@@ -172,14 +173,21 @@ fun getLegTimers(): LegTimers {
     return LegTimers(slowLegTimer, normalLegTimer, fastLegTimer)
 }
 
+// separate to be consistent between the RoutePlanner and the SeaBearingService
+private const val DISTANCE_FROM_COAST = 500.0
+private val coastlineService = IsleOfWightCoastline()
+
+fun getSeaBearingService(): SeaBearingService {
+    return SeaBearingService(coastlineService, DISTANCE_FROM_COAST)
+}
+
 fun getLegDifficulty(): LegDifficulty {
     return LegDifficulty()
 }
 
 fun getRouteSetup(): Pair<Polygon, List<NamedLocation>> {
-    val distanceFromCoast = 500.0
-    val coast = IsleOfWightCoastline().getCoastline()
-    val route = BaseRoute().createBaseRoute(coast, distanceFromCoast)
+    val coast = coastlineService.getCoastline()
+    val route = BaseRoute().createBaseRoute(coast, DISTANCE_FROM_COAST)
     val slipways = SlipwayService().getAllSlipways()
     val beaches = BeachesService().getAllBeaches()
     val beachNamer = BeachNamer()
