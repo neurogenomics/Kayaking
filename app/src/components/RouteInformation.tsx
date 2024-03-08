@@ -1,10 +1,6 @@
 import { StyleSheet, View, Text, Dimensions } from 'react-native';
 import { LineChart } from 'react-native-chart-kit';
-import Speedometer, {
-  Arc,
-  Progress,
-  Indicator,
-} from 'react-native-cool-speedometer';
+import Speedometer, { Arc, Progress } from 'react-native-cool-speedometer';
 import { RouteModel, getRouteSpeeds } from '../models/routeModel';
 import { getWindsDirection } from '../services/windService';
 import { useEffect, useState } from 'react';
