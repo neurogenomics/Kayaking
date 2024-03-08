@@ -6,23 +6,32 @@ import java.time.LocalDateTime
 import java.time.LocalTime
 import kotlin.math.pow
 
+data class SingleVarPoint(val lat: Double, val lon: Double, val time: LocalDateTime, val variable: String)
+
+data class VarPairPoint(
+    val lat: Double,
+    val lon: Double,
+    val time: LocalDateTime,
+    val variable1: String,
+    val variable2: String,
+)
+
 class CachingGribReader(val gribReader: GribReader, locationDecimalPlaces: Int = 2) : GribReader {
     private val locationPrecision = 10.0.pow(locationDecimalPlaces)
-    private val singleVarCache = HashMap<String, Double>()
-    private val pairVarCache = HashMap<String, Pair<Double, Double>>()
+    private val singleVarCache = HashMap<SingleVarPoint, Double>()
+    private val pairVarCache = HashMap<VarPairPoint, Pair<Double, Double>>()
 
     private fun locationKey(
         lat: Double,
         lon: Double,
-    ): String {
+    ): Pair<Double, Double> {
         val roundedLat = Math.round(lat * locationPrecision) / locationPrecision
         val roundedLon = Math.round(lon * locationPrecision) / locationPrecision
-        return "$roundedLat,$roundedLon"
+        return Pair(roundedLat, roundedLon)
     }
 
-    private fun timeKey(time: LocalDateTime): String {
-        val roundedTime = time.withMinute(0).withSecond(0).withNano(0)
-        return "$roundedTime"
+    private fun timeKey(time: LocalDateTime): LocalDateTime {
+        return time.withMinute(0).withSecond(0).withNano(0)
     }
 
     override fun getSingleVar(
@@ -32,7 +41,8 @@ class CachingGribReader(val gribReader: GribReader, locationDecimalPlaces: Int =
         variableName: String,
         filePath: String,
     ): Double {
-        val key = "${locationKey(lat, lon)},${timeKey(time)},$variableName,$filePath"
+        val (roundedLat, roundedLon) = locationKey(lat, lon)
+        val key = SingleVarPoint(roundedLat, roundedLon, timeKey(time), variableName)
         return singleVarCache.getOrPut(key) { gribReader.getSingleVar(lat, lon, time, variableName, filePath) }
     }
 
@@ -44,7 +54,8 @@ class CachingGribReader(val gribReader: GribReader, locationDecimalPlaces: Int =
         var2Name: String,
         filePath: String,
     ): Pair<Double, Double> {
-        val key = "${locationKey(lat, lon)},${timeKey(time)},$var1Name,$var2Name,$filePath"
+        val (roundedLat, roundedLon) = locationKey(lat, lon)
+        val key = VarPairPoint(roundedLat, roundedLon, timeKey(time), var1Name, var2Name)
         return pairVarCache.getOrPut(key) { gribReader.getVarPair(lat, lon, time, var1Name, var2Name, filePath) }
     }
 
