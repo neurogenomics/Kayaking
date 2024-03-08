@@ -26,10 +26,10 @@ fun parsePaddleSpeed(input: String): PaddleSpeed {
 
 fun parseDifficultyRange(input: String): IntRange {
     return when (input.lowercase()) {
-        "any" -> 1..12
+        "any" -> 1..9
         "easy" -> 1..4
         "medium" -> 5..7
-        "hard" -> 8..12
+        "hard" -> 8..9
         else -> throw IllegalArgumentException("Invalid difficulty: $input")
     }
 }
