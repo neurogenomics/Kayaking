@@ -37,14 +37,16 @@ const paddleSpeedToString = (paddleSpeed: PaddleSpeed) => {
   }
 };
 
-const difficultyToString = (paddleSpeed: RouteDifficulty) => {
-  switch (paddleSpeed) {
+const difficultyToString = (difficulty: RouteDifficulty) => {
+  switch (difficulty) {
     case RouteDifficulty.Easy:
       return 'Easy';
     case RouteDifficulty.Medium:
       return 'Medium';
     case RouteDifficulty.Hard:
       return 'Hard';
+    case RouteDifficulty.Any:
+      return 'Any';
   }
 };
 

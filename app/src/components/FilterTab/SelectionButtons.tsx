@@ -35,7 +35,13 @@ export const SelectButtons: React.FC<Props<string>> = ({
       <View style={styles.labelContainer}>
         <Text style={styles.label}>{label}</Text>
       </View>
-      <View style={styles.buttonContainer}>
+      <View
+        style={
+          options.length > 3
+            ? styles.largebuttonContainer
+            : styles.buttonContainer
+        }
+      >
         {options.map((option) => (
           <TouchableOpacity
             key={option.name}
@@ -73,6 +79,12 @@ const styles = StyleSheet.create({
     justifyContent: 'space-around',
     alignItems: 'center',
     flex: 2,
+  },
+  largebuttonContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    alignItems: 'center',
+    flex: 4,
   },
   button: {
     backgroundColor: '#f0f0f0',
