@@ -7,14 +7,19 @@ import io.mockk.every
 import io.mockk.mockk
 import org.junit.Test
 import java.time.LocalDateTime
+import kotlin.math.abs
 import kotlin.math.cos
+import kotlin.math.min
+import kotlin.math.sin
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 
 class DangerousWindServiceTest {
     // Please make sure this matches BAD_WIND_MAGNITUDE_LIMIT in DangerousWindService so the tests don't break updating that value
     private val badWindMagnitude = 2.0
+
     // These tests are based on the fact BAD_WIND_ANGLE_LIMIT = 90 in DangerousWindService
+    private val badWindAngle = 90.0
 
     private val loc1 = Location(0.0, 0.0)
     private val loc2 = Location(1.0, 0.0)
@@ -62,22 +67,31 @@ class DangerousWindServiceTest {
 
     @Test
     fun acuteBearingAndWindMarkedBad() {
+        val magnitude = badWindMagnitude * 3
+        val angle = Math.toRadians(seaBearings[loc1]!! + (min(badWindAngle / 2, 89.0)))
         every {
             windServiceMock.getWind(loc1, any())
-        } returns WindInfo(badWindMagnitude * 3, badWindMagnitude * 3)
+        } returns WindInfo(magnitude * sin(angle), magnitude * cos(angle))
 
         val result = dangerousWindService.findBadWinds(listOf(loc1), listOf(0), time)
         assert(result[0])
     }
 
+    // will not test anything new if the BAD_WIND_ANGLE_LIMIT is below 10
     @Test
     fun markingGoodAndBadZonesWrapsAroundAt360() {
-        // cos is used to make the component parallel to the wind = 3 * badWindMagnitude
-        val cos = cos(Math.toRadians(10.0))
+        // an angle for the wind that ideally wraps 360 (unless badWindAngle too small)
+        val angle = Math.toRadians((seaBearings[loc2]!! + (min(badWindAngle - 1, 360 - seaBearings[loc2]!!))) + 360 % 360)
+
+        val difference = min(abs(seaBearings[loc2]!! - Math.toDegrees(angle)), 360 - abs(seaBearings[loc2]!! - Math.toDegrees(angle)))
+        // cos is used to make the wind component parallel to the seaBearing = 3 * badWindMagnitude
+        val cos = cos(Math.toRadians(difference))
+
+        val magnitude = badWindMagnitude * 3 / cos
 
         every {
             windServiceMock.getWind(loc2, any())
-        } returns WindInfo(0.0, badWindMagnitude * 3 / cos)
+        } returns WindInfo(magnitude * sin(angle), magnitude * cos(angle))
 
         val result = dangerousWindService.findBadWinds(listOf(loc2), listOf(0), time)
         assert(result[0])
@@ -112,20 +126,17 @@ class DangerousWindServiceTest {
 
     @Test
     fun returnsListOfBooleansMatchingIndexesToLocationsInput() {
-        // cos is used to make the component parallel to the wind = 3 * badWindMagnitude
-        val cos = cos(Math.toRadians(10.0))
-
         every {
-            windServiceMock.getWind(loc1, any())
+            windServiceMock.getWind(loc1, time)
         } returns WindInfo(0.0, badWindMagnitude / 2)
         every {
-            windServiceMock.getWind(loc2, any())
-        } returns WindInfo(0.0, badWindMagnitude * 3 / cos)
+            windServiceMock.getWind(loc1, time.plusSeconds(1))
+        } returns WindInfo(0.0, badWindMagnitude * 3)
         every {
             windServiceMock.getWind(loc3, any())
         } returns WindInfo(badWindMagnitude * 3, 0.0)
 
-        val result = dangerousWindService.findBadWinds(listOf(loc1, loc2, loc3), listOf(0, 1, 2), time)
+        val result = dangerousWindService.findBadWinds(listOf(loc1, loc1, loc3), listOf(0, 1, 2), time)
         assertEquals(3, result.size)
         assertEquals(listOf(false, true, false), result)
     }
