@@ -9,6 +9,7 @@ import {
 import { getWeatherGrid } from '../../services/weatherGridService';
 import { interpolateColor } from 'react-native-reanimated';
 import { mapVisColours } from '../../colors';
+import { gridStart, gridEnd, gridResolution } from '../../../constants';
 
 type WeatherVisualisationProps = {
   display: WeatherGridType;
@@ -32,27 +33,15 @@ export const WeatherVisualisation: React.FC<WeatherVisualisationProps> = ({
 }) => {
   const [coords, setCoords] = useState<ArrowCoords[]>();
 
-  // TODO: get constants from server
-  const gridStart: LocationModel = {
-    latitude: 50.448253,
-    longitude: -1.770676,
-  };
-  const gridEnd: LocationModel = {
-    latitude: 50.934747,
-    longitude: -0.842729,
-  };
-  // TODO: add feature so resolution increases as user zooms
-  const gridResolution: ResolutionModel = {
-    latRes: 0.05,
-    lonRes: 0.05,
-  };
+  // According to the Beaufort wind scale converted to m/s
+  const maxWind = 30;
+  const windScale = [0, maxWind / 2, maxWind];
 
-  const getArrows = (
-    vectors: WeatherVector[],
-    gridRes: ResolutionModel,
-    minMag: number,
-    maxMag: number,
-  ) => {
+  // TODO: confirm with external source what an appropriate scale for wave speeds is
+  const maxTide = 3;
+  const tideScale = [0, maxTide];
+
+  const getArrows = (vectors: WeatherVector[], gridRes: ResolutionModel) => {
     const arrows: ArrowCoords[] = [];
 
     // minimum length of arrow - set to 1/10th grid resolution
@@ -69,8 +58,15 @@ export const WeatherVisualisation: React.FC<WeatherVisualisationProps> = ({
     for (let i = 0; i < vectors.length; i++) {
       const vec = vectors[i];
 
-      // scale of vector according to magnitude (normalised between [0, 1])
-      const scale = (vec.magnitude - minMag) / (maxMag - minMag);
+      const weatherScale =
+        display === WeatherGridType.TIDE ? tideScale : windScale;
+      const max = weatherScale[weatherScale.length - 1];
+
+      // ensuring magnitude is within the bounds
+      const mag = Math.min(vec.magnitude, max);
+
+      // finding proportion
+      const scale = mag / max;
       const arrowLength = scale * (maxLength - minLength) + minLength;
       const arrowHeadLength = arrowHeadProportion * arrowLength;
 
@@ -115,8 +111,6 @@ export const WeatherVisualisation: React.FC<WeatherVisualisationProps> = ({
 
   const getWeatherVectors = (grid: WeatherGridModel) => {
     const vectors: WeatherVector[] = [];
-    let minMag: number = Infinity;
-    let maxMag: number = 0;
     for (let i = 0; i < grid.latIndex.length; i++) {
       for (let j = 0; j < grid.lonIndex.length; j++) {
         if (grid.grid[i][j] && grid.latIndex[i] && grid.lonIndex[j]) {
@@ -131,10 +125,6 @@ export const WeatherVisualisation: React.FC<WeatherVisualisationProps> = ({
             grid.grid[i][j].u ** 2 + grid.grid[i][j].v ** 2,
           );
 
-          // Finding the minimum and maximum magnitudes in order to normalise the vectors
-          minMag = Math.min(minMag, magnitude);
-          maxMag = Math.max(maxMag, magnitude);
-
           const vec: WeatherVector = {
             location: { latitude: latitude, longitude: longitude },
             direction: theta,
@@ -144,7 +134,7 @@ export const WeatherVisualisation: React.FC<WeatherVisualisationProps> = ({
         }
       }
     }
-    getArrows(vectors, gridResolution, minMag, maxMag);
+    getArrows(vectors, gridResolution);
   };
 
   const getArrowColour = (scale: number) => {
