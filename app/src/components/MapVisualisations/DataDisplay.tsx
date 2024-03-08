@@ -63,7 +63,6 @@ export const DataDisplay: React.FC<DataDisplayProps> = ({
       await getTideTimes(location).then((tideinfo) =>
         setNextTideInfo(getNextTideInfo(tideinfo.events)),
       );
-      console.log(nextTideInfo);
     } catch (error) {
       console.log('Error getting tide info: ', error);
     }
