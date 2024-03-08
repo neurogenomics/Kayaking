@@ -82,7 +82,6 @@ export const WaveHeightVisualisation: React.FC<
   };
 
   useEffect(() => {
-    setPolyCoords([]);
     void getWaveHeightGrid(date);
   }, [date]);
 

@@ -21,7 +21,7 @@ import { WeatherVisualisation } from '../components/MapVisualisations/WeatherVis
 import { RouteVisualisation } from '../components/MapVisualisations/RouteVisualisation';
 import { RouteModel } from '../models/routeModel';
 import { useNavigation } from '@react-navigation/native';
-import { DataDisplay } from '../components/DataDisplay';
+import { DataDisplay } from '../components/MapVisualisations/DataDisplay';
 import { getWeatherDates } from '../services/timeService';
 import SearchFab from '../components/SearchFab';
 import { getRoute } from '../services/routeService';
@@ -47,6 +47,7 @@ const HomeScreen: React.FC<HomeProps> = () => {
   const [fabsVisible, setFabsVisible] = useState(true);
   const [weatherMap, setWeatherMap] = useState<WeatherGridType>();
   const [sunsetOn, setSunsetOn] = useState(false);
+  const [tideTimesOn, setTideTimesOn] = useState(false);
   const [waveHeightOn, setWaveHeightOn] = useState(false);
   const snapPoints = useMemo(() => ['15%', '50%', '90%'], []);
   const [mapDate, setMapDate] = useState<Date>(new Date());
@@ -154,24 +155,18 @@ const HomeScreen: React.FC<HomeProps> = () => {
           onDateChanged={(date) => setMapDate(date)}
         ></DateCarousel>
       </SafeAreaView>
-
+      <DataDisplay
+        sunsetOn={sunsetOn}
+        tideTimesOn={tideTimesOn}
+        location={region}
+        date={mapDate}
+      />
       <View style={styles.searchFabContainer}>
         <SearchFab
           onSearch={handleSearch}
           isSearching={isSearching}
         ></SearchFab>
       </View>
-
-      <DataDisplay
-        sunsetOn={sunsetOn}
-        tideTimesOn={waveHeightOn}
-        // TODO get from map?
-        location={{
-          longitude: isleOfWight.longitude,
-          latitude: isleOfWight.latitude,
-        }}
-        date={mapDate}
-      />
       {/*<Text style={{ fontSize: 100 }}>put here</Text>*/}
       <Animated.View style={inverseBottomSheetStyle} pointerEvents="box-none">
         <WeatherFabs
@@ -179,6 +174,7 @@ const HomeScreen: React.FC<HomeProps> = () => {
           setWeatherMap={setWeatherMap}
           setSunsetOn={setSunsetOn}
           setWaveHeightOn={setWaveHeightOn}
+          setTideTimesOn={setTideTimesOn}
         ></WeatherFabs>
       </Animated.View>
       <BottomSheet

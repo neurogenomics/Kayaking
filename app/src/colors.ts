@@ -6,7 +6,7 @@ export const COLORS = {
 
 export const mapVisColours = {
   wind: ['#0000FF', '#FF0000'],
-  tide: ['#32CD32', '#0000FF'],
+  tide: ['#006f3c', '#0000FF'],
   wave: [
     'rgba(0, 255, 0, 0.25)', // Green with 50% transparency
     'rgba(255, 0, 0, 0.25)', // Red with 50% transparency

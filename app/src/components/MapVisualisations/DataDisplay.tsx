@@ -1,10 +1,10 @@
 import { useEffect, useState } from 'react';
-import { getSunset } from '../services/sunsetService';
-import { LocationModel } from '../models/locationModel';
-import { SunsetInfo } from '../models/sunsetModel';
-import { StyleSheet, View, Text } from 'react-native';
-import { TideEvent } from '../models/tideModel';
-import { getTideTimes } from '../services/tideTimesService';
+import { LocationModel } from '../../models/locationModel';
+import { SunsetInfo } from '../../models/sunsetModel';
+import { TideEvent } from '../../models/tideModel';
+import { View, Text, StyleSheet } from 'react-native';
+import { getSunset } from '../../services/sunsetService';
+import { getTideTimes } from '../../services/tideTimesService';
 
 export const styles = StyleSheet.create({
   container: {
@@ -63,12 +63,20 @@ export const DataDisplay: React.FC<DataDisplayProps> = ({
       await getTideTimes(location).then((tideinfo) =>
         setNextTideInfo(getNextTideInfo(tideinfo.events)),
       );
+      console.log(nextTideInfo);
     } catch (error) {
       console.log('Error getting tide info: ', error);
     }
   };
 
-  const getTimeString = (datetime: Date) => {
+  const getSunTimeString = (time: Date) => {
+    const sunTime = time.toString().match(/^\d{2}:\d{2}/);
+    if (sunTime) {
+      return sunTime[0];
+    }
+  };
+
+  const getTideTimeString = (datetime: Date) => {
     const timeRegex = /T(\d{2}:\d{2})/;
     const extractedTime = datetime.toString().match(timeRegex);
     return extractedTime ? extractedTime[1] : '';
@@ -79,8 +87,7 @@ export const DataDisplay: React.FC<DataDisplayProps> = ({
       void getSunInfo(location, date);
     }
     if (tideTimesOn) {
-      // TODO change to actual location once tide times service fixed
-      void getTideInfo({ latitude: 50.67, longitude: 1.5 });
+      void getTideInfo(location);
     }
   }, [sunsetOn, tideTimesOn]);
 
@@ -90,12 +97,12 @@ export const DataDisplay: React.FC<DataDisplayProps> = ({
         <View style={styles.infoContainer}>
           <View style={styles.textContainer}>
             <Text style={styles.text}>
-              Sunrise Time: {sunsetInfo.sunrise.toString()}
+              Sunrise Time: {getSunTimeString(sunsetInfo.sunrise)}
             </Text>
           </View>
           <View style={styles.textContainer}>
             <Text style={styles.text}>
-              Sunrise Time: {sunsetInfo.sunset.toString()}
+              Sunrise Time: {getSunTimeString(sunsetInfo.sunset)}
             </Text>
           </View>
         </View>
@@ -112,7 +119,7 @@ export const DataDisplay: React.FC<DataDisplayProps> = ({
                 ? `of ${nextTideInfo.height.toFixed(1)}m `
                 : ''}
               {nextTideInfo.datetime
-                ? `at ${getTimeString(nextTideInfo.datetime)}`
+                ? `at ${getTideTimeString(nextTideInfo.datetime)}`
                 : ''}
             </Text>
           </View>

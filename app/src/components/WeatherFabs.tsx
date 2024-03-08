@@ -21,6 +21,7 @@ type WeatherFabsProps = {
   >;
   setSunsetOn: React.Dispatch<React.SetStateAction<boolean>>;
   setWaveHeightOn: React.Dispatch<React.SetStateAction<boolean>>;
+  setTideTimesOn: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
 export enum WeatherFab {
@@ -35,6 +36,7 @@ const WeatherFabs: React.FC<WeatherFabsProps> = ({
   setWeatherMap,
   setSunsetOn,
   setWaveHeightOn,
+  setTideTimesOn,
 }: WeatherFabsProps) => {
   const [layersOpen, setLayersOpen] = useState(false);
   const icons = [
@@ -52,6 +54,9 @@ const WeatherFabs: React.FC<WeatherFabsProps> = ({
   const [layers, setLayers] = useState(new Array(icons.length).fill(false));
 
   const handleWeatherPress = (weather: WeatherGridType) => {
+    if (weather === WeatherGridType.TIDE) {
+      setTideTimesOn((prevState) => !prevState);
+    }
     setWeatherMap((prevWeather) => {
       if (prevWeather && prevWeather !== weather) {
         setLayers((prevState) => ({

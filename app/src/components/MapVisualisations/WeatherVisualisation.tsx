@@ -45,7 +45,7 @@ export const WeatherVisualisation: React.FC<WeatherVisualisationProps> = ({
     const arrows: ArrowCoords[] = [];
 
     // minimum length of arrow - set to 1/10th grid resolution
-    const minLength: number = Math.min(gridRes.latRes, gridRes.lonRes) / 10;
+    const minLength: number = Math.min(gridRes.latRes, gridRes.lonRes) / 5;
 
     // maximum length of arrow - set to grid resolution
     const maxLength: number = Math.min(gridRes.latRes, gridRes.lonRes);
