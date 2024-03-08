@@ -142,9 +142,9 @@ const HomeScreen: React.FC<HomeProps> = () => {
           <RouteVisualisation
             userInput={userInput}
             routes={routes}
-            region={region}
             selectedRouteIndex={selectedRouteIndex}
             setSelectedRouteIndex={setSelectedRouteIndex}
+            showWindWarnings={weatherMap === WeatherGridType.WIND}
           />
         ) : null}
       </MapView>
