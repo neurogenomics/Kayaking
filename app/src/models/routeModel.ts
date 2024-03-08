@@ -11,7 +11,6 @@ export type RouteModel = {
   endTime: Date;
   startTime: Date;
   checkpoints: number[];
-  difficulty: number;
 };
 
 export function getDifficultyLabel(difficulty: number): string {

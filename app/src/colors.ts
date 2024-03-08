@@ -6,6 +6,8 @@ export const COLORS = {
   backdrop: '#c8dfeaaa',
 };
 
+export const graphColour = '#8A2BE2';
+
 export const mapVisColours = {
   wind: ['#0000FF', '#FF0000'],
   tide: ['#006f3c', '#0000FF'],

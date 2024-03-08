@@ -1,19 +1,39 @@
 import { StyleSheet, View, Text, Dimensions } from 'react-native';
 import { LineChart } from 'react-native-chart-kit';
 import Speedometer, { Arc, Progress } from 'react-native-cool-speedometer';
-import { RouteModel, getRouteSpeeds } from '../models/routeModel';
-import { getWindsDirection } from '../services/windService';
+import { RouteModel, getRouteSpeeds } from '../../models/routeModel';
+import { getWindsDirection } from '../../services/windService';
 import { useEffect, useState } from 'react';
-import { Vector } from '../models/vectorModel';
+import { Vector } from '../../models/vectorModel';
 import {
   angleBetweenLocations,
   calculateDistanceBetweenLocations,
   toRadians,
-} from '../models/locationModel';
-import { COLORS } from '../colors';
+} from '../../models/locationModel';
+import {
+  COLORS,
+  getInterpolatedColor,
+  graphColour,
+  speedMapColours,
+} from '../../colors';
 type RouteInformationProps = {
   route: RouteModel;
 };
+
+const styles = StyleSheet.create({
+  label: {
+    fontSize: 18,
+    marginBottom: 5,
+    marginTop: 0,
+  },
+  graphContainer: {
+    width: '100%',
+    height: 200,
+    marginVertical: 10,
+    borderRadius: 10,
+    overflow: 'hidden',
+  },
+});
 
 export const RouteInformation: React.FC<RouteInformationProps> = ({
   route,
@@ -74,6 +94,29 @@ export const RouteInformation: React.FC<RouteInformationProps> = ({
 
   return (
     <View>
+      <Text style={styles.label}>Difficulty: {route.difficulty} / 10</Text>
+      <View
+        style={{
+          alignItems: 'center',
+          justifyContent: 'center',
+          marginBottom: -70,
+        }}
+      >
+        <Speedometer
+          value={route.difficulty}
+          max={10}
+          angle={180}
+          lineCap="round"
+          accentColor={getInterpolatedColor(
+            route.difficulty,
+            [1, 12],
+            speedMapColours,
+          )}
+        >
+          <Arc arcWidth={40} />
+          <Progress arcWidth={40} />
+        </Speedometer>
+      </View>
       <Text style={styles.label}>Paddling speed</Text>
       <View style={styles.graphContainer}>
         <LineChart
@@ -92,9 +135,9 @@ export const RouteInformation: React.FC<RouteInformationProps> = ({
           yAxisInterval={4}
           fromZero={true}
           chartConfig={{
-            backgroundColor: COLORS.fabSelected,
-            backgroundGradientFrom: COLORS.fabSelected,
-            backgroundGradientTo: COLORS.fabSelected,
+            backgroundColor: graphColour,
+            backgroundGradientFrom: graphColour,
+            backgroundGradientTo: graphColour,
             fillShadowGradientFromOpacity: 0,
             fillShadowGradientToOpacity: 0,
             decimalPlaces: 0,
@@ -116,7 +159,7 @@ export const RouteInformation: React.FC<RouteInformationProps> = ({
         />
       </View>
 
-      <Text style={styles.label}>Wind Support</Text>
+      <Text style={styles.label}>Wind support</Text>
       <View style={styles.graphContainer}>
         <LineChart
           data={{
@@ -133,9 +176,9 @@ export const RouteInformation: React.FC<RouteInformationProps> = ({
           yAxisSuffix="m/s"
           yAxisInterval={4}
           chartConfig={{
-            backgroundColor: COLORS.fabSelected,
-            backgroundGradientFrom: COLORS.fabSelected,
-            backgroundGradientTo: COLORS.fabSelected,
+            backgroundColor: graphColour,
+            backgroundGradientFrom: graphColour,
+            backgroundGradientTo: graphColour,
             fillShadowGradientFromOpacity: 0,
             fillShadowGradientToOpacity: 0,
             decimalPlaces: 0,
@@ -156,33 +199,7 @@ export const RouteInformation: React.FC<RouteInformationProps> = ({
           }}
         />
       </View>
-      <Text style={styles.label}>Difficulty: {route.difficulty}/10</Text>
-      <Speedometer
-        value={route.difficulty}
-        max={10}
-        angle={180}
-        lineCap="round"
-        accentColor={COLORS.fabSelected}
-      >
-        <Arc arcWidth={40} />
-        <Progress arcWidth={40} />
-      </Speedometer>
     </View>
   );
 };
 export default RouteInformation;
-
-const styles = StyleSheet.create({
-  label: {
-    fontSize: 18,
-    marginBottom: 5,
-    margin: 10,
-  },
-  graphContainer: {
-    width: '100%',
-    height: 200,
-    marginVertical: 10,
-    borderRadius: 10,
-    overflow: 'hidden',
-  },
-});

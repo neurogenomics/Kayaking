@@ -9,7 +9,7 @@ import MapView, { Polyline } from 'react-native-maps';
 import interpolate from 'color-interpolate';
 import { LinearGradient } from 'expo-linear-gradient';
 import { speedMapColours } from '../../colors';
-import RouteInformation from '../RouteInformation';
+import RouteInformation from './RouteInformation';
 import { RouteInfoRow } from './RouteInfoRow';
 import { BottomSheetScrollView } from '@gorhom/bottom-sheet';
 
