@@ -1,7 +1,7 @@
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList, Route } from '../routes';
 import React, { useEffect, useMemo, useState } from 'react';
-import { SafeAreaView, StyleSheet, View } from 'react-native';
+import { Modal, SafeAreaView, StyleSheet, View, Text } from 'react-native';
 import MapView, { Region } from 'react-native-maps';
 import { isleOfWight } from '../../constants';
 import BottomSheet, { BottomSheetScrollView } from '@gorhom/bottom-sheet';
@@ -18,7 +18,10 @@ import { GridType } from '../models/gridModel';
 import DateCarousel from '../components/DateCarousel/DateCarousel';
 import { UserInput } from '../models/userInputModel';
 import { WeatherVisualisation } from '../components/MapVisualisations/WeatherVisualisation';
-import { RouteVisualisation } from '../components/MapVisualisations/RouteVisualisation';
+import {
+  LocationAndIndicies,
+  RouteVisualisation,
+} from '../components/MapVisualisations/RouteVisualisation';
 import { RouteModel } from '../models/routeModel';
 import { useNavigation } from '@react-navigation/native';
 import { DataDisplay } from '../components/DataDisplay';
@@ -114,6 +117,9 @@ const HomeScreen: React.FC<HomeProps> = () => {
     }
   };
 
+  const [selectedDangerousArea, setSelectedDangerousArea] =
+    useState<LocationAndIndicies | null>(null);
+
   return (
     <GestureHandlerRootView style={styles.container}>
       <MapView
@@ -133,6 +139,7 @@ const HomeScreen: React.FC<HomeProps> = () => {
             routes={routes}
             selectedRouteIndex={selectedRouteIndex}
             setSelectedRouteIndex={setSelectedRouteIndex}
+            showWindWarnings={weatherMap === GridType.WIND}
           />
         ) : null}
       </MapView>
@@ -202,6 +209,14 @@ const HomeScreen: React.FC<HomeProps> = () => {
           </Tab.Screen>
         </Tab.Navigator>
       </BottomSheet>
+      <Modal
+        visible={selectedDangerousArea !== null}
+        onDismiss={() => setSelectedDangerousArea(null)}
+      >
+        <View style={{ backgroundColor: 'white', padding: 16 }}>
+          <Text>This is a test</Text>
+        </View>
+      </Modal>
     </GestureHandlerRootView>
   );
 };
