@@ -12,7 +12,7 @@ import kotlin.test.assertFalse
 
 class DangerousWindServiceTest {
     // Please make sure this matches BAD_WIND_MAGNITUDE_LIMIT in DangerousWindService so the tests don't break updating that value
-    private val badWindMagnitude = 2
+    private val badWindMagnitude = 2.0
     // These tests also assume BAD_WIND_ANGLE_LIMIT = 90 in DangerousWindService
 
     private val loc1 = Location(0.0, 0.0)
@@ -32,7 +32,7 @@ class DangerousWindServiceTest {
     fun perpendicularBearingAndWindMarkedGood() {
         every {
             windServiceMock.getWind(loc1, any())
-        } returns WindInfo(6.0, 0.0)
+        } returns WindInfo(badWindMagnitude * 3, 0.0)
 
         val result = dangerousWindService.findBadWinds(listOf(loc1), listOf(0), time)
         assertEquals(1, result.size)
@@ -43,7 +43,7 @@ class DangerousWindServiceTest {
     fun obtuseBearingAndWindMarkedGood() {
         every {
             windServiceMock.getWind(loc1, any())
-        } returns WindInfo(1.0, -6.0)
+        } returns WindInfo(1.0, -badWindMagnitude * 3)
 
         val result = dangerousWindService.findBadWinds(listOf(loc1), listOf(0), time)
         assertFalse(result[0])
@@ -53,7 +53,7 @@ class DangerousWindServiceTest {
     fun equalBearingAndWindMarkedBad() {
         every {
             windServiceMock.getWind(loc1, any())
-        } returns WindInfo(0.0, 6.0)
+        } returns WindInfo(0.0, badWindMagnitude * 3)
 
         val result = dangerousWindService.findBadWinds(listOf(loc1), listOf(0), time)
         assert(result[0])
@@ -63,7 +63,7 @@ class DangerousWindServiceTest {
     fun acuteBearingAndWindMarkedBad() {
         every {
             windServiceMock.getWind(loc1, any())
-        } returns WindInfo(6.0, 6.0)
+        } returns WindInfo(badWindMagnitude * 3, badWindMagnitude * 3)
 
         val result = dangerousWindService.findBadWinds(listOf(loc1), listOf(0), time)
         assert(result[0])
@@ -73,7 +73,7 @@ class DangerousWindServiceTest {
     fun markingGoodAndBadZonesWrapsAroundAt360() {
         every {
             windServiceMock.getWind(loc2, any())
-        } returns WindInfo(6.0, 6.0)
+        } returns WindInfo(badWindMagnitude * 3, badWindMagnitude * 3)
 
         val result = dangerousWindService.findBadWinds(listOf(loc2), listOf(0), time)
         assert(result[0])
@@ -89,7 +89,7 @@ class DangerousWindServiceTest {
     fun weakOutToSeaWindMarkedGood() {
         every {
             windServiceMock.getWind(loc1, any())
-        } returns WindInfo(0.1, 0.1)
+        } returns WindInfo(0.0, badWindMagnitude / 2)
 
         val result = dangerousWindService.findBadWinds(listOf(loc1), listOf(0), time)
         assertFalse(result[0])
@@ -99,7 +99,7 @@ class DangerousWindServiceTest {
     fun locationNotInSeaBearingsAssumedGood() {
         every {
             windServiceMock.getWind(loc3, any())
-        } returns WindInfo(6.0, 0.0)
+        } returns WindInfo(badWindMagnitude * 3, 0.0)
 
         val result = dangerousWindService.findBadWinds(listOf(loc3), listOf(0), time)
         assertEquals(1, result.size)
@@ -112,13 +112,13 @@ class DangerousWindServiceTest {
 
         every {
             windServiceMock.getWind(loc1, any())
-        } returns WindInfo(0.1, 0.1)
+        } returns WindInfo(0.0, badWindMagnitude / 2)
         every {
             windServiceMock.getWind(loc2, any())
-        } returns WindInfo(0.0, 10.0)
+        } returns WindInfo(0.0, badWindMagnitude * 3)
         every {
             windServiceMock.getWind(loc3, any())
-        } returns WindInfo(6.0, 0.0)
+        } returns WindInfo(badWindMagnitude * 3, 0.0)
 
         val result = dangerousWindService.findBadWinds(listOf(loc1, loc2, loc3), listOf(0, 1, 2), time)
         assertEquals(3, result.size)
