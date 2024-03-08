@@ -3,18 +3,29 @@ package com.kayak_backend.routes
 import com.kayak_backend.gribReader.GribFileError
 import com.kayak_backend.gribReader.GribIndexError
 import com.kayak_backend.models.Location
+import com.kayak_backend.serialization.LocalDateTimeSerializer
 import com.kayak_backend.services.wind.WindService
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.plugins.*
+import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.util.*
 import kotlinx.datetime.toJavaLocalDateTime
-import org.json.JSONArray
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.Json
 import java.time.LocalDateTime
 import kotlin.math.max
 import kotlin.math.min
+
+@Serializable
+data class Data(
+    val locations: List<Location>,
+    val checkpoints: List<Int>,
+    @Serializable(with = LocalDateTimeSerializer::class)
+    val start: LocalDateTime,
+)
 
 fun Route.wind(wind: WindService) {
     // TODO: Get getOrFail to serialize so this can be done implicitly
@@ -49,37 +60,19 @@ fun Route.wind(wind: WindService) {
     }
 
     route("/winds") {
-        get {
-            // val locs = emptyArray<List<Double>>() //call.parameters.getOrFail<List<List<Double>>>("locs")
-            // val checkpoints = emptyArray<Int>().toList()
-            // (JSONArray((call.parameters["checkpoints"])) )
+        post {
 
-            // val locsArray = JSONArray(call.parameters.getOrFail<String>("locs"))
-
-            val latsArray = JSONArray(call.parameters.getOrFail<String>("lats"))
-            val longsArray = JSONArray(call.parameters.getOrFail<String>("longs"))
-            val checkpointArray = JSONArray(call.parameters.getOrFail<String>("checkpoints"))
-
-            // val locs = Array(locsArray.length()) { val json = JSONArray(locsArray.getJSONArray(it)); Array(json.length()) { json.getDouble(it) }}.toList()
-            val checkpoints = Array(checkpointArray.length()) { checkpointArray.getInt(it) }.toList()
-            val lats = Array(latsArray.length()) { latsArray.getDouble(it) }.toList()
-            val longs = Array(longsArray.length()) { longsArray.getDouble(it) }.toList()
-
-            val start = getDateParameter(call.parameters, "start")
-            val locations =
-                lats.zip(longs).map { (lat, long) ->
-                    Location(lat, long)
-                }
-            println(locations)
+            val requestBody = call.receiveText()
+            val data = Json.decodeFromString<Data>(requestBody)
 
             try {
-                call.respond(wind.getWindRoute(locations, checkpoints, start))
-            } catch (e: GribFileError) {
-                call.response.status(HttpStatusCode.InternalServerError)
-                call.respondText(e.message ?: "Unknown Grib File Error")
-            } catch (e: GribIndexError) {
-                call.response.status(HttpStatusCode.BadRequest)
-                call.respondText(e.message ?: "Grib Index Error - Request may be out of bounds")
+
+                // Call your wind.getWindRoute() function with the extracted data
+                call.respond(wind.getWindRoute(data.locations, data.checkpoints, data.start))
+
+            } catch (e: Exception) {
+                // Handle errors
+                call.respond(HttpStatusCode.BadRequest, "Invalid request")
             }
         }
     }
@@ -109,3 +102,4 @@ fun Route.wind(wind: WindService) {
         }
     }
 }
+

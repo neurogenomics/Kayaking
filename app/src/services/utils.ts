@@ -13,3 +13,15 @@ export const getData = async <T>(
   const response = await axios.get<T>(url, options);
   return response.data;
 };
+
+export const postData = async <T>(
+  path: string,
+  payload: unknown,
+  options: AxiosRequestConfig = {},
+): Promise<T> => {
+  const url = generateUrl(path);
+  console.log(payload);
+  const response = await axios.post<T>(url, payload, options);
+
+  return response.data;
+};

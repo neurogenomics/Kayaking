@@ -1,4 +1,4 @@
-import { StyleSheet, View, Text } from 'react-native';
+import { StyleSheet, View, Text, Dimensions } from 'react-native';
 import { LineChart } from 'react-native-chart-kit';
 import Speedometer, {
   Arc,
@@ -81,82 +81,87 @@ export const RouteInformation: React.FC<RouteInformationProps> = ({
   return (
     <View>
       <Text style={styles.label}>Paddling speed</Text>
-      <LineChart
-        data={{
-          labels: times,
-          datasets: [
-            {
-              data: getRouteSpeeds(route),
+      <View style={styles.graphContainer}>
+        <LineChart
+          data={{
+            labels: times,
+            datasets: [
+              {
+                data: getRouteSpeeds(route),
+              },
+            ],
+          }}
+          width={Dimensions.get('window').width} // from react-native
+          height={200}
+          yAxisLabel=""
+          yAxisSuffix="m/s"
+          yAxisInterval={4} // optional, defaults to 1
+          fromZero={true}
+          chartConfig={{
+            backgroundColor: '#CC99FF',
+            backgroundGradientFrom: '#CC99FF',
+            backgroundGradientTo: '#CC99FF',
+            fillShadowGradientFromOpacity: 0,
+            fillShadowGradientToOpacity: 0,
+            decimalPlaces: 0, // optional, defaults to 2dp
+            color: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
+            labelColor: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
+            style: {
+              borderRadius: 16,
             },
-          ],
-        }}
-        width={400} //{Dimensions.get('window').width} // from react-native
-        height={200}
-        yAxisLabel=""
-        yAxisSuffix="m/s"
-        yAxisInterval={4} // optional, defaults to 1
-        fromZero={true}
-        chartConfig={{
-          backgroundColor: '#CC99FF',
-          backgroundGradientFrom: '#CC99FF',
-          backgroundGradientTo: '#CC99FF',
-          fillShadowGradientFromOpacity: 0,
-          fillShadowGradientToOpacity: 0,
-          decimalPlaces: 0, // optional, defaults to 2dp
-          color: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
-          labelColor: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
-          style: {
-            borderRadius: 16,
-          },
-          propsForDots: {
-            r: '0',
-            strokeWidth: '2',
-            stroke: '#CC99FF',
-          },
-        }}
-        style={{
-          marginVertical: 8,
-          borderRadius: 16,
-        }}
-      />
+            propsForDots: {
+              r: '0',
+              strokeWidth: '2',
+              stroke: '#CC99FF',
+            },
+          }}
+          style={{
+            marginVertical: 8,
+            borderRadius: 0,
+          }}
+        />
+      </View>
+
       <Text style={styles.label}>Wind Support</Text>
-      <LineChart
-        data={{
-          labels: times,
-          datasets: [
-            {
-              data: windsInfo.length === 0 ? [0] : windsInfo,
+      <View style={styles.graphContainer}>
+        <LineChart
+          data={{
+            labels: times,
+            datasets: [
+              {
+                data: windsInfo.length === 0 ? [0] : windsInfo,
+              },
+            ],
+          }}
+          width={400} //{Dimensions.get('window').width} // from react-native
+          height={200}
+          yAxisLabel=""
+          yAxisSuffix="m/s"
+          yAxisInterval={4} // optional, defaults to 1
+          chartConfig={{
+            backgroundColor: '#CC99FF',
+            backgroundGradientFrom: '#CC99FF',
+            backgroundGradientTo: '#CC99FF',
+            fillShadowGradientFromOpacity: 0,
+            fillShadowGradientToOpacity: 0,
+            decimalPlaces: 0, // optional, defaults to 2dp
+            color: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
+            labelColor: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
+            style: {
+              borderRadius: 0,
             },
-          ],
-        }}
-        width={400} //{Dimensions.get('window').width} // from react-native
-        height={200}
-        yAxisLabel=""
-        yAxisSuffix="m/s"
-        yAxisInterval={4} // optional, defaults to 1
-        chartConfig={{
-          backgroundColor: '#CC99FF',
-          backgroundGradientFrom: '#CC99FF',
-          backgroundGradientTo: '#CC99FF',
-          fillShadowGradientFromOpacity: 0,
-          fillShadowGradientToOpacity: 0,
-          decimalPlaces: 0, // optional, defaults to 2dp
-          color: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
-          labelColor: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
-          style: {
-            borderRadius: 16,
-          },
-          propsForDots: {
-            r: '0',
-            strokeWidth: '2',
-            stroke: '#CC99FF',
-          },
-        }}
-        style={{
-          marginVertical: 8,
-          borderRadius: 16,
-        }}
-      />
+            propsForDots: {
+              r: '0',
+              strokeWidth: '2',
+              stroke: '#CC99FF',
+            },
+          }}
+          style={{
+            marginVertical: 0,
+            borderRadius: 0,
+          }}
+        />
+      </View>
       <Text style={styles.label}>Difficulty</Text>
       <Speedometer
         value={route.difficulty}
@@ -193,5 +198,12 @@ const styles = StyleSheet.create({
     fontSize: 18,
     marginBottom: 5,
     margin: 10,
+  },
+  graphContainer: {
+    width: '100%',
+    height: 200,
+    marginVertical: 10,
+    borderRadius: 10,
+    overflow: 'hidden',
   },
 });

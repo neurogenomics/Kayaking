@@ -1,6 +1,6 @@
 import { LocationModel } from '../models/locationModel';
 import { Vector } from '../models/vectorModel';
-import { getData } from './utils';
+import { getData, postData } from './utils';
 import { format } from 'date-fns';
 
 export const getWindDirection = async (
@@ -22,16 +22,22 @@ export const getWindsDirection = async (
   console.log(locations);
   console.log(date);
 
-  const latitudes: number[] = locations.map((location) => location.latitude);
-  const longitudes: number[] = locations.map((location) => location.longitude);
+  const payload = {
+    locations: locations,
+    checkpoints: checkpoints,
+    start: date,
+  };
 
-  let url = `winds?lats=${JSON.stringify(latitudes)}&longs=${JSON.stringify(longitudes)}`;
+  //const latitudes: number[] = locations.map((location) => location.latitude);
+  //const longitudes: number[] = locations.map((location) => location.longitude);
+  const url = 'winds';
+  //let url = `winds?lats=${JSON.stringify(latitudes)}&longs=${JSON.stringify(longitudes)}`;
 
-  url += `&checkpoints=${JSON.stringify(checkpoints)}`;
+  //url += `&checkpoints=${JSON.stringify(checkpoints)}`;
 
   //let url = `winds?locs=${JSON.stringify(locations)}&checkpoints=${JSON.stringify(checkpoints)}`;
-  if (date) {
-    url += `&date=${format(date, "yyyy-MM-dd'T'HH:mm:ss")}`;
-  }
-  return await getData<Vector[]>(url);
+  //if (date) {
+  //  url += `&date=${format(date, "yyyy-MM-dd'T'HH:mm:ss")}`;
+  //}
+  return await postData<Vector[]>(url, payload);
 };
