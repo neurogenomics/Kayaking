@@ -18,7 +18,7 @@ class DangerousWindServiceTest {
     // Please make sure this matches BAD_WIND_MAGNITUDE_LIMIT in DangerousWindService so the tests don't break updating that value
     private val badWindMagnitude = 2.0
 
-    // These tests are based on the fact BAD_WIND_ANGLE_LIMIT = 90 in DangerousWindService
+    // Same with this and BAD_WIND_ANGLE
     private val badWindAngle = 90.0
 
     private val loc1 = Location(0.0, 0.0)
