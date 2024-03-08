@@ -7,6 +7,9 @@ export type RouteModel = {
   name: string;
   length: number;
   locations: LocationModel[];
+  difficulty: number;
+  endTime: Date;
+  startTime: Date;
   checkpoints: number[];
   difficulty: number;
   startTime: Date;
@@ -21,7 +24,6 @@ export function getDifficultyLabel(difficulty: number): string {
     return 'Hard';
   }
 }
-
 export const getDistance = (route: RouteModel): string => {
   return (route.length / 1000).toFixed(2).toString();
 };
@@ -59,7 +61,9 @@ export const getRouteSpeeds = (route: RouteModel) => {
       route.locations[i + 1],
     );
     const time = route.checkpoints[i + 1] - route.checkpoints[i];
-    speeds.push(distance / time);
+    if (time === 0) {
+      speeds.push(i === 0 ? 0 : speeds[i - 1]);
+    } else speeds.push(distance / time);
   }
   return speeds;
 };

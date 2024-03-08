@@ -19,7 +19,6 @@ export const postData = async <T>(
   options: AxiosRequestConfig = {},
 ): Promise<T> => {
   const url = generateUrl(path);
-  console.log(payload);
   const response = await axios.post<T>(url, payload, options);
 
   return response.data;

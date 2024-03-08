@@ -3,17 +3,28 @@ package com.kayak_backend.routes
 import com.kayak_backend.gribReader.GribFileError
 import com.kayak_backend.gribReader.GribIndexError
 import com.kayak_backend.models.Location
+import com.kayak_backend.serialization.LocalDateTimeSerializer
 import com.kayak_backend.services.wind.WindService
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.plugins.*
+import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.util.*
 import kotlinx.datetime.toJavaLocalDateTime
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.Json
 import java.time.LocalDateTime
 import kotlin.math.max
 import kotlin.math.min
+
+@Serializable
+data class Data(
+    val locations: List<Location>,
+    val checkpoints: List<Int>,
+    @Serializable(with = LocalDateTimeSerializer::class) val start: LocalDateTime,
+)
 
 fun Route.wind(wind: WindService) {
     // TODO: Get getOrFail to serialize so this can be done implicitly
@@ -43,6 +54,21 @@ fun Route.wind(wind: WindService) {
             } catch (e: GribIndexError) {
                 call.response.status(HttpStatusCode.BadRequest)
                 call.respondText(e.message ?: "Grib Index Error - Request may be out of bounds")
+            }
+        }
+    }
+
+    route("/winds") {
+        post {
+            val requestBody = call.receiveText()
+            val data = Json.decodeFromString<Data>(requestBody)
+
+            try {
+                // Call your wind.getWindRoute() function with the extracted data
+                call.respond(wind.getWindRoute(data.locations, data.checkpoints, data.start))
+            } catch (e: Exception) {
+                // Handle errors
+                call.respond(HttpStatusCode.BadRequest, "Invalid request")
             }
         }
     }
