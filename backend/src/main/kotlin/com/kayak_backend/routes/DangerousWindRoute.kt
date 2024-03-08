@@ -13,7 +13,7 @@ import kotlinx.serialization.json.Json
 import java.time.LocalDateTime
 
 @Serializable
-data class Data(
+data class WindPoints(
     val locations: List<Location>,
     val checkpoints: List<Long>,
     @Serializable(with = LocalDateTimeSerializer::class)
@@ -23,24 +23,8 @@ data class Data(
 fun Route.dangerousWind(dangerousWind: DangerousWindService) {
     route("/dangerouswind") {
         post {
-//            val startTime = getDateParameter(call.parameters, "startDateTime")
-
-//            val latsArray = JSONArray(call.parameters.getOrFail<String>("lats"))
-//            val longsArray = JSONArray(call.parameters.getOrFail<String>("longs"))
-//            val checkpointArray = JSONArray(call.parameters.getOrFail<String>("checkpoints"))
             val requestBody = call.receiveText()
-            val data = Json.decodeFromString<Data>(requestBody)
-
-//
-//            val checkpoints = Array(checkpointArray.length()) { checkpointArray.getLong(it) }.toList()
-//            val lats = Array(latsArray.length()) { latsArray.getDouble(it) }.toList()
-//            val longs = Array(longsArray.length()) { longsArray.getDouble(it) }.toList()
-//
-//            val locations =
-//                lats.zip(longs).map { (lat, long) ->
-//                    Location(lat, long)
-//                }
-
+            val data = Json.decodeFromString<WindPoints>(requestBody)
             call.respond(dangerousWind.findBadWinds(data.locations, data.checkpoints, data.date))
         }
     }
