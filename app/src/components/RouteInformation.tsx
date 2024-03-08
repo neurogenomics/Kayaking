@@ -107,7 +107,7 @@ export const RouteInformation: React.FC<RouteInformationProps> = ({
             color: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
             labelColor: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
             style: {
-              borderRadius: 16,
+              borderRadius: 0,
             },
             propsForDots: {
               r: '0',
@@ -116,7 +116,7 @@ export const RouteInformation: React.FC<RouteInformationProps> = ({
             },
           }}
           style={{
-            marginVertical: 8,
+            marginVertical: 0,
             borderRadius: 0,
           }}
         />
@@ -133,7 +133,7 @@ export const RouteInformation: React.FC<RouteInformationProps> = ({
               },
             ],
           }}
-          width={400} //{Dimensions.get('window').width} // from react-native
+          width={Dimensions.get('window').width} // from react-native
           height={200}
           yAxisLabel=""
           yAxisSuffix="m/s"
@@ -162,7 +162,7 @@ export const RouteInformation: React.FC<RouteInformationProps> = ({
           }}
         />
       </View>
-      <Text style={styles.label}>Difficulty</Text>
+      <Text style={styles.label}>Difficulty: {route.difficulty}/10</Text>
       <Speedometer
         value={route.difficulty}
         max={10}
@@ -172,21 +172,6 @@ export const RouteInformation: React.FC<RouteInformationProps> = ({
       >
         <Arc arcWidth={40} />
         <Progress arcWidth={40} />
-        <Indicator fixValue={false}>
-          {(value, textProps) => (
-            <Text
-              {...textProps}
-              //fontSize={60}
-              //fill="orange"
-              //x={center}
-              //y={center + 10}
-              //textAnchor="middle"
-              //alignmentBaseline="middle"
-            >
-              {value}/10
-            </Text>
-          )}
-        </Indicator>
       </Speedometer>
     </View>
   );
