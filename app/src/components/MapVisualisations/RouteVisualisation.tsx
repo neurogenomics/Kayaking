@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { UserInput } from '../../models/userInputModel';
-import { Callout, Marker, Polyline, Region } from 'react-native-maps';
+import { Callout, Marker, Polyline } from 'react-native-maps';
 import { RouteModel } from '../../models/routeModel';
 import {
   LocationModel,
@@ -12,9 +12,9 @@ import { routeVisualisationColors } from '../../colors';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { faTriangleExclamation } from '@fortawesome/free-solid-svg-icons';
 import { getWindDangerousWind } from '../../services/windService';
-import { Modal } from 'react-native-paper';
 import { View, Text, StyleSheet } from 'react-native';
-import { format } from 'date-fns';
+import { differenceInSeconds, format } from 'date-fns';
+import { getEarliestTime } from './utils';
 
 type RouteVisualisationProps = {
   userInput: UserInput;
@@ -23,6 +23,29 @@ type RouteVisualisationProps = {
   setSelectedRouteIndex: React.Dispatch<React.SetStateAction<number>>;
   showWindWarnings: boolean;
 };
+
+type IndexCheckpoint = {
+  index: number;
+  checkpoint: number;
+};
+
+type LocationIndiciesCheckpoints = {
+  location: LocationModel;
+  indexCheckpoints: IndexCheckpoint[];
+};
+
+const styles = StyleSheet.create({
+  circle: {
+    width: 16,
+    height: 16,
+    borderRadius: 8,
+    marginRight: 4,
+  },
+  row: {
+    flexDirection: 'row',
+    flex: 1,
+  },
+});
 
 export const RouteVisualisation: React.FC<RouteVisualisationProps> = ({
   routes,
@@ -40,24 +63,6 @@ export const RouteVisualisation: React.FC<RouteVisualisationProps> = ({
       longitude: location.longitude + index * 0.0005 * direction.v,
     };
   };
-
-  type IndexCheckpoint = {
-    index: number;
-    checkpoint: number;
-  };
-
-  const styles = StyleSheet.create({
-    circle: {
-      width: 16,
-      height: 16,
-      borderRadius: 8,
-      marginRight: 4,
-    },
-    row: {
-      flexDirection: 'row',
-      flex: 1,
-    },
-  });
 
   const duplicateLocationIndicies: Map<string, IndexCheckpoint[]> = new Map();
 
@@ -90,16 +95,10 @@ export const RouteVisualisation: React.FC<RouteVisualisationProps> = ({
     };
   });
 
-  type LocationAndIndicies = {
-    location: LocationModel;
-    indicies: number[];
-    checkpoints: number[];
-  };
-
   const filterCoordinates = (
-    locationAndIndicies: LocationAndIndicies[],
-  ): LocationAndIndicies[] => {
-    const filteredCoordinates: LocationAndIndicies[] = [];
+    locationAndIndicies: LocationIndiciesCheckpoints[],
+  ): LocationIndiciesCheckpoints[] => {
+    const filteredCoordinates: LocationIndiciesCheckpoints[] = [];
 
     if (locationAndIndicies.length > 0) {
       filteredCoordinates.push(locationAndIndicies[0]);
@@ -127,13 +126,12 @@ export const RouteVisualisation: React.FC<RouteVisualisationProps> = ({
 
   const potentiallyDangerousAreas = filterCoordinates(
     Array.from(duplicateLocationIndicies.entries()).map(
-      ([locationKey, indiciesCheckpoints]) => {
+      ([locationKey, indexCheckpoints]) => {
         const location = JSON.parse(locationKey) as LocationModel;
 
-        const locationAndIndicies: LocationAndIndicies = {
+        const locationAndIndicies: LocationIndiciesCheckpoints = {
           location,
-          indicies: indiciesCheckpoints.map((it) => it.index),
-          checkpoints: indiciesCheckpoints.map((it) => it.checkpoint),
+          indexCheckpoints,
         };
 
         return locationAndIndicies;
@@ -141,19 +139,9 @@ export const RouteVisualisation: React.FC<RouteVisualisationProps> = ({
     ),
   );
 
-  function getEarliestTime(dates: Date[]): Date {
-    return dates.reduce((earliest, current) =>
-      current < earliest ? current : earliest,
-    );
-  }
-
-  const [dangerousAreas, setDangerousAreas] = useState<LocationAndIndicies[]>(
-    [],
-  );
-
-  const differenceInSeconds = (earlier: Date, later: Date): number => {
-    return (later.getTime() - earlier.getTime()) / 1000;
-  };
+  const [dangerousAreas, setDangerousAreas] = useState<
+    LocationIndiciesCheckpoints[]
+  >([]);
 
   useEffect(() => {
     if (!showWindWarnings) {
@@ -170,10 +158,12 @@ export const RouteVisualisation: React.FC<RouteVisualisationProps> = ({
 
       for (let i = 0; i < potentiallyDangerousAreas.length; i++) {
         const locationAndIndicies = potentiallyDangerousAreas[i];
-        for (let j = 0; j < locationAndIndicies.checkpoints.length; j++) {
+        for (let j = 0; j < locationAndIndicies.indexCheckpoints.length; j++) {
           locations.push(locationAndIndicies.location);
           checkpoints.push(
-            routes[locationAndIndicies.indicies[j]].checkpoints[j],
+            routes[locationAndIndicies.indexCheckpoints[j].index].checkpoints[
+              j
+            ],
           );
         }
       }
@@ -182,34 +172,40 @@ export const RouteVisualisation: React.FC<RouteVisualisationProps> = ({
         .then((wind) => {
           let index = 0;
 
-          const dangerousAreas: LocationAndIndicies[] = [];
+          const dangerousAreas: LocationIndiciesCheckpoints[] = [];
           for (let i = 0; i < potentiallyDangerousAreas.length; i++) {
             const locationAndIndicies = potentiallyDangerousAreas[i];
 
-            const indicies: number[] = [];
-            const checkpoints: number[] = [];
+            const indexCheckpoints: IndexCheckpoint[] = [];
 
-            for (let j = 0; j < locationAndIndicies.checkpoints.length; j++) {
+            for (
+              let j = 0;
+              j < locationAndIndicies.indexCheckpoints.length;
+              j++
+            ) {
               if (wind[index]) {
-                const routeIndex = locationAndIndicies.indicies[j];
+                const routeIndex =
+                  locationAndIndicies.indexCheckpoints[j].index;
                 const secondsOffset = differenceInSeconds(
                   earliestDate,
                   routes[routeIndex].startTime,
                 );
 
-                indicies.push(locationAndIndicies.indicies[j]);
-                checkpoints.push(
-                  locationAndIndicies.checkpoints[j] + secondsOffset,
-                );
+                const indexCheckpoint: IndexCheckpoint = {
+                  index: routeIndex,
+                  checkpoint:
+                    locationAndIndicies.indexCheckpoints[j].checkpoint +
+                    secondsOffset,
+                };
+                indexCheckpoints.push(indexCheckpoint);
               }
               index += 1;
             }
 
-            if (indicies.length > 0) {
-              const result: LocationAndIndicies = {
+            if (indexCheckpoints.length > 0) {
+              const result: LocationIndiciesCheckpoints = {
                 location: locationAndIndicies.location,
-                indicies,
-                checkpoints,
+                indexCheckpoints,
               };
 
               dangerousAreas.push(result);
@@ -236,19 +232,15 @@ export const RouteVisualisation: React.FC<RouteVisualisationProps> = ({
         />
       ))}
       {dangerousAreas.map((dangerousArea, index) => (
-        <Marker
-          key={`marker-${index}`}
-          coordinate={dangerousArea.location}
-          title={`indicies: ${dangerousArea.indicies.toString()} times: ${dangerousArea.checkpoints.toString()}`}
-        >
+        <Marker key={`marker-${index}`} coordinate={dangerousArea.location}>
           <FontAwesomeIcon icon={faTriangleExclamation} color="yellow" />
           <Callout>
             <View style={{ height: 100, width: 200 }}>
               <Text>Winds blowing out to sea!</Text>
 
-              {dangerousArea.indicies.map((routeIndex, index) => {
-                const route = routes[routeIndex];
-                const checkpoint = dangerousArea.checkpoints[index];
+              {dangerousArea.indexCheckpoints.map((indexCheckpoint, index) => {
+                const route = routes[indexCheckpoint.index];
+                const checkpoint = indexCheckpoint.checkpoint;
                 const newDate = new Date(route.startTime.getTime());
                 newDate.setSeconds(newDate.getSeconds() + checkpoint);
                 return route ? (
@@ -259,7 +251,8 @@ export const RouteVisualisation: React.FC<RouteVisualisationProps> = ({
                         {
                           backgroundColor:
                             routeVisualisationColors[
-                              routeIndex % routeVisualisationColors.length
+                              indexCheckpoint.index %
+                                routeVisualisationColors.length
                             ],
                         },
                       ]}
