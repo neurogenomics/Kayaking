@@ -5,11 +5,13 @@ import com.kayak_backend.getSeaBearingService
 import com.kayak_backend.getWindService
 import com.kayak_backend.models.Location
 import com.kayak_backend.models.WindInfo
+import com.kayak_backend.models.getWindBearing
+import com.kayak_backend.models.getWindMagnitude
 import com.kayak_backend.services.wind.WindService
 import java.time.LocalDateTime
 import kotlin.math.abs
-import kotlin.math.atan2
-import kotlin.math.sqrt
+import kotlin.math.cos
+import kotlin.math.min
 
 private const val BAD_WIND_ANGLE_LIMIT = 90
 
@@ -40,11 +42,11 @@ class DangerousWindService(
         wind: WindInfo,
     ): Boolean {
         val bearing = seaBearings[loc] ?: return false
-        val magnitude = sqrt(wind.u * wind.u + wind.v * wind.v)
-        val resultWind = Math.toDegrees(atan2(wind.u, wind.v))
-        val dif = abs(resultWind - bearing)
+        val difference = abs(bearing - getWindBearing(wind))
+        val dif = min(difference, 360 - difference)
+        val magnitude = abs(getWindMagnitude(wind) * cos(Math.toRadians(dif)))
 
         return magnitude >= BAD_WIND_MAGNITUDE_LIMIT &&
-            (dif < BAD_WIND_ANGLE_LIMIT || dif > (360 - BAD_WIND_ANGLE_LIMIT))
+            (dif < BAD_WIND_ANGLE_LIMIT)
     }
 }

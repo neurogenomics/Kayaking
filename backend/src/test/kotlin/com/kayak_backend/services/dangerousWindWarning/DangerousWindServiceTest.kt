@@ -7,6 +7,7 @@ import io.mockk.every
 import io.mockk.mockk
 import org.junit.Test
 import java.time.LocalDateTime
+import kotlin.math.cos
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 
@@ -71,9 +72,12 @@ class DangerousWindServiceTest {
 
     @Test
     fun markingGoodAndBadZonesWrapsAroundAt360() {
+        // cos is used to make the component parallel to the wind = 3 * badWindMagnitude
+        val cos = cos(Math.toRadians(10.0))
+
         every {
             windServiceMock.getWind(loc2, any())
-        } returns WindInfo(badWindMagnitude * 3, badWindMagnitude * 3)
+        } returns WindInfo(0.0, badWindMagnitude * 3 / cos)
 
         val result = dangerousWindService.findBadWinds(listOf(loc2), listOf(0), time)
         assert(result[0])
@@ -108,6 +112,8 @@ class DangerousWindServiceTest {
 
     @Test
     fun returnsListOfBooleansMatchingIndexesToLocationsInput() {
+        // cos is used to make the component parallel to the wind = 3 * badWindMagnitude
+        val cos = cos(Math.toRadians(10.0))
         val expected = listOf(false, true, false)
 
         every {
@@ -115,7 +121,7 @@ class DangerousWindServiceTest {
         } returns WindInfo(0.0, badWindMagnitude / 2)
         every {
             windServiceMock.getWind(loc2, any())
-        } returns WindInfo(0.0, badWindMagnitude * 3)
+        } returns WindInfo(0.0, badWindMagnitude * 3 / cos)
         every {
             windServiceMock.getWind(loc3, any())
         } returns WindInfo(badWindMagnitude * 3, 0.0)
@@ -125,5 +131,15 @@ class DangerousWindServiceTest {
         for (i in expected.indices) {
             assertEquals(expected[i], result[i])
         }
+    }
+
+    @Test
+    fun locationMarkedGoodWhenStrongWindButNotComponentOutToSea() {
+        every {
+            windServiceMock.getWind(loc1, any())
+        } returns WindInfo(badWindMagnitude * 3, badWindMagnitude / 2)
+
+        val result = dangerousWindService.findBadWinds(listOf(loc1), listOf(0), time)
+        assertFalse(result[0])
     }
 }
