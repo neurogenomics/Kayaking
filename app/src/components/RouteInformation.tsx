@@ -78,8 +78,6 @@ export const RouteInformation: React.FC<RouteInformationProps> = ({
   console.log('hey these are the times');
   console.log(times);
 
-  const center = 250 / 2;
-
   return (
     <View>
       <Text style={styles.label}>Paddling speed</Text>
