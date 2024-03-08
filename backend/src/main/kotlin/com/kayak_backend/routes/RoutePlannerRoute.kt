@@ -36,19 +36,19 @@ fun parseDifficultyRange(input: String): IntRange {
 
 fun paddleSpeedToLegTimer(
     paddleSpeed: PaddleSpeed,
-    legTimers: LegTimers,
+    difficultyLegTimers: DifficultyLegTimers,
 ): LegTimer {
     return when (paddleSpeed) {
-        PaddleSpeed.SLOW -> legTimers.slowLegTimer
-        PaddleSpeed.NORMAL -> legTimers.normalLegTimer
-        PaddleSpeed.FAST -> legTimers.fastLegTimer
+        PaddleSpeed.SLOW -> difficultyLegTimers.slowLegTimer
+        PaddleSpeed.NORMAL -> difficultyLegTimers.normalLegTimer
+        PaddleSpeed.FAST -> difficultyLegTimers.fastLegTimer
     }
 }
 
 fun Route.planRoute(
     routePlanner: RoutePlanner,
     circularRoutePlanner: CircularRoutePlanner,
-    legTimers: LegTimers,
+    difficultyLegTimers: DifficultyLegTimers,
     legDifficulty: LegDifficulty,
 ) {
     route("/planRoute") {
@@ -62,7 +62,7 @@ fun Route.planRoute(
             val paddleSpeed = parsePaddleSpeed(call.parameters["paddleSpeed"] ?: "normal")
             val difficulty = parseDifficultyRange(call.parameters["difficulty"] ?: "medium")
 
-            val legTimer = paddleSpeedToLegTimer(paddleSpeed, legTimers)
+            val legTimer = paddleSpeedToLegTimer(paddleSpeed, difficultyLegTimers)
 
             val routes =
                 routePlanner.generateRoutes(
@@ -110,7 +110,7 @@ fun Route.planRoute(
                     date.toLocalDate(),
                     minTime = Duration.ofMinutes(duration.toLong()),
                 ).take(10).toList()
-            val timedRoutes = routes.map { Pair(it, legTimers.normalLegTimer.getCheckpoints(it, it.startTime)) }
+            val timedRoutes = routes.map { Pair(it, difficultyLegTimers.normalLegTimer.getCheckpoints(it, it.startTime)) }
             call.respond(
                 timedRoutes.map {
                         (route, checkpoints) ->
