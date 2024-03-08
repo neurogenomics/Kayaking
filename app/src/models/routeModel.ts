@@ -8,7 +8,18 @@ export type RouteModel = {
   length: number;
   locations: LocationModel[];
   checkpoints: number[];
+  difficulty: number;
 };
+
+export function getDifficultyLabel(difficulty: number): string {
+  if (difficulty <= 4) {
+    return 'Easy';
+  } else if (difficulty <= 7) {
+    return 'Medium';
+  } else {
+    return 'Hard';
+  }
+}
 
 export const getDistance = (route: RouteModel): string => {
   return (route.length / 1000).toFixed(2).toString();

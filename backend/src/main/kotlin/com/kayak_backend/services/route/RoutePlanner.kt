@@ -32,30 +32,29 @@ class RoutePlanner(
         }
     }
 
-    fun <T> randomSequence(sequences: List<Sequence<T>>): Sequence<T> {
+    private fun <T> randomSequence(sequences: List<Sequence<T>>): Sequence<T> {
         val random = Random.Default
         val iterators = sequences.map { it.iterator() }.toMutableList()
 
-        return generateSequence {
-            iterators[random.nextInt(iterators.size)].next()
-        }
-    }
-
-    // Given the start locations, generate a sequence of routes that all abide by condition
-    private fun routeGenerator(
-        condition: (Leg) -> Boolean,
-        routeLocations: List<Location>,
-    ): Sequence<Pair<Leg, String>> {
-        val forwardRoutes =
-            routeLocations.map { routeLocation ->
-                sectionedRoute.stepFromAccumulating(routeLocation).map { connectToStart(sectionedRoute, it) }
+        fun nextValue(): T? {
+            val iterator = iterators[random.nextInt(iterators.size)]
+            if (iterator.hasNext()) {
+                return iterator.next()
+            } else {
+                iterators.remove(iterator)
+                if (iterators.isNotEmpty()) {
+                    return nextValue()
+                }
             }
+            return null
+        }
 
-        return alternate(forwardRoutes)
+        return generateSequence { nextValue() }
     }
 
     private fun getRouteGenerators(
         condition: (Leg) -> Boolean,
+        endCondition: (Leg) -> Boolean,
         routeLocations: List<Location>,
     ): List<Sequence<Pair<Leg, String>>> {
         val forwardRoutes =
@@ -67,9 +66,9 @@ class RoutePlanner(
                 sectionedRoute.stepFromAccumulating(routeLocation, -1)
             }
         return (forwardRoutes.plus(backwardsRoutes)).map { generator ->
-            generator.filter {
-                condition(it)
-            }.map { connectToStart(sectionedRoute, it) }
+            generator.map { connectToStart(sectionedRoute, it) }.filter {
+                condition(it.first)
+            }.takeWhile { endCondition(it.first) }
         }
     }
 
@@ -77,10 +76,11 @@ class RoutePlanner(
     fun generateRoutes(
         startPositionFilter: (NamedLocation) -> Boolean,
         condition: (Leg) -> Boolean,
+        endCondition: (Leg) -> Boolean,
         startTime: LocalDateTime,
     ): Sequence<Route> {
         val validStarts = sectionedRoute.getStarts(startPositionFilter)
-        val generators = getRouteGenerators(condition, validStarts.values.toList())
+        val generators = getRouteGenerators(condition, endCondition, validStarts.values.toList())
         return randomSequence(generators).map { Route(it.second, it.first.length, it.first, startTime) }
     }
 }

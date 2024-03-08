@@ -31,7 +31,7 @@ export const Filters: React.FC<FiltersProps> = ({
   );
   const [routeType, setRouteType] = useState<RouteType>(RouteType.PointToPoint);
   const [routeDifficulty, setRouteDifficulty] = useState<RouteDifficulty>(
-    RouteDifficulty.Medium,
+    RouteDifficulty.Any,
   );
 
   const paddleSpeedOptions = generateOptions(PaddleSpeed);
@@ -114,17 +114,17 @@ export const Filters: React.FC<FiltersProps> = ({
       />
       <View style={styles.divider}></View>
       <SelectButtons
-        label={'Route Difficulty'}
-        options={routeDifficultyOptions}
-        selectedOption={routeDifficulty}
-        onSelect={setRouteDifficulty}
-      />
-      <View style={styles.divider}></View>
-      <SelectButtons
         label={'Route Type'}
         options={routeTypeOptions}
         selectedOption={routeType}
         onSelect={setRouteType}
+      />
+      <View style={styles.divider}></View>
+      <SelectButtons
+        label={'Difficulty'}
+        options={routeDifficultyOptions}
+        selectedOption={routeDifficulty}
+        onSelect={setRouteDifficulty}
       />
     </View>
   );

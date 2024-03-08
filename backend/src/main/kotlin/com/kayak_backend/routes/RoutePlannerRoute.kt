@@ -24,6 +24,16 @@ fun parsePaddleSpeed(input: String): PaddleSpeed {
     }
 }
 
+fun parseDifficultyRange(input: String): IntRange {
+    return when (input.lowercase()) {
+        "any" -> 1..12
+        "easy" -> 1..4
+        "medium" -> 5..7
+        "hard" -> 8..12
+        else -> throw IllegalArgumentException("Invalid difficulty: $input")
+    }
+}
+
 fun paddleSpeedToLegTimer(
     paddleSpeed: PaddleSpeed,
     legTimers: LegTimers,
@@ -50,17 +60,27 @@ fun Route.planRoute(
             val duration = call.parameters.getOrFail<Double>("duration")
             val startTime = getDateParameter(call.parameters, "startDateTime")
             val paddleSpeed = parsePaddleSpeed(call.parameters["paddleSpeed"] ?: "normal")
+            val difficulty = parseDifficultyRange(call.parameters["difficulty"] ?: "medium")
+
             val legTimer = paddleSpeedToLegTimer(paddleSpeed, legTimers)
 
             val routes =
                 routePlanner.generateRoutes(
                     { it.location.latitude in latFrom..latTo && it.location.longitude in lonFrom..lonTo },
                     { legTimer.getDuration(it, startTime) >= duration * 60 },
+                    { legTimer.getDuration(it, startTime) <= duration * 60 * 1.5 },
                     startTime,
-                ).take(10).sortedBy { it.length }.toList()
+                )
 
-            val timedRoutes = routes.map { Pair(it, legTimer.getCheckpoints(it, startTime)) }
-            call.respond(
+            val timedRoutes =
+                routes.map {
+                    Pair(
+                        it,
+                        legTimer.getCheckpoints(it, startTime),
+                    )
+                }
+
+            val rankedRoutes =
                 timedRoutes.map {
                         (route, checkpoints) ->
                     TimedRankedRoute(
@@ -71,7 +91,10 @@ fun Route.planRoute(
                         startTime,
                         legDifficulty.getDifficulty(route, startTime, checkpoints),
                     )
-                },
+                }
+
+            call.respond(
+                rankedRoutes.filter { it.difficulty in difficulty }.take(10).sortedBy { it.length }.toList(),
             )
         }
     }
