@@ -52,6 +52,12 @@ export const WaveHeightVisualisation: React.FC<
           minHeight = Math.min(minHeight, grid.grid[i][j].height);
           maxHeight = Math.max(maxHeight, grid.grid[i][j].height);
 
+          // TODO: Check that the wave height service provides the top right corner of the grid
+          const topRight = {
+            latitude: latitude,
+            longitude: longitude,
+          };
+
           const bottomLeft = {
             latitude: latitude - gridRes.latRes,
             longitude: longitude - gridRes.lonRes,
@@ -59,17 +65,12 @@ export const WaveHeightVisualisation: React.FC<
 
           const bottomRight = {
             latitude: latitude - gridRes.latRes,
-            longitude: longitude + gridRes.lonRes,
+            longitude: longitude,
           };
 
           const topLeft = {
-            latitude: latitude + gridRes.latRes,
-            longitude: longitude - gridRes.latRes,
-          };
-
-          const topRight = {
-            latitude: latitude + gridRes.latRes,
-            longitude: longitude + gridRes.lonRes,
+            latitude: latitude,
+            longitude: longitude - gridRes.lonRes,
           };
 
           const waveHeight: WaveHeightPolygon = {
