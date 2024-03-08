@@ -14,7 +14,6 @@ fun Route.planRoute(
     circularRoutePlanner: CircularRoutePlanner,
     legTimer: LegTimer,
     legDifficulty: LegDifficulty,
-    startPositionFilterDistance: Double = 1000.0,
 ) {
     route("/planRoute") {
         get {

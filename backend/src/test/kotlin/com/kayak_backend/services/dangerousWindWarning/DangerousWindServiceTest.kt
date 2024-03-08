@@ -114,7 +114,6 @@ class DangerousWindServiceTest {
     fun returnsListOfBooleansMatchingIndexesToLocationsInput() {
         // cos is used to make the component parallel to the wind = 3 * badWindMagnitude
         val cos = cos(Math.toRadians(10.0))
-        val expected = listOf(false, true, false)
 
         every {
             windServiceMock.getWind(loc1, any())
@@ -128,9 +127,7 @@ class DangerousWindServiceTest {
 
         val result = dangerousWindService.findBadWinds(listOf(loc1, loc2, loc3), listOf(0, 1, 2), time)
         assertEquals(3, result.size)
-        for (i in expected.indices) {
-            assertEquals(expected[i], result[i])
-        }
+        assertEquals(listOf(false, true, false), result)
     }
 
     @Test
@@ -141,5 +138,18 @@ class DangerousWindServiceTest {
 
         val result = dangerousWindService.findBadWinds(listOf(loc1), listOf(0), time)
         assertFalse(result[0])
+    }
+
+    @Test
+    fun markedForTheTimeReachedInRoute() {
+        every {
+            windServiceMock.getWind(loc1, time)
+        } returns WindInfo(0.0, badWindMagnitude / 2)
+        every {
+            windServiceMock.getWind(loc1, time.plusSeconds(1))
+        } returns WindInfo(0.0, badWindMagnitude * 3)
+
+        val result = dangerousWindService.findBadWinds(listOf(loc1, loc1), listOf(0, 1), time)
+        assertEquals(listOf(false, true), result)
     }
 }
