@@ -166,9 +166,11 @@ fun getTimeService(conf: Conf): TimeService {
     }
 }
 
-// TODO decide here between basic and weather kayak
-fun getLegTimer(): LegTimer {
-    return LegTimer(WeatherKayak(kayakerSpeed = 1.54))
+fun getDifficultyLegTimers(): DifficultyLegTimers {
+    val slowLegTimer = LegTimer(WeatherKayak(kayakerSpeed = 0.7))
+    val normalLegTimer = LegTimer(WeatherKayak(kayakerSpeed = 1.54))
+    val fastLegTimer = LegTimer(WeatherKayak(kayakerSpeed = 2.0))
+    return DifficultyLegTimers(slowLegTimer, normalLegTimer, fastLegTimer)
 }
 
 fun getLegTimers(): LegTimers {

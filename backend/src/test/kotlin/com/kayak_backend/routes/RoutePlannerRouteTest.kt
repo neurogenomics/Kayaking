@@ -16,7 +16,7 @@ class RoutePlannerRouteTest {
     private val slowLegTimer = mockk<LegTimer>()
     private val normalLegTimer = mockk<LegTimer>()
     private val fastLegTimer = mockk<LegTimer>()
-    private val legTimersMock = LegTimers(slowLegTimer, normalLegTimer, fastLegTimer)
+    private val difficultyLegTimersMock = DifficultyLegTimers(slowLegTimer, normalLegTimer, fastLegTimer)
     private val circularRoutePlannerMock = mockk<CircularRoutePlanner>()
     private val legDifficultyMock = mockk<LegDifficulty>()
 
@@ -32,7 +32,7 @@ class RoutePlannerRouteTest {
     @Test
     fun requiresLatFromParameter() =
         testApplication {
-            commonSetup { planRoute(routePlannerMock, circularRoutePlannerMock, legTimersMock, legDifficultyMock) }
+            commonSetup { planRoute(routePlannerMock, circularRoutePlannerMock, difficultyLegTimersMock, legDifficultyMock) }
             val response = client.get("/planRoute?latTo=20&lonFrom=30&lonTo=40&duration=10.0")
             assertEquals(HttpStatusCode.BadRequest, response.status)
             assertEquals("Missing \"latFrom\" parameter.", response.bodyAsText())
@@ -41,7 +41,7 @@ class RoutePlannerRouteTest {
     @Test
     fun requiresLatFromToBeDouble() =
         testApplication {
-            commonSetup { planRoute(routePlannerMock, circularRoutePlannerMock, legTimersMock, legDifficultyMock) }
+            commonSetup { planRoute(routePlannerMock, circularRoutePlannerMock, difficultyLegTimersMock, legDifficultyMock) }
             val response = client.get("/planRoute?latFrom=dog&latTo=20&lonFrom=30&lonTo=40&duration=10.0")
             assertEquals(HttpStatusCode.BadRequest, response.status)
             assertEquals("Parameter \"latFrom\" should be Double.", response.bodyAsText())
@@ -50,7 +50,7 @@ class RoutePlannerRouteTest {
     @Test
     fun requiresLatToParameter() =
         testApplication {
-            commonSetup { planRoute(routePlannerMock, circularRoutePlannerMock, legTimersMock, legDifficultyMock) }
+            commonSetup { planRoute(routePlannerMock, circularRoutePlannerMock, difficultyLegTimersMock, legDifficultyMock) }
             val response = client.get("/planRoute?latFrom=20&lonFrom=30&lonTo=40&duration=10.0")
             assertEquals(HttpStatusCode.BadRequest, response.status)
             assertEquals("Missing \"latTo\" parameter.", response.bodyAsText())
@@ -59,7 +59,7 @@ class RoutePlannerRouteTest {
     @Test
     fun requiresLatToToBeDouble() =
         testApplication {
-            commonSetup { planRoute(routePlannerMock, circularRoutePlannerMock, legTimersMock, legDifficultyMock) }
+            commonSetup { planRoute(routePlannerMock, circularRoutePlannerMock, difficultyLegTimersMock, legDifficultyMock) }
             val response = client.get("/planRoute?latFrom=20&latTo=dog&lonFrom=30&lonTo=40&duration=10.0")
             assertEquals(HttpStatusCode.BadRequest, response.status)
             assertEquals("Parameter \"latTo\" should be Double.", response.bodyAsText())
@@ -68,7 +68,7 @@ class RoutePlannerRouteTest {
     @Test
     fun requiresLonFromParameter() =
         testApplication {
-            commonSetup { planRoute(routePlannerMock, circularRoutePlannerMock, legTimersMock, legDifficultyMock) }
+            commonSetup { planRoute(routePlannerMock, circularRoutePlannerMock, difficultyLegTimersMock, legDifficultyMock) }
             val response = client.get("/planRoute?latFrom=20&latTo=30&lonTo=40&duration=10.0")
             assertEquals(HttpStatusCode.BadRequest, response.status)
             assertEquals("Missing \"lonFrom\" parameter.", response.bodyAsText())
@@ -77,7 +77,7 @@ class RoutePlannerRouteTest {
     @Test
     fun requiresLonFromToBeDouble() =
         testApplication {
-            commonSetup { planRoute(routePlannerMock, circularRoutePlannerMock, legTimersMock, legDifficultyMock) }
+            commonSetup { planRoute(routePlannerMock, circularRoutePlannerMock, difficultyLegTimersMock, legDifficultyMock) }
             val response = client.get("/planRoute?latFrom=20&latTo=30&lonFrom=frog&lonTo=40&duration=10.0")
             assertEquals(HttpStatusCode.BadRequest, response.status)
             assertEquals("Parameter \"lonFrom\" should be Double.", response.bodyAsText())
@@ -86,7 +86,7 @@ class RoutePlannerRouteTest {
     @Test
     fun requiresLonToParameter() =
         testApplication {
-            commonSetup { planRoute(routePlannerMock, circularRoutePlannerMock, legTimersMock, legDifficultyMock) }
+            commonSetup { planRoute(routePlannerMock, circularRoutePlannerMock, difficultyLegTimersMock, legDifficultyMock) }
             val response = client.get("/planRoute?latFrom=20&latTo=30&lonFrom=40&duration=10.0")
             assertEquals(HttpStatusCode.BadRequest, response.status)
             assertEquals("Missing \"lonTo\" parameter.", response.bodyAsText())
@@ -95,7 +95,7 @@ class RoutePlannerRouteTest {
     @Test
     fun requiresLonToToBeDouble() =
         testApplication {
-            commonSetup { planRoute(routePlannerMock, circularRoutePlannerMock, legTimersMock, legDifficultyMock) }
+            commonSetup { planRoute(routePlannerMock, circularRoutePlannerMock, difficultyLegTimersMock, legDifficultyMock) }
             val response = client.get("/planRoute?latFrom=20&latTo=30&lonFrom=40&lonTo=frog&duration=10.0")
             assertEquals(HttpStatusCode.BadRequest, response.status)
             assertEquals("Parameter \"lonTo\" should be Double.", response.bodyAsText())
@@ -104,7 +104,7 @@ class RoutePlannerRouteTest {
     @Test
     fun requiresDurationParameter() =
         testApplication {
-            commonSetup { planRoute(routePlannerMock, circularRoutePlannerMock, legTimersMock, legDifficultyMock) }
+            commonSetup { planRoute(routePlannerMock, circularRoutePlannerMock, difficultyLegTimersMock, legDifficultyMock) }
             val response = client.get("/planRoute?latFrom=20&latTo=30&lonFrom=40&lonTo=50")
             assertEquals(HttpStatusCode.BadRequest, response.status)
             assertEquals("Missing \"duration\" parameter.", response.bodyAsText())
@@ -113,7 +113,7 @@ class RoutePlannerRouteTest {
     @Test
     fun requiresDurationToBeDouble() =
         testApplication {
-            commonSetup { planRoute(routePlannerMock, circularRoutePlannerMock, legTimersMock, legDifficultyMock) }
+            commonSetup { planRoute(routePlannerMock, circularRoutePlannerMock, difficultyLegTimersMock, legDifficultyMock) }
             val response = client.get("/planRoute?latFrom=20&latTo=30&lonFrom=40&lonTo=50&duration=frog")
             assertEquals(HttpStatusCode.BadRequest, response.status)
             assertEquals("Parameter \"duration\" should be Double.", response.bodyAsText())
