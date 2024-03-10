@@ -55,6 +55,7 @@ class CircularRoutePlanner(
         val step = if ((getResistance(switchLeg, time) ?: return null) >= 0) -1 else 1
         val legs =
             sectionedRoute.stepFrom(switchLeg.end, step).takeWhile {
+                if (Duration.between(currentStart, currentEnd) >= minDuration) return@takeWhile false
                 val newStart = currentStart - Duration.ofSeconds(legTimer.getDuration(it.reverse(), currentStart))
                 val newEnd = currentEnd + Duration.ofSeconds(legTimer.getDuration(it, currentEnd))
                 val startResistance = getResistance(it, newStart) ?: return@takeWhile false
@@ -64,7 +65,7 @@ class CircularRoutePlanner(
                 if (endResistance < 0 && abs(endResistance) > 0.1) return@takeWhile false
                 currentStart = newStart
                 currentEnd = newEnd
-                Duration.between(currentStart, currentEnd) <= minDuration
+                true
             }.toList()
 
         if (Duration.between(currentStart, currentEnd) < minDuration) return null
@@ -86,14 +87,14 @@ class CircularRoutePlanner(
                     false
                 } else {
                     (
-                        (switchResistances[it.key]!! >= 0) != (
-                            switchResistances[
-                                it.key.minusHours(
-                                    1,
-                                ),
-                            ]!! >= 0
-                        )
-                    )
+                            (switchResistances[it.key]!! >= 0) != (
+                                    switchResistances[
+                                        it.key.minusHours(
+                                            1,
+                                        ),
+                                    ]!! >= 0
+                                    )
+                            )
                 }
             }.filterValues { it }
 
