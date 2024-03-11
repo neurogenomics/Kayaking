@@ -1,10 +1,13 @@
 package com.kayak_backend
 
 import com.kayak_backend.gribReader.NetCDFGribReader
+import com.kayak_backend.services.tideTimes.TideStationService
 import com.kayak_backend.services.tideTimes.TideTimeService
 import com.kayak_backend.services.tides.GribTideFetcher
 import com.kayak_backend.services.times.GribTimeService
 import com.kayak_backend.services.wind.GribWindFetcher
+import io.mockk.every
+import io.mockk.mockk
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
@@ -117,8 +120,10 @@ class ConfTest {
 
     @Test
     fun getTideTimeServiceReturnsCorrectType() {
+        val mockTideStationService = mockk<TideStationService>()
+        every { mockTideStationService.getTideStations() } returns listOf()
         val env = mapOf(Pair("ADMIRALTY_API_KEY", "apiKey"))
-        assertIs<TideTimeService>(getTideTimeService(testConfig, env))
+        assertIs<TideTimeService>(getTideTimeService(testConfig, env, tideStationService = mockTideStationService))
     }
 
     @Test
