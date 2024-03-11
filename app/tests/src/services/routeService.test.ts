@@ -31,7 +31,7 @@ describe('getRoute', () => {
     };
 
     const userInput: UserInput = {
-      routeType: RouteType.PointToPoint,
+      routeType: RouteType['Point-to-point'],
       startTime: new Date('2024-01-01T12:00:00'),
       duration: 60,
       paddleSpeed: PaddleSpeed.Normal,

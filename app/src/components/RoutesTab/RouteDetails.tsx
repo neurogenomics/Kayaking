@@ -9,8 +9,9 @@ import MapView, { Polyline } from 'react-native-maps';
 import interpolate from 'color-interpolate';
 import { LinearGradient } from 'expo-linear-gradient';
 import { speedMapColours } from '../../colors';
-import RouteInformation from '../RouteInformation';
-import { ScrollView } from 'react-native-gesture-handler';
+import RouteInformation from './RouteInformation';
+import { RouteInfoRow } from './RouteInfoRow';
+import { BottomSheetScrollView } from '@gorhom/bottom-sheet';
 
 const styles = StyleSheet.create({
   container: {
@@ -18,6 +19,7 @@ const styles = StyleSheet.create({
     margin: 10,
   },
   titleContainer: {
+    width: '95%',
     flexDirection: 'row',
     alignItems: 'center',
   },
@@ -89,12 +91,17 @@ const RouteDetails: React.FC<RouteDetailsProps> = ({
     <View style={styles.container}>
       <View style={styles.titleContainer}>
         <TouchableOpacity onPress={() => navigation.navigate('RouteList')}>
-          <FontAwesomeIcon icon={faArrowLeft} />
+          <FontAwesomeIcon icon={faArrowLeft} size={25} />
         </TouchableOpacity>
         <Text style={styles.routeName}>{mapRoute.name}</Text>
       </View>
       <View style={styles.divider} />
-      <ScrollView>
+      <RouteInfoRow
+        route={mapRoute}
+        timeDisplayStr={route.params.timeDisplayStr}
+        showTime={true}
+      />
+      <BottomSheetScrollView>
         <View style={styles.gradientContainer}>
           <Text style={styles.text}>Slow</Text>
           <LinearGradient
@@ -106,7 +113,13 @@ const RouteDetails: React.FC<RouteDetailsProps> = ({
           <Text style={styles.text}>Fast</Text>
         </View>
         <View style={styles.mapContainer}>
-          <MapView style={styles.map} region={region} provider="google">
+          <MapView
+            style={styles.map}
+            region={region}
+            provider="google"
+            zoomEnabled={false}
+            scrollEnabled={false}
+          >
             {colours.map((colour, index) => {
               return (
                 <Polyline
@@ -125,7 +138,7 @@ const RouteDetails: React.FC<RouteDetailsProps> = ({
         <View>
           <RouteInformation route={mapRoute}></RouteInformation>
         </View>
-      </ScrollView>
+      </BottomSheetScrollView>
     </View>
   );
 };

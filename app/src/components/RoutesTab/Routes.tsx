@@ -10,7 +10,10 @@ import { BottomSheetScrollView } from '@gorhom/bottom-sheet';
 
 export type RoutesParamList = {
   RouteList: undefined;
-  RouteDetails: { route: RouteModel };
+  RouteDetails: {
+    route: RouteModel;
+    timeDisplayStr: string;
+  };
 };
 
 export type RouteListNavigationProp = StackNavigationProp<
@@ -35,7 +38,12 @@ const Routes: React.FC<RoutesProps> = ({
 }) => {
   return (
     <Stack.Navigator initialRouteName={'RouteList'}>
-      <Stack.Screen name="RouteList" options={{ headerShown: false }}>
+      <Stack.Screen
+        name="RouteList"
+        options={{
+          headerShown: false,
+        }}
+      >
         {() => (
           <BottomSheetScrollView>
             <RoutesList
@@ -49,7 +57,10 @@ const Routes: React.FC<RoutesProps> = ({
       </Stack.Screen>
       <Stack.Screen
         name={'RouteDetails'}
-        options={{ headerShown: false }}
+        options={{
+          headerShown: false,
+          cardStyle: { backgroundColor: 'white' },
+        }}
         component={RouteDetails}
       ></Stack.Screen>
     </Stack.Navigator>

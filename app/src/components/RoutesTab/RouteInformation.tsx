@@ -1,19 +1,44 @@
 import { StyleSheet, View, Text, Dimensions } from 'react-native';
 import { LineChart } from 'react-native-chart-kit';
 import Speedometer, { Arc, Progress } from 'react-native-cool-speedometer';
-import { RouteModel, getRouteSpeeds } from '../models/routeModel';
-import { getWindsDirection } from '../services/windService';
+import { RouteModel, getRouteSpeeds } from '../../models/routeModel';
+import { getWindsDirection } from '../../services/windService';
 import { useEffect, useState } from 'react';
-import { Vector } from '../models/vectorModel';
+import { Vector } from '../../models/vectorModel';
 import {
   angleBetweenLocations,
   calculateDistanceBetweenLocations,
   toRadians,
-} from '../models/locationModel';
-import { COLORS } from '../colors';
+} from '../../models/locationModel';
+import {
+  colors,
+  fabColors,
+  getInterpolatedColor,
+  speedMapColours,
+} from '../../colors';
 type RouteInformationProps = {
   route: RouteModel;
 };
+
+const styles = StyleSheet.create({
+  label: {
+    fontSize: 18,
+    marginBottom: 5,
+    marginTop: 0,
+  },
+  speedometer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: -70,
+  },
+  graphContainer: {
+    width: '100%',
+    height: 200,
+    marginVertical: 10,
+    borderRadius: 10,
+    overflow: 'hidden',
+  },
+});
 
 export const RouteInformation: React.FC<RouteInformationProps> = ({
   route,
@@ -56,7 +81,7 @@ export const RouteInformation: React.FC<RouteInformationProps> = ({
         //wind projected onto velocity
         const w_dot_v = vel.u * winds[index].u + winds[index].v * vel.v;
         const v_dot_v = vel.u * vel.u + vel.v * vel.v;
-        return (w_dot_v / v_dot_v).toFixed(2);
+        return parseFloat((w_dot_v / v_dot_v).toFixed(2));
       });
       if (windScalar.length !== 0) {
         setWindsInfo(windScalar);
@@ -74,6 +99,23 @@ export const RouteInformation: React.FC<RouteInformationProps> = ({
 
   return (
     <View>
+      <Text style={styles.label}>Difficulty: {route.difficulty} / 12</Text>
+      <View style={styles.speedometer}>
+        <Speedometer
+          value={route.difficulty}
+          max={10}
+          angle={180}
+          lineCap="round"
+          accentColor={getInterpolatedColor(
+            route.difficulty,
+            [1, 12],
+            speedMapColours,
+          )}
+        >
+          <Arc arcWidth={40} />
+          <Progress arcWidth={40} />
+        </Speedometer>
+      </View>
       <Text style={styles.label}>Paddling speed</Text>
       <View style={styles.graphContainer}>
         <LineChart
@@ -92,9 +134,9 @@ export const RouteInformation: React.FC<RouteInformationProps> = ({
           yAxisInterval={4}
           fromZero={true}
           chartConfig={{
-            backgroundColor: COLORS.fabSelected,
-            backgroundGradientFrom: COLORS.fabSelected,
-            backgroundGradientTo: COLORS.fabSelected,
+            backgroundColor: colors.orange.medium,
+            backgroundGradientFrom: colors.orange.medium,
+            backgroundGradientTo: colors.orange.medium,
             fillShadowGradientFromOpacity: 0,
             fillShadowGradientToOpacity: 0,
             decimalPlaces: 0,
@@ -116,7 +158,7 @@ export const RouteInformation: React.FC<RouteInformationProps> = ({
         />
       </View>
 
-      <Text style={styles.label}>Wind Support</Text>
+      <Text style={styles.label}>Wind support</Text>
       <View style={styles.graphContainer}>
         <LineChart
           data={{
@@ -133,9 +175,9 @@ export const RouteInformation: React.FC<RouteInformationProps> = ({
           yAxisSuffix="m/s"
           yAxisInterval={4}
           chartConfig={{
-            backgroundColor: COLORS.fabSelected,
-            backgroundGradientFrom: COLORS.fabSelected,
-            backgroundGradientTo: COLORS.fabSelected,
+            backgroundColor: colors.orange.medium,
+            backgroundGradientFrom: colors.orange.medium,
+            backgroundGradientTo: colors.orange.medium,
             fillShadowGradientFromOpacity: 0,
             fillShadowGradientToOpacity: 0,
             decimalPlaces: 0,
@@ -147,7 +189,7 @@ export const RouteInformation: React.FC<RouteInformationProps> = ({
             propsForDots: {
               r: '0',
               strokeWidth: '2',
-              stroke: COLORS.fabSelected,
+              stroke: fabColors.fabSelected,
             },
           }}
           style={{
@@ -156,33 +198,7 @@ export const RouteInformation: React.FC<RouteInformationProps> = ({
           }}
         />
       </View>
-      <Text style={styles.label}>Difficulty: {route.difficulty}/10</Text>
-      <Speedometer
-        value={route.difficulty}
-        max={10}
-        angle={180}
-        lineCap="round"
-        accentColor={COLORS.fabSelected}
-      >
-        <Arc arcWidth={40} />
-        <Progress arcWidth={40} />
-      </Speedometer>
     </View>
   );
 };
 export default RouteInformation;
-
-const styles = StyleSheet.create({
-  label: {
-    fontSize: 18,
-    marginBottom: 5,
-    margin: 10,
-  },
-  graphContainer: {
-    width: '100%',
-    height: 200,
-    marginVertical: 10,
-    borderRadius: 10,
-    overflow: 'hidden',
-  },
-});

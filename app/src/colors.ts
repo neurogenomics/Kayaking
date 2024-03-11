@@ -1,6 +1,22 @@
 import { interpolateColor } from 'react-native-reanimated';
+import { RouteDifficulty } from './models/userInputModel';
 
-export const COLORS = {
+export const colors = {
+  orange: {
+    light: '#e69138',
+    medium: '#ff9900',
+    dark: '#b45f06',
+    highlight: '#ff9900',
+  },
+  green: {
+    light: '#93c47d',
+    medium: '#6aa84f',
+    dark: '#38761d',
+    highlight: '#c1d8ff',
+  },
+};
+
+export const fabColors = {
   fabUnselected: '#fafafa',
   fabSelected: '#6ca0dc',
   backdrop: '#c8dfeaaa',
@@ -9,11 +25,19 @@ export const COLORS = {
 export const mapVisColours = {
   wind: ['#0000FF', '#FF0000'],
   tide: ['#006f3c', '#0000FF'],
-  wave: [
-    'rgba(0, 255, 0, 0.25)', // Green with 50% transparency
-    'rgba(255, 0, 0, 0.25)', // Red with 50% transparency
-  ],
+  wave: ['rgba(0, 255, 0, 0.25)', 'rgba(255, 0, 0, 0.25)'],
 };
+
+export function getDifficultyColour(difficulty: RouteDifficulty) {
+  switch (difficulty) {
+    case RouteDifficulty.Easy:
+      return 'rgba(0, 128, 0, 0.3)';
+    case RouteDifficulty.Medium:
+      return 'rgba(255, 165, 0, 0.3)';
+    case RouteDifficulty.Hard:
+      return 'rgba(255, 0, 0, 0.3)';
+  }
+}
 
 export const speedMapColours = [
   '#264b96',
