@@ -10,9 +10,9 @@ import java.time.LocalDateTime
 import kotlin.math.*
 
 class WeatherKayak(
+    private val kayakerSpeed: Double,
     private val windService: WindService = getWindService(getConf("./config.yaml")),
     private val tideService: TideService = getTideService(getConf("./config.yaml")),
-    private val kayakerSpeed: Double,
 ) : Kayak {
     override fun getSpeed(
         dateTime: LocalDateTime,

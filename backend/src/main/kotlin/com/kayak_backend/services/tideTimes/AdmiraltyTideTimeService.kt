@@ -42,6 +42,7 @@ class AdmiraltyTideTimeService(
             if (jsonObj.has("Height")) {
                 height = jsonObj.getDouble("Height")
             }
+
             val dateTime = LocalDateTime.parse(jsonObj.getString("DateTime"))
             val tideEvent = TideEvent(isHighTide, dateTime, height)
             events.add(tideEvent)

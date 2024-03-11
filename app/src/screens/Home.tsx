@@ -193,6 +193,7 @@ const HomeScreen: React.FC<HomeProps> = () => {
                 <Filters
                   setUserInput={setUserInput}
                   onFindRoutesPressed={handleSearch}
+                  weatherDates={weatherDates}
                 />
               </BottomSheetScrollView>
             )}

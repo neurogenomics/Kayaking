@@ -16,7 +16,7 @@ class WeatherKayakTest {
     private val windServiceMock: WindService = mockk<WindService>()
     private val tideServiceMock: TideService = mockk<TideService>()
     private val kayakerSpeed = 3.0
-    private val kayak: WeatherKayak = WeatherKayak(windServiceMock, tideServiceMock, kayakerSpeed)
+    private val kayak: WeatherKayak = WeatherKayak(kayakerSpeed, windServiceMock, tideServiceMock)
 
     // make sure these match those in WeatherKayak.kt
     private val windMult = 0.02
