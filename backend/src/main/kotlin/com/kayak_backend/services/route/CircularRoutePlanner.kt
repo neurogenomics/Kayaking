@@ -42,7 +42,7 @@ class CircularRoutePlanner(
         val timeslice =
             resistances.getOrPut(Pair(leg, time.toLocalDate())) {
                 ConcurrentHashMap(
-                    tideService.getTideAllDay(leg.midpoint(), time.toLocalDate()).mapValues { leg.resistance(it.value) }
+                    tideService.getTideAllDay(leg.midpoint(), time.toLocalDate()).mapValues { leg.resistance(it.value) },
                 )
             }
         return timeslice[time.toLocalTime().truncatedTo(ChronoUnit.HOURS)]
@@ -84,7 +84,8 @@ class CircularRoutePlanner(
         val switchResistances =
             resistances.getOrPut(Pair(switchLeg, date)) {
                 ConcurrentHashMap(
-                    tideService.getTideAllDay(switchLeg.midpoint(), date).mapValues { switchLeg.resistance(it.value) })
+                    tideService.getTideAllDay(switchLeg.midpoint(), date).mapValues { switchLeg.resistance(it.value) },
+                )
             }
         val switchpoints =
             switchResistances.mapValues {
@@ -92,14 +93,14 @@ class CircularRoutePlanner(
                     false
                 } else {
                     (
-                            (switchResistances[it.key]!! >= 0) != (
-                                    switchResistances[
-                                        it.key.minusHours(
-                                            1,
-                                        ),
-                                    ]!! >= 0
-                                    )
-                            )
+                        (switchResistances[it.key]!! >= 0) != (
+                            switchResistances[
+                                it.key.minusHours(
+                                    1,
+                                ),
+                            ]!! >= 0
+                        )
+                    )
                 }
             }.filterValues { it }
 

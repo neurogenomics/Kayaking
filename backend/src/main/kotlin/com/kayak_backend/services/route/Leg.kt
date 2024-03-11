@@ -11,7 +11,6 @@ sealed class Leg {
     abstract val end: Location
     abstract val locations: List<Location>
 
-
     companion object {
         fun create(locations: List<Location>): Leg {
             val legs = mutableListOf<SingleLeg>()
