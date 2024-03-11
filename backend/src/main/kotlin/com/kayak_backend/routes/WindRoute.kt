@@ -63,7 +63,6 @@ fun Route.wind(wind: WindService) {
             val requestBody = call.receiveText()
             val data = Json.decodeFromString<RouteInformation>(requestBody)
 
-
             try {
                 // Call your wind.getWindRoute() function with the extracted data
                 call.respond(wind.getWindRoute(data.locations, data.checkpoints, data.date))
