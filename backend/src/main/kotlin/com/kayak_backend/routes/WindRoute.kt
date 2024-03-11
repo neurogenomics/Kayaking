@@ -23,8 +23,7 @@ import kotlin.math.min
 data class RouteInformation(
     val locations: List<Location>,
     val checkpoints: List<Int>,
-    @Serializable(with = LocalDateTimeSerializer::class)
-    val date: LocalDateTime,
+    @Serializable(with = LocalDateTimeSerializer::class) val date: LocalDateTime,
 )
 
 fun Route.wind(wind: WindService) {
