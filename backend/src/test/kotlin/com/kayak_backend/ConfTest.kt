@@ -1,6 +1,7 @@
 package com.kayak_backend
 
 import com.kayak_backend.gribReader.NetCDFGribReader
+import com.kayak_backend.services.dangerousWindWarning.seaBearing.SeaBearingService
 import com.kayak_backend.services.tideTimes.TideStationService
 import com.kayak_backend.services.tideTimes.TideTimeService
 import com.kayak_backend.services.tides.GribTideFetcher
@@ -136,4 +137,10 @@ class ConfTest {
     fun getTimeServiceReturnsCorrectType() {
         assertIs<GribTimeService>(getTimeService(testConfig))
     }
+
+    @Test
+    fun getSeaBearingServiceReturnsRightType() {
+        assertIs<SeaBearingService>(getSeaBearingService())
+    }
+    
 }

@@ -1,4 +1,5 @@
 package com.kayak_backend.routes
+
 import com.kayak_backend.models.Location
 import com.kayak_backend.services.sunset.SunsetService
 import io.ktor.http.*
@@ -12,17 +13,6 @@ import java.time.LocalDate
 
 fun Route.sunset(sunset: SunsetService = SunsetService()) {
     // TODO: Get getOrFail to serialize LocalDates so this can be done implicitly
-    fun getDateParameter(
-        parameters: Parameters,
-        name: String,
-    ): LocalDate? {
-        try {
-            val maybeDateStr = parameters[name] ?: return null
-            return kotlinx.datetime.LocalDate.parse(maybeDateStr).toJavaLocalDate()
-        } catch (e: IllegalArgumentException) {
-            throw ParameterConversionException(name, "Date in format YYYY-MM-DD")
-        }
-    }
 
     route("/sunset") {
         get {
