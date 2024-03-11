@@ -13,6 +13,7 @@ export type TideStation = {
 
 export type TideEvent = {
   source: TideStation;
+  isHighTide: boolean;
   datetime: Date;
   height: number | null;
 };
