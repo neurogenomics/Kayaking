@@ -11,7 +11,6 @@ import org.locationtech.jts.geom.GeometryFactory
 import org.locationtech.jts.geom.Polygon
 import java.time.Duration
 import java.time.LocalDate
-import java.time.LocalDateTime
 import java.time.LocalTime
 import kotlin.test.assertEquals
 
@@ -20,9 +19,6 @@ class CircularRouteTest {
     private val tideServiceMock = mockk<TideService>()
 
     private val polygon: Polygon
-    private val location = Location(0.0, 0.0)
-    private val startTime = LocalDateTime.now()
-    private val duration = 50L
     private val startPos: List<NamedLocation> =
         listOf(
             NamedLocation(Location(1.5, -1.5), "Start1"),
@@ -30,19 +26,6 @@ class CircularRouteTest {
             NamedLocation(Location(-1.5, -1.5), "Start3"),
             NamedLocation(Location(-1.5, 1.5), "Start4"),
         )
-
-    private val loc1 = Location(-1.5, -1.5)
-    private val loc2 = Location(-1.5, 1.5)
-    private val loc3 = Location(1.5, 1.5)
-    private val loc4 = Location(1.5, -1.5)
-
-    private val leg1 = Leg.SingleLeg(loc1, loc2)
-    private val leg2 = Leg.SingleLeg(loc2, loc3)
-
-    // leg to itself because it's the start and end point of the polygon
-    private val leg3 = Leg.SingleLeg(loc3, loc3)
-    private val leg4 = Leg.SingleLeg(loc3, loc4)
-    private val leg5 = Leg.SingleLeg(loc4, loc1)
 
     init {
         val geometryFactory = GeometryFactory()

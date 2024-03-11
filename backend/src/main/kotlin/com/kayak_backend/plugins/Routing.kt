@@ -18,6 +18,11 @@ fun Application.configureRouting(conf: Conf) {
         dangerousWind(getDangerousWindService(conf))
         times(getTimeService(conf))
         wave(getWaveService(conf))
-        planRoute(getRoutePlanner(), getCircularRoutePlanner(tideService, legTimers.slowLegTimer), legTimers, getLegDifficulty())
+        planRoute(
+            getRoutePlanner(),
+            getCircularRoutePlanner(tideService, legTimers.normalLegTimer),
+            legTimers,
+            getLegDifficulty(),
+        )
     }
 }
