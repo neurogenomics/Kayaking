@@ -25,7 +25,6 @@ data class RouteInformation(
 )
 
 fun Route.wind(wind: WindService) {
-
     route("/wind") {
         get {
             val lat = call.parameters.getOrFail<Double>("lat")

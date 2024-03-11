@@ -37,5 +37,4 @@ class CachingGribReaderTest {
         cachingGribReader.getSingleVar(1.001, 1.001, time, "var", "file")
         verify(exactly = 1) { baseGribReader.getSingleVar(1.0, 1.0, time, "var", "file") }
     }
-
 }

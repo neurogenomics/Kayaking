@@ -24,8 +24,8 @@ class UtilsTest {
         assert(
             Duration.between(
                 LocalDateTime.now(),
-                getDateTimeParameter(params.build(), "testDateTime")
-            ) < Duration.ofSeconds(5)
+                getDateTimeParameter(params.build(), "testDateTime"),
+            ) < Duration.ofSeconds(5),
         )
     }
 

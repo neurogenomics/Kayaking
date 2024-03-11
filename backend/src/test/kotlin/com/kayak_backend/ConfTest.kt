@@ -142,5 +142,4 @@ class ConfTest {
     fun getSeaBearingServiceReturnsRightType() {
         assertIs<SeaBearingService>(getSeaBearingService())
     }
-    
 }
