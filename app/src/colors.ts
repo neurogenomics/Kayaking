@@ -25,17 +25,19 @@ export const fabColors = {
 export const mapVisColours = {
   wind: ['#0000FF', '#FF0000'],
   tide: ['#006f3c', '#0000FF'],
-  wave: [
-    'rgba(0, 255, 0, 0.25)', // Green with 50% transparency
-    'rgba(255, 0, 0, 0.25)', // Red with 50% transparency
-  ],
+  wave: ['rgba(0, 255, 0, 0.25)', 'rgba(255, 0, 0, 0.25)'],
 };
 
-export const difficultyColours = {
-  [RouteDifficulty.Easy]: 'rgba(0, 128, 0, 0.3)',
-  [RouteDifficulty.Medium]: 'rgba(255, 165, 0, 0.3)',
-  [RouteDifficulty.Hard]: 'rgba(255, 0, 0, 0.3)',
-};
+export function getDifficultyColour(difficulty: RouteDifficulty) {
+  switch (difficulty) {
+    case RouteDifficulty.Easy:
+      return 'rgba(0, 128, 0, 0.3)';
+    case RouteDifficulty.Medium:
+      return 'rgba(255, 165, 0, 0.3)';
+    case RouteDifficulty.Hard:
+      return 'rgba(255, 0, 0, 0.3)';
+  }
+}
 
 export const speedMapColours = [
   '#264b96',

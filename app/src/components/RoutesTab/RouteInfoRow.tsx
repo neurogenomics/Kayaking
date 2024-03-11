@@ -2,7 +2,7 @@ import { getDifficultyLabel, RouteModel } from '../../models/routeModel';
 import React from 'react';
 import { Text, View, StyleSheet } from 'react-native';
 import { Icon } from 'react-native-paper';
-import { difficultyColours } from '../../colors';
+import { getDifficultyColour } from '../../colors';
 
 type RouteInfoRowProps = {
   route: RouteModel;
@@ -62,8 +62,9 @@ export const RouteInfoRow: React.FC<RouteInfoRowProps> = ({
           style={{
             padding: 4,
             borderRadius: 4,
-            backgroundColor:
-              difficultyColours[getDifficultyLabel(route.difficulty)],
+            backgroundColor: getDifficultyColour(
+              getDifficultyLabel(route.difficulty),
+            ),
           }}
         >
           <Text style={styles.text}>
