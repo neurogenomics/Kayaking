@@ -35,7 +35,7 @@ export const getWindsDirection = async (
   const payload = {
     locations: locations,
     checkpoints: checkpoints,
-    start: date,
+    date: format(date, "yyyy-MM-dd'T'HH:mm:ss"),
   };
 
   const url = 'winds';

@@ -116,7 +116,7 @@ class CircularRouteTest {
         assert(result.isNotEmpty())
         for (route in result) {
             println(route.startTime)
-            assert(route.startTime!!.hour <= 12)
+            assert(route.startTime.hour <= 12)
         }
     }
 
@@ -151,10 +151,10 @@ class CircularRouteTest {
         )
         assert(result.isNotEmpty())
         for (route in result) {
-            val loc1 = route.locations.locations[0]
-            val loc2 = route.locations.locations[1]
+            val loc1 = route.locations.locations[1]
+            val loc2 = route.locations.locations[2]
             val bearing = loc1 bearingTo loc2
-            assert(bearing in 0.0..180.0)
+            assert(bearing in 0.0..90.0)
         }
     }
 }

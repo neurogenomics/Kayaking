@@ -4,6 +4,7 @@ import com.kayak_backend.models.Range
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
+import java.util.concurrent.ConcurrentHashMap
 import kotlin.math.pow
 
 data class SingleVarPoint(val lat: Double, val lon: Double, val time: LocalDateTime, val variable: String)
@@ -18,8 +19,8 @@ data class VarPairPoint(
 
 class CachingGribReader(val gribReader: GribReader, locationDecimalPlaces: Int = 2) : GribReader {
     private val locationPrecision = 10.0.pow(locationDecimalPlaces)
-    private val singleVarCache = HashMap<SingleVarPoint, Double>()
-    private val pairVarCache = HashMap<VarPairPoint, Pair<Double, Double>>()
+    private val singleVarCache = ConcurrentHashMap<SingleVarPoint, Double>()
+    private val pairVarCache = ConcurrentHashMap<VarPairPoint, Pair<Double, Double>>()
 
     private fun locationKey(
         lat: Double,
