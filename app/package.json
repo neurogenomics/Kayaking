@@ -44,6 +44,8 @@
     "react-feather": "^2.0.10",
     "react-native": "0.72.10",
     "react-native-awesome-slider": "1",
+    "react-native-chart-kit": "^6.12.0",
+    "react-native-cool-speedometer": "^1.2.0",
     "react-native-gesture-handler": "~2.12.0",
     "react-native-maps": "1.7.1",
     "react-native-modalize": "^2.1.1",
@@ -82,5 +84,8 @@
       "./tests/jest-setup.ts"
     ]
   },
-  "private": true
+  "private": true,
+  "resolutions": {
+    "react-native-svg": "13.9.0"
+  }
 }

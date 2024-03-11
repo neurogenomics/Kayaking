@@ -5,12 +5,12 @@ export type ResolutionModel = {
   lonRes: number;
 };
 
-export enum GridType {
+export enum WeatherGridType {
   WIND = 'Wind',
   TIDE = 'Tide',
 }
 
-export type GridModel = {
+export type WeatherGridModel = {
   grid: Vector[][];
   latIndex: number[];
   lonIndex: number[];

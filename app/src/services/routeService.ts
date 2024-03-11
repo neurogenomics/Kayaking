@@ -37,14 +37,16 @@ const paddleSpeedToString = (paddleSpeed: PaddleSpeed) => {
   }
 };
 
-const difficultyToString = (paddleSpeed: RouteDifficulty) => {
-  switch (paddleSpeed) {
+const difficultyToString = (difficulty: RouteDifficulty) => {
+  switch (difficulty) {
     case RouteDifficulty.Easy:
       return 'Easy';
     case RouteDifficulty.Medium:
       return 'Medium';
     case RouteDifficulty.Hard:
       return 'Hard';
+    case RouteDifficulty.Any:
+      return 'Any';
   }
 };
 
@@ -66,5 +68,9 @@ export const getRoute = async (
     url += `&latFrom=${boundingBox.latFrom}&latTo=${boundingBox.latTo}&lonFrom=${boundingBox.lonFrom}&lonTo=${boundingBox.lonTo}`;
   }
 
-  return await getData<RouteModel[]>(url);
+  const data = await getData<RouteModel[]>(url);
+  return data.map((route) => ({
+    ...route,
+    startTime: new Date(route.startTime),
+  }));
 };

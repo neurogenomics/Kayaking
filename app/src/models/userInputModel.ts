@@ -10,6 +10,7 @@ export enum RouteType {
 }
 
 export enum RouteDifficulty {
+  Any = 'any',
   Easy = 'easy',
   Medium = 'medium',
   Hard = 'hard',

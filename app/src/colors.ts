@@ -1,3 +1,5 @@
+import { interpolateColor } from 'react-native-reanimated';
+
 export const COLORS = {
   fabUnselected: '#fafafa',
   fabSelected: '#6ca0dc',
@@ -6,12 +8,11 @@ export const COLORS = {
 
 export const mapVisColours = {
   wind: ['#0000FF', '#FF0000'],
-  tide: ['#32CD32', '#0000FF'],
-};
-
-export const routeColors = {
-  selected: '#FF0000',
-  unselected: '#999999',
+  tide: ['#006f3c', '#0000FF'],
+  wave: [
+    'rgba(0, 255, 0, 0.25)', // Green with 50% transparency
+    'rgba(255, 0, 0, 0.25)', // Red with 50% transparency
+  ],
 };
 
 export const speedMapColours = [
@@ -43,3 +44,13 @@ export const routeVisualisationColors: string[] = [
   '#4169E1', // Royal Blue
   '#8A2BE2', // Blue Violet
 ];
+
+export const getInterpolatedColor = (
+  val: number,
+  scale: number[],
+  colourScale: string[],
+) => {
+  const max = scale[scale.length - 1];
+  const num = val > max ? max : val;
+  return interpolateColor(num, scale, colourScale);
+};

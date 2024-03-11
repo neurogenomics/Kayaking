@@ -1,5 +1,9 @@
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { RouteModel, getMapDisplayRegion } from '../../models/routeModel';
+import {
+  RouteModel,
+  getDifficultyLabel,
+  getMapDisplayRegion,
+} from '../../models/routeModel';
 import React from 'react';
 import { RouteListNavigationProp } from './Routes';
 import MapView, { Polyline } from 'react-native-maps';
@@ -143,8 +147,9 @@ const RoutesList: React.FC<RoutesListProps> = ({
                 <Text style={styles.text}>{timeDisplayStr}</Text>
               </View>
               <View style={styles.textContainer}>
-                {/* TODO: Display difficulty of route here */}
-                <Text style={styles.text}>Easy</Text>
+                <Text style={styles.text}>
+                  {getDifficultyLabel(route.difficulty)}
+                </Text>
               </View>
             </View>
           </View>

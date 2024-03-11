@@ -114,7 +114,11 @@ class NetCDFGribReader : GribReader {
 
         val latVar = group.findVariable("lat") ?: throw GribFileError("Latitude variable not found")
         val latData = latVar.read()
-        if (lat < latData.getDouble(0) || lat > latData.getDouble(latData.shape[0] - 1)) throw GribIndexError("Latitude out of bounds")
+        if (lat < latData.getDouble(0) || lat > latData.getDouble(latData.shape[0] - 1)) {
+            throw GribIndexError(
+                "Latitude out of bounds " + lat,
+            )
+        }
 
         var latIndex = 0
         while (latData.getDouble(latIndex + 1) < lat) {
@@ -123,7 +127,11 @@ class NetCDFGribReader : GribReader {
 
         val lonVar = group.findVariable("lon") ?: throw GribFileError("Longitude variable not found")
         val lonData = lonVar.read()
-        if (lon < lonData.getDouble(0) || lon > lonData.getDouble(lonData.shape[0] - 1)) throw GribIndexError("Longitude out of bounds")
+        if (lon < lonData.getDouble(0) || lon > lonData.getDouble(lonData.shape[0] - 1)) {
+            throw GribIndexError(
+                "Longitude out of bounds " + lon,
+            )
+        }
 
         var lonIndex = 0
         while (lonData.getDouble(lonIndex + 1) < lon) {
@@ -283,10 +291,10 @@ class NetCDFGribReader : GribReader {
         val right = origin.copyOf()
         val left = origin.copyOf()
 
-        above[latDim] += i
-        below[latDim] -= i
-        right[lonDim] += i
-        left[lonDim] -= i
+        above[latDim] = minOf(above[latDim] + i, variable.dimensionsAll[latDim].length - 1)
+        below[latDim] = maxOf(below[latDim] - i, 0)
+        right[lonDim] = minOf(right[lonDim] + i, variable.dimensionsAll[lonDim].length - 1)
+        left[lonDim] = maxOf(left[lonDim] - i, 0)
 
         val surroundingValues =
             arrayOf(above, below, right, left).map { x ->
