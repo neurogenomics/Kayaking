@@ -1,13 +1,18 @@
 package com.kayak_backend
 
+import BeachNamer
 import com.charleskorn.kaml.Yaml
 import com.kayak_backend.gribFetcher.GribFetcher
 import com.kayak_backend.gribFetcher.OpenSkironGribFetcher
+import com.kayak_backend.gribReader.CachingGribReader
 import com.kayak_backend.gribReader.GribReader
 import com.kayak_backend.gribReader.NetCDFGribReader
 import com.kayak_backend.interpolator.SimpleInterpolator
 import com.kayak_backend.services.coastline.IsleOfWightCoastline
+import com.kayak_backend.services.dangerousWindWarning.DangerousWindService
+import com.kayak_backend.services.dangerousWindWarning.seaBearing.SeaBearingService
 import com.kayak_backend.services.route.*
+import com.kayak_backend.services.route.kayak.WeatherKayak
 import com.kayak_backend.services.slipways.BeachesService
 import com.kayak_backend.services.slipways.SlipwayService
 import com.kayak_backend.services.tideTimes.AdmiraltyTideTimeService
@@ -16,9 +21,12 @@ import com.kayak_backend.services.tides.GribTideFetcher
 import com.kayak_backend.services.tides.TideService
 import com.kayak_backend.services.times.GribTimeService
 import com.kayak_backend.services.times.TimeService
+import com.kayak_backend.services.waves.GribWaveFetcher
+import com.kayak_backend.services.waves.WaveService
 import com.kayak_backend.services.wind.GribWindFetcher
 import com.kayak_backend.services.wind.WindService
 import kotlinx.serialization.Serializable
+import org.locationtech.jts.geom.Polygon
 import java.nio.file.Files
 import java.nio.file.Path
 
@@ -39,6 +47,14 @@ data class WindGribConf(
 )
 
 @Serializable
+data class WaveGribConf(
+    val gribReader: String,
+    val filePath: String,
+    val waveHeightVarName: String,
+    val waveDirectionVarName: String,
+)
+
+@Serializable
 data class GribTimeServiceConf(
     val gribReader: String,
     val filePaths: List<String>,
@@ -49,9 +65,11 @@ data class Conf(
     val tideService: String,
     val windService: String,
     val timeService: String,
+    val waveService: String,
     val tideTimeService: String,
     val tideGribConf: TideGribConf? = null,
     val windGribConf: WindGribConf? = null,
+    val waveGribConf: WaveGribConf? = null,
     val gribTimeServiceConf: GribTimeServiceConf? = null,
     val gribFetcher: String,
 )
@@ -64,6 +82,7 @@ fun getConf(filePath: String): Conf {
 fun getGribReader(implementation: String): GribReader {
     return when (implementation) {
         "NetCDFGribReader" -> NetCDFGribReader()
+        "CachingNetCDFGribReader" -> CachingGribReader(NetCDFGribReader())
         else -> throw UnsupportedOperationException("Grib Reader Implementation Non Existent")
     }
 }
@@ -87,6 +106,21 @@ fun getWindService(conf: Conf): WindService {
         }
 
         else -> throw UnsupportedOperationException("Wind service type non existent")
+    }
+}
+
+fun getDangerousWindService(conf: Conf): DangerousWindService {
+    return DangerousWindService((getWindService(conf)))
+}
+
+fun getWaveService(conf: Conf): WaveService {
+    return when (conf.waveService) {
+        "grib" -> {
+            conf.waveGribConf ?: throw UnsupportedOperationException("Wave Grib Config not Provided")
+            GribWaveFetcher(conf.waveGribConf, getGribReader(conf.waveGribConf.gribReader), SimpleInterpolator())
+        }
+
+        else -> throw UnsupportedOperationException("Wave service type non existent")
     }
 }
 
@@ -132,26 +166,51 @@ fun getTimeService(conf: Conf): TimeService {
     }
 }
 
-// Once we have the weather kayak, may want to use conf to determine which kayak
-fun getLegTimer(): LegTimer {
-    return LegTimer(BasicKayak())
+fun getDifficultyLegTimers(): DifficultyLegTimers {
+    val slowLegTimer = LegTimer(WeatherKayak(kayakerSpeed = 0.7))
+    val normalLegTimer = LegTimer(WeatherKayak(kayakerSpeed = 1.54))
+    val fastLegTimer = LegTimer(WeatherKayak(kayakerSpeed = 2.0))
+    return DifficultyLegTimers(slowLegTimer, normalLegTimer, fastLegTimer)
+}
+
+// separate to be consistent between the RoutePlanner and the SeaBearingService
+private const val DISTANCE_FROM_COAST = 500.0
+private val coastlineService = IsleOfWightCoastline()
+
+fun getSeaBearingService(): SeaBearingService {
+    return SeaBearingService(coastlineService, DISTANCE_FROM_COAST)
+}
+
+fun getLegDifficulty(): LegDifficulty {
+    return LegDifficulty()
+}
+
+fun getRouteSetup(): Pair<Polygon, List<NamedLocation>> {
+    val coast = coastlineService.getCoastline()
+    val route = BaseRoute().createBaseRoute(coast, DISTANCE_FROM_COAST)
+    val slipways = SlipwayService().getAllSlipways()
+    val beaches = BeachesService().getAllBeaches()
+    val beachNamer = BeachNamer()
+    val beachStarts =
+        beaches.map { beachInfo ->
+            NamedLocation(
+                beachInfo.avergeLocation,
+                beachInfo.name ?: beachNamer.getClosestBeachName(beachInfo.avergeLocation),
+            )
+        }
+    val startPositions = slipways.plus(beachStarts)
+    return route to startPositions
 }
 
 fun getRoutePlanner(): RoutePlanner {
-    val distanceFromCoast = 500.0
-    val coast = IsleOfWightCoastline().getCoastline()
-    val route = BaseRoute().createBaseRoute(coast, distanceFromCoast)
-    val slipways = SlipwayService().getAllSlipways()
-    val beaches = BeachesService().getAllBeaches()
-    val slipwayStarts = slipways.mapIndexed { index, location -> StartPos(location, "Slipway $index") }
-    val beachStarts =
-        beaches.map { beachInfo ->
-            StartPos(
-                beachInfo.avergeLocation,
-                beachInfo.name ?: "Unnamed beach",
-            )
-        }
-    val startPositions = slipwayStarts.plus(beachStarts)
+    val setup = getRouteSetup()
+    return RoutePlanner(setup.first, setup.second)
+}
 
-    return RoutePlanner(route, startPositions)
+fun getCircularRoutePlanner(
+    tideService: TideService,
+    legTimer: LegTimer,
+): CircularRoutePlanner {
+    val setup = getRouteSetup()
+    return CircularRoutePlanner(setup.first, setup.second, legTimer, tideService)
 }

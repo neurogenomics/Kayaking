@@ -1,35 +1,48 @@
 package com.kayak_backend.services.route
 
 import com.kayak_backend.models.Location
+import com.kayak_backend.services.route.kayak.Kayak
 import java.time.LocalDateTime
 import java.time.ZoneOffset
 import kotlin.math.roundToLong
+
+class DifficultyLegTimers(val slowLegTimer: LegTimer, val normalLegTimer: LegTimer, val fastLegTimer: LegTimer)
 
 class LegTimer(private val kayak: Kayak) {
     // TODO change duration cache to have 15 minute periods
     // TODO find way to remove old entries after a period
     private val durationCache = mutableMapOf<Leg, MutableMap<Long, Long>>()
 
-    // TODO will probably need start and end points when backwards routes are working
-    // map of coordinates to the single leg they are the end of
-    private val endToLeg = mutableMapOf<Location, Leg>()
-
-    // TODO should this have an error/ debug message if not?
-    // ONLY Works on the assumption getDuration has already been called for all the single legs on this route
     fun getCheckpoints(
         route: Route,
         dateTime: LocalDateTime,
     ): List<Long> {
-        var timer = 0L
-        val time = dateTime.toEpochSecond(ZoneOffset.UTC)
-        val checkpoints =
-            route.locations.drop(1).map { loc ->
-                val leg = durationCache.getOrDefault(endToLeg[loc], emptyMap())
-                timer += leg.getOrDefault(time + timer, 0L)
-                timer
-            }.toMutableList()
-        checkpoints.add(0, 0)
-        return checkpoints
+        return accumulateCheckpoints(mutableListOf(0), route.locations, dateTime, 0).second
+    }
+
+    private fun accumulateCheckpoints(
+        checkpoints: MutableList<Long>,
+        leg: Leg,
+        time: LocalDateTime,
+        accumulator: Long,
+    ): Pair<Long, List<Long>> {
+        return when (leg) {
+            is Leg.SingleLeg -> {
+                val duration = getDuration(leg, time.plusSeconds(accumulator))
+                checkpoints.add(accumulator + duration) // matches index of leg end location in coordinate list
+                Pair(accumulator + duration, checkpoints)
+            }
+
+            is Leg.MultipleLegs -> {
+                var acc = accumulator
+                for (subLeg in leg.legs) {
+                    val result = accumulateCheckpoints(mutableListOf(), subLeg, time, acc)
+                    acc = result.first
+                    checkpoints.addAll(result.second)
+                }
+                Pair(acc, checkpoints)
+            }
+        }
     }
 
     fun getDuration(
@@ -37,6 +50,7 @@ class LegTimer(private val kayak: Kayak) {
         dateTime: LocalDateTime,
     ): Long {
         val epoch = dateTime.toEpochSecond(ZoneOffset.UTC)
+
         val times = durationCache.getOrPut(leg) { mutableMapOf() }
         return times.getOrPut(epoch) { calculateDuration(leg, dateTime) }
     }
@@ -49,10 +63,10 @@ class LegTimer(private val kayak: Kayak) {
             is Leg.SingleLeg -> {
                 val midpoint =
                     Location(
-                        (leg.start.latitude + leg.start.latitude) / 2,
-                        (leg.start.longitude + leg.start.longitude) / 2,
+                        (leg.start.latitude + leg.end.latitude) / 2,
+                        (leg.start.longitude + leg.end.longitude) / 2,
                     )
-                endToLeg[leg.end] = leg
+
                 (leg.length / kayak.getSpeed(dateTime, midpoint, leg.bearing)).roundToLong()
             }
 

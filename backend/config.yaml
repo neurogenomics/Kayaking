@@ -1,19 +1,25 @@
 tideService: "grib"
 windService: "grib"
 timeService: "grib"
+waveService: "grib"
 gribFetcher: "OpenSkiron"
 tideTimeService: "admiralty"
+waveGribConf:
+  gribReader: "CachingNetCDFGribReader"
+  filePath: "gribFiles/Cherbourg_4km_WRF_WAM.grb"
+  waveHeightVarName: "(.+/)(.*combined.*waves.*)"
+  waveDirectionVarName: "(.+/)(.*Direction.*swell_waves.*)"
 tideGribConf:
-  gribReader: "NetCDFGribReader"
+  gribReader: "CachingNetCDFGribReader"
   filePath: "gribFiles/Cherbourg_4km_WRF_WAM.grb"
   uTideVarName: "(.+/)(u[_|-].*current.*)"
   vTideVarName: "(.+/)(v[_|-].*current.*)"
 windGribConf:
-  gribReader: "NetCDFGribReader"
+  gribReader: "CachingNetCDFGribReader"
   filePath: "gribFiles/Cherbourg_4km_WRF_WAM.grb"
   uWindVarName: "(.+/)(u[_|-].*wind.*)"
   vWindVarName: "(.+/)(v[_|-].*wind.*)"
 gribTimeServiceConf:
-  gribReader: "NetCDFGribReader"
+  gribReader: "CachingNetCDFGribReader"
   filePaths:
     - "gribFiles/Cherbourg_4km_WRF_WAM.grb"

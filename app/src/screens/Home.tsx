@@ -1,10 +1,10 @@
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList, Route } from '../routes';
-import React, { useMemo, useState } from 'react';
-import { SafeAreaView, StyleSheet } from 'react-native';
-import MapView from 'react-native-maps';
+import React, { useEffect, useMemo, useState } from 'react';
+import { SafeAreaView, StyleSheet, View } from 'react-native';
+import MapView, { Region } from 'react-native-maps';
 import { isleOfWight } from '../../constants';
-import BottomSheet from '@gorhom/bottom-sheet';
+import BottomSheet, { BottomSheetScrollView } from '@gorhom/bottom-sheet';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 import Routes from '../components/RoutesTab/Routes';
@@ -14,14 +14,18 @@ import Animated, {
   useSharedValue,
 } from 'react-native-reanimated';
 import WeatherFabs from '../components/WeatherFabs';
-import { GridType } from '../models/gridModel';
+import { WeatherGridType } from '../models/weatherGridModel';
 import DateCarousel from '../components/DateCarousel/DateCarousel';
 import { UserInput } from '../models/userInputModel';
 import { WeatherVisualisation } from '../components/MapVisualisations/WeatherVisualisation';
 import { RouteVisualisation } from '../components/MapVisualisations/RouteVisualisation';
 import { RouteModel } from '../models/routeModel';
 import { useNavigation } from '@react-navigation/native';
-import { DataDisplay } from '../components/DataDisplay';
+import { DataDisplay } from '../components/MapVisualisations/DataDisplay';
+import { getWeatherDates } from '../services/timeService';
+import SearchFab from '../components/SearchFab';
+import { getRoute } from '../services/routeService';
+import { WaveHeightVisualisation } from '../components/MapVisualisations/WaveHeightVisualisation';
 
 const styles = StyleSheet.create({
   container: {
@@ -32,22 +36,38 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0, 0, 0, 0.3)',
     borderRadius: 12,
   },
+  searchFabContainer: {
+    flex: 1,
+    pointerEvents: 'box-none',
+  },
 });
 
 type HomeProps = NativeStackScreenProps<RootStackParamList, Route.HOME>;
 const HomeScreen: React.FC<HomeProps> = () => {
   const [fabsVisible, setFabsVisible] = useState(true);
-  const [weatherMap, setWeatherMap] = useState<GridType>();
+  const [weatherMap, setWeatherMap] = useState<WeatherGridType>();
   const [sunsetOn, setSunsetOn] = useState(false);
-  const [tideHeightOn, setTideTimesOn] = useState(false);
+  const [tideTimesOn, setTideTimesOn] = useState(false);
+  const [waveHeightOn, setWaveHeightOn] = useState(false);
   const snapPoints = useMemo(() => ['15%', '50%', '90%'], []);
   const [mapDate, setMapDate] = useState<Date>(new Date());
   const bottomSheetPosition = useSharedValue<number>(0);
   const Tab = createMaterialTopTabNavigator();
   const [userInput, setUserInput] = useState<UserInput>();
-  const [routes, setRoutes] = useState<RouteModel[] | undefined>();
+  const [routes, setRoutes] = useState<RouteModel[]>([]);
   const [selectedRouteIndex, setSelectedRouteIndex] = useState(0);
+  const [weatherDates, setWeatherDates] = useState<Date[]>([]);
+  const [region, setRegion] = useState<Region>(isleOfWight);
 
+  const [isSearching, setIsSearching] = useState(false);
+
+  const handleSearch = () => {
+    if (isSearching) {
+      return;
+    }
+    setIsSearching(true);
+    void searchRoutes().finally(() => setIsSearching(false));
+  };
   const inverseBottomSheetStyle = useAnimatedStyle(() => {
     return {
       position: 'absolute',
@@ -58,64 +78,102 @@ const HomeScreen: React.FC<HomeProps> = () => {
     };
   });
 
-  // TODO: This should call the server to find what times the weather data is available but no such route exists yet
-  const getNextHours = () => {
-    const result: Date[] = [];
-    const startTime = new Date();
-    startTime.setMinutes(0);
-    startTime.setSeconds(0);
-    startTime.setMilliseconds(0);
-    for (let i = 0; i <= 50; i++) {
-      const nextHour = new Date(startTime.getTime() + i * 3600 * 1000);
-      result.push(nextHour);
+  function indexOfClosestPastDate(dates: Date[]): number | null {
+    if (dates.length === 0) return null;
+
+    const currentDate = new Date();
+    const pastDates = dates.filter(
+      (date) => date.getTime() <= currentDate.getTime(),
+    );
+    if (pastDates.length === 0) return null;
+
+    let minDifference = Math.abs(
+      pastDates[0].getTime() - currentDate.getTime(),
+    );
+    let closestIndex = 0;
+
+    for (let i = 1; i < pastDates.length; i++) {
+      const difference = Math.abs(
+        pastDates[i].getTime() - currentDate.getTime(),
+      );
+      if (difference < minDifference) {
+        minDifference = difference;
+        closestIndex = i;
+      }
     }
-    return result;
+    return dates.indexOf(pastDates[closestIndex]);
+  }
+
+  const getWeatherMap = (weatherMap: WeatherGridType | undefined) => {
+    if (
+      weatherMap === WeatherGridType.WIND ||
+      weatherMap === WeatherGridType.TIDE
+    ) {
+      return <WeatherVisualisation display={weatherMap} date={mapDate} />;
+    }
+    return null;
+  };
+
+  useEffect(() => {
+    void getWeatherDates().then((dates) => {
+      setWeatherDates(dates);
+    });
+  }, []);
+
+  const searchRoutes = async () => {
+    if (userInput) {
+      setRoutes(await getRoute(region, userInput));
+    }
   };
 
   return (
     <GestureHandlerRootView style={styles.container}>
       <MapView
         style={styles.map}
-        initialRegion={isleOfWight}
+        initialRegion={region}
         rotateEnabled={true}
         scrollEnabled={true}
         provider="google"
+        onRegionChangeComplete={setRegion}
       >
-        {weatherMap !== undefined ? (
-          <WeatherVisualisation display={weatherMap} date={mapDate} />
-        ) : null}
+        {getWeatherMap(weatherMap)}
+        {waveHeightOn ? <WaveHeightVisualisation date={mapDate} /> : null}
         {userInput !== undefined ? (
           <RouteVisualisation
             userInput={userInput}
             routes={routes}
-            setRoutes={setRoutes}
             selectedRouteIndex={selectedRouteIndex}
             setSelectedRouteIndex={setSelectedRouteIndex}
+            showWindWarnings={weatherMap === WeatherGridType.WIND}
           />
         ) : null}
       </MapView>
       <SafeAreaView style={styles.carouselContainer}>
         <DateCarousel
-          dates={getNextHours()}
+          dates={weatherDates}
+          defaultIndex={indexOfClosestPastDate(weatherDates) ?? 0}
           onDateChanged={(date) => setMapDate(date)}
         ></DateCarousel>
       </SafeAreaView>
       <DataDisplay
         sunsetOn={sunsetOn}
-        tideTimesOn={tideHeightOn}
-        // TODO get from map?
-        location={{
-          longitude: isleOfWight.longitude,
-          latitude: isleOfWight.latitude,
-        }}
+        tideTimesOn={tideTimesOn}
+        location={region}
         date={mapDate}
       />
+      <View style={styles.searchFabContainer}>
+        <SearchFab
+          onSearch={handleSearch}
+          isSearching={isSearching}
+        ></SearchFab>
+      </View>
       {/*<Text style={{ fontSize: 100 }}>put here</Text>*/}
       <Animated.View style={inverseBottomSheetStyle} pointerEvents="box-none">
         <WeatherFabs
           visible={fabsVisible}
           setWeatherMap={setWeatherMap}
           setSunsetOn={setSunsetOn}
+          setWaveHeightOn={setWaveHeightOn}
           setTideTimesOn={setTideTimesOn}
         ></WeatherFabs>
       </Animated.View>
@@ -130,7 +188,14 @@ const HomeScreen: React.FC<HomeProps> = () => {
       >
         <Tab.Navigator>
           <Tab.Screen name="Filter">
-            {() => <Filters setUserInput={setUserInput} />}
+            {() => (
+              <BottomSheetScrollView>
+                <Filters
+                  setUserInput={setUserInput}
+                  onFindRoutesPressed={handleSearch}
+                />
+              </BottomSheetScrollView>
+            )}
           </Tab.Screen>
           <Tab.Screen name="Routes">
             {() => (

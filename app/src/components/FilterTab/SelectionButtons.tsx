@@ -32,8 +32,16 @@ export const SelectButtons: React.FC<Props<string>> = ({
 }) => {
   return (
     <View style={styles.paddleButtonContainer}>
-      <Text style={styles.label}>{label}</Text>
-      <View style={styles.buttonContainer}>
+      <View style={styles.labelContainer}>
+        <Text style={styles.label}>{label}</Text>
+      </View>
+      <View
+        style={
+          options.length > 3
+            ? styles.largebuttonContainer
+            : styles.buttonContainer
+        }
+      >
         {options.map((option) => (
           <TouchableOpacity
             key={option.name}
@@ -54,20 +62,29 @@ export const SelectButtons: React.FC<Props<string>> = ({
 };
 
 const styles = StyleSheet.create({
+  labelContainer: {
+    flex: 1,
+  },
   label: {
-    fontSize: 18,
+    fontSize: 14,
     marginBottom: 5,
-    margin: 10,
+    fontWeight: 'bold',
   },
   paddleButtonContainer: {
-    flexDirection: 'column',
+    flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 20,
   },
   buttonContainer: {
     flexDirection: 'row',
     justifyContent: 'space-around',
     alignItems: 'center',
+    flex: 2,
+  },
+  largebuttonContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    alignItems: 'center',
+    flex: 4,
   },
   button: {
     backgroundColor: '#f0f0f0',
@@ -75,8 +92,6 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     borderWidth: 1,
     borderColor: '#ccc',
-    marginTop: 0,
-    margin: 10,
   },
   selectedButton: {
     backgroundColor: 'lightblue',
