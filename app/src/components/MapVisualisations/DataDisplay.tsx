@@ -1,10 +1,9 @@
 import { useEffect, useState } from 'react';
 import { LocationModel } from '../../models/locationModel';
 import { SunsetInfo } from '../../models/sunsetModel';
-import { TideEvent, TideInfo } from '../../models/tideModel';
+import { TideInfo } from '../../models/tideModel';
 import { View, Text, StyleSheet } from 'react-native';
 import { getSunset } from '../../services/sunsetService';
-import { getTideTimes } from '../../services/tideTimesService';
 import { format } from 'date-fns';
 
 export const styles = StyleSheet.create({

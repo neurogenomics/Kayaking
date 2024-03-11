@@ -2,7 +2,7 @@ import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList, Route } from '../routes';
 import React, { useEffect, useMemo, useState } from 'react';
 import { SafeAreaView, StyleSheet, View } from 'react-native';
-import MapView, { Marker, Region } from 'react-native-maps';
+import MapView, { Region } from 'react-native-maps';
 import { isleOfWight } from '../../constants';
 import BottomSheet, { BottomSheetScrollView } from '@gorhom/bottom-sheet';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
@@ -26,7 +26,7 @@ import { getWeatherDates } from '../services/timeService';
 import SearchFab from '../components/SearchFab';
 import { getRoute } from '../services/routeService';
 import { WaveHeightVisualisation } from '../components/MapVisualisations/WaveHeightVisualisation';
-import { TideEvent, TideInfo } from '../models/tideModel';
+import { TideInfo } from '../models/tideModel';
 import { getTideTimes } from '../services/tideTimesService';
 import { LocationModel } from '../models/locationModel';
 
