@@ -15,17 +15,20 @@ import { Button } from 'react-native-paper';
 type FiltersProps = {
   setUserInput: React.Dispatch<React.SetStateAction<UserInput>>;
   onFindRoutesPressed: () => void;
+  weatherDates: Date[];
 };
 
 export const Filters: React.FC<FiltersProps> = ({
   setUserInput,
   onFindRoutesPressed,
+  weatherDates,
 }: FiltersProps) => {
   const [startTime, setStartTime] = useState<Date>(new Date());
 
-  const [durationAsDate, setDurationAsDate] = useState<Date>(
-    new Date(0, 0, 0, 2, 0, 0, 0),
-  );
+  const zeroDuration = new Date(0, 0, 0, 0, 0, 0);
+  const defaultDuration = new Date(0, 0, 0, 2, 0, 0);
+
+  const [durationAsDate, setDurationAsDate] = useState<Date>(defaultDuration);
   const [paddleSpeed, setPaddleSpeed] = useState<PaddleSpeed>(
     PaddleSpeed.Normal,
   );
@@ -70,6 +73,8 @@ export const Filters: React.FC<FiltersProps> = ({
                 setStartTime(selectedStartTime);
               }
             }}
+            minimumDate={weatherDates[0]}
+            maximumDate={weatherDates[weatherDates.length - 1]}
           />
         </View>
         <View style={styles.column}>
@@ -86,6 +91,8 @@ export const Filters: React.FC<FiltersProps> = ({
                 setStartTime(selectedStartTime);
               }
             }}
+            minimumDate={weatherDates[0]}
+            maximumDate={weatherDates[weatherDates.length - 1]}
           />
         </View>
         <View style={styles.column}>
@@ -102,6 +109,15 @@ export const Filters: React.FC<FiltersProps> = ({
                 setDurationAsDate(selectedStartTime);
               }
             }}
+            maximumDate={
+              weatherDates.length > 1
+                ? new Date(
+                    zeroDuration.getTime() +
+                      weatherDates[weatherDates.length - 1].getTime() -
+                      startTime.getTime(),
+                  )
+                : undefined
+            }
           />
         </View>
       </View>
