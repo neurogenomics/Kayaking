@@ -4,6 +4,7 @@ import com.kayak_backend.models.Location
 import com.kayak_backend.services.route.kayak.Kayak
 import java.time.LocalDateTime
 import java.time.ZoneOffset
+import java.util.concurrent.ConcurrentHashMap
 import kotlin.math.roundToLong
 
 class DifficultyLegTimers(val slowLegTimer: LegTimer, val normalLegTimer: LegTimer, val fastLegTimer: LegTimer)
@@ -11,7 +12,7 @@ class DifficultyLegTimers(val slowLegTimer: LegTimer, val normalLegTimer: LegTim
 class LegTimer(private val kayak: Kayak) {
     // TODO change duration cache to have 15 minute periods
     // TODO find way to remove old entries after a period
-    private val durationCache = mutableMapOf<Leg, MutableMap<Long, Long>>()
+    private val durationCache = ConcurrentHashMap<Leg, MutableMap<Long, Long>>()
 
     fun getCheckpoints(
         route: Route,
@@ -67,7 +68,7 @@ class LegTimer(private val kayak: Kayak) {
                         (leg.start.longitude + leg.end.longitude) / 2,
                     )
 
-                (leg.length / kayak.getSpeed(dateTime, midpoint, leg.bearing)).roundToLong()
+                (leg.length / kayak.getSpeed(dateTime, midpoint, leg.bearing())).roundToLong()
             }
 
             is Leg.MultipleLegs -> {

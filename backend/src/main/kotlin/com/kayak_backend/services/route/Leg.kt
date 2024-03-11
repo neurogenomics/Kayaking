@@ -11,7 +11,6 @@ sealed class Leg {
     abstract val end: Location
     abstract val locations: List<Location>
 
-    val bearing: Double by lazy { start bearingTo end }
 
     companion object {
         fun create(locations: List<Location>): Leg {
@@ -32,9 +31,13 @@ sealed class Leg {
         )
     }
 
+    fun bearing(): Double {
+        return start bearingTo end
+    }
+
     data class SingleLeg(override val start: Location, override val end: Location) : Leg() {
-        override val length: Double by lazy { start distanceTo end }
-        override val locations by lazy { listOf(start, end) }
+        override val length = start distanceTo end
+        override val locations = listOf(start, end)
 
         override fun reverse(): Leg {
             return SingleLeg(start = end, end = start)
@@ -42,9 +45,9 @@ sealed class Leg {
     }
 
     data class MultipleLegs(val legs: List<Leg>) : Leg() {
-        override val length: Double by lazy { legs.sumOf { it.length } }
-        override val start: Location by lazy { legs.first().start }
-        override val end: Location by lazy { legs.last().end }
+        override val length = legs.sumOf { it.length }
+        override val start = legs.first().start
+        override val end = legs.last().end
 
         override val locations by lazy {
             // Remove last location from each leg as its equal to first location of next leg
