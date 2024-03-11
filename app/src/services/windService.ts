@@ -32,13 +32,10 @@ export const getWindsDirection = async (
   checkpoints: number[],
   date: Date,
 ): Promise<Vector[]> => {
-  console.log(locations);
-  console.log(date);
-
   const payload = {
     locations: locations,
     checkpoints: checkpoints,
-    start: date,
+    date: format(date, "yyyy-MM-dd'T'HH:mm:ss"),
   };
 
   const url = 'winds';
