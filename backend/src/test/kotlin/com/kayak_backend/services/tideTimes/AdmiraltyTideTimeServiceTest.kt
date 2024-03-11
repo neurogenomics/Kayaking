@@ -5,7 +5,6 @@ import com.kayak_backend.models.TideTimes
 import com.kayak_backend.services.tideTimes.AdmiraltyTideTimeService
 import com.kayak_backend.services.tideTimes.TideStationService
 import io.ktor.network.sockets.*
-import io.ktor.server.testing.*
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
@@ -15,19 +14,27 @@ import okhttp3.Response
 import okhttp3.ResponseBody.Companion.toResponseBody
 import java.io.IOException
 import java.time.LocalDateTime
-import kotlin.test.*
+import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
 
 class AdmiraltyTideTimeServiceTest {
     private val httpClientMock = mockk<OkHttpClient>()
     private val tideStationServiceMock = mockk<TideStationService>()
+    private val stationMock = TideStation("0", "Test name", Location(0.0, 0.0))
+    val stationMock1 = TideStation("1", "Test1", Location(5.0, 4.0))
+    val stationMock2 = TideStation("0", "Test name", Location(0.0, 0.0))
+
+    init {
+        every { tideStationServiceMock.getTideStations() } returns listOf(stationMock1, stationMock2)
+    }
+
     private val tideTimeService = AdmiraltyTideTimeService("TEST_KEY", httpClientMock, tideStationServiceMock)
 
     @Test
     fun parsesJSONCorrectly() {
         every { httpClientMock.newCall(any()).execute() } returns createMockResponse()
         val testLocation = Location(0.0, 0.0)
-        val stationMock = TideStation("0", "Test name", Location(0.0, 0.0))
-        every { tideStationServiceMock.getTideStations() } returns listOf(stationMock)
         val times = tideTimeService.getTideTimes(testLocation)
         val expectedTimes =
             TideTimes(
@@ -70,11 +77,8 @@ class AdmiraltyTideTimeServiceTest {
     @Test
     fun usesClosestStation() {
         every { httpClientMock.newCall(any()).execute() } returns createMockResponse()
-        val stationMock1 = TideStation("1", "Test1", Location(5.0, 4.0))
-        val stationMock2 = TideStation("ExpectedID", "Test2", Location(2.0, 1.0))
-        every { tideStationServiceMock.getTideStations() } returns listOf(stationMock1, stationMock2)
         tideTimeService.getTideTimes(Location(1.0, 1.0))
-        verify { httpClientMock.newCall(match { it.url.pathSegments.contains("ExpectedID") }) }
+        verify { httpClientMock.newCall(match { it.url.pathSegments.contains("0") }) }
     }
 
     @Test
