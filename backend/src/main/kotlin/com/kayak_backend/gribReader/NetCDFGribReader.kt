@@ -283,10 +283,10 @@ class NetCDFGribReader : GribReader {
         val right = origin.copyOf()
         val left = origin.copyOf()
 
-        above[latDim] += i
-        below[latDim] -= i
-        right[lonDim] += i
-        left[lonDim] -= i
+        above[latDim] = minOf(above[latDim] + i, variable.dimensionsAll[latDim].length - 1)
+        below[latDim] = maxOf(below[latDim] - i, 0)
+        right[lonDim] = minOf(right[lonDim] + i, variable.dimensionsAll[lonDim].length - 1)
+        left[lonDim] -= maxOf(left[lonDim] - i, 0)
 
         val surroundingValues =
             arrayOf(above, below, right, left).map { x ->

@@ -60,9 +60,9 @@ class CircularRouteTest {
         polygon = geometryFactory.createPolygon(linearRing)
 
         every { tideServiceMock.getTideAllDay(any(), any()) } returns
-            List(23) {
-                Pair(LocalTime.of(it, 0), if (it <= 12) TideInfo(1.0, 1.0) else TideInfo(-1.0, -1.0))
-            }.toMap()
+                List(23) {
+                    Pair(LocalTime.of(it, 0), if (it <= 12) TideInfo(1.0, 1.0) else TideInfo(-1.0, -1.0))
+                }.toMap()
 
         every { legTimerMock.getDuration(any(), any()) } returns 3600
     }
@@ -72,12 +72,12 @@ class CircularRouteTest {
         val routePlanner = CircularRoutePlanner(polygon, startPos, legTimerMock, tideServiceMock, 10000)
 
         val result = (
-            routePlanner.generateRoutes(
-                condition = { true },
-                date = LocalDate.of(2024, 7, 4),
-                minTime = Duration.ofHours(4),
-            ).take(5).toList()
-        )
+                routePlanner.generateRoutes(
+                    condition = { true },
+                    date = LocalDate.of(2024, 7, 4),
+                    minTime = Duration.ofHours(4),
+                ).take(5).toList()
+                )
         assert(result.isNotEmpty())
         for (route in result) {
             assert(startPos.any { it.location == route.locations.start })
@@ -90,12 +90,12 @@ class CircularRouteTest {
         val routePlanner = CircularRoutePlanner(polygon, startPos, legTimerMock, tideServiceMock, 10000)
 
         val result = (
-            routePlanner.generateRoutes(
-                condition = { true },
-                date = LocalDate.of(2024, 7, 4),
-                minTime = Duration.ofHours(4),
-            ).take(5).toList()
-        )
+                routePlanner.generateRoutes(
+                    condition = { true },
+                    date = LocalDate.of(2024, 7, 4),
+                    minTime = Duration.ofHours(4),
+                ).take(5).toList()
+                )
         assert(result.isNotEmpty())
         for (route in result) {
             assertEquals(route.locations.start, route.locations.end)
@@ -107,16 +107,16 @@ class CircularRouteTest {
         val routePlanner = CircularRoutePlanner(polygon, startPos, legTimerMock, tideServiceMock, 10000)
 
         val result = (
-            routePlanner.generateRoutes(
-                condition = { true },
-                date = LocalDate.of(2024, 7, 4),
-                minTime = Duration.ofHours(4),
-            ).take(5).toList()
-        )
+                routePlanner.generateRoutes(
+                    condition = { true },
+                    date = LocalDate.of(2024, 7, 4),
+                    minTime = Duration.ofHours(4),
+                ).take(5).toList()
+                )
         assert(result.isNotEmpty())
         for (route in result) {
             println(route.startTime)
-            assert(route.startTime!!.hour <= 12)
+            assert(route.startTime.hour <= 12)
         }
     }
 
@@ -125,12 +125,12 @@ class CircularRouteTest {
         val routePlanner = CircularRoutePlanner(polygon, startPos, legTimerMock, tideServiceMock, 10000)
 
         val result = (
-            routePlanner.generateRoutes(
-                condition = { true },
-                date = LocalDate.of(2024, 7, 4),
-                minTime = Duration.ofHours(4),
-            ).take(5).toList()
-        )
+                routePlanner.generateRoutes(
+                    condition = { true },
+                    date = LocalDate.of(2024, 7, 4),
+                    minTime = Duration.ofHours(4),
+                ).take(5).toList()
+                )
         assert(result.isNotEmpty())
         for (route in result) {
             println(route.locations.locations)
@@ -143,18 +143,18 @@ class CircularRouteTest {
         val routePlanner = CircularRoutePlanner(polygon, startPos, legTimerMock, tideServiceMock, 10000)
 
         val result = (
-            routePlanner.generateRoutes(
-                condition = { true },
-                date = LocalDate.of(2024, 7, 4),
-                minTime = Duration.ofHours(4),
-            ).take(5).toList()
-        )
+                routePlanner.generateRoutes(
+                    condition = { true },
+                    date = LocalDate.of(2024, 7, 4),
+                    minTime = Duration.ofHours(4),
+                ).take(5).toList()
+                )
         assert(result.isNotEmpty())
         for (route in result) {
-            val loc1 = route.locations.locations[0]
-            val loc2 = route.locations.locations[1]
+            val loc1 = route.locations.locations[1]
+            val loc2 = route.locations.locations[2]
             val bearing = loc1 bearingTo loc2
-            assert(bearing in 0.0..180.0)
+            assert(bearing in 0.0..90.0)
         }
     }
 }
