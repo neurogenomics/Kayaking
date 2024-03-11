@@ -28,7 +28,7 @@ class PaddleSpeedTest {
     }
 
     @Test
-    fun convertsPaddleSpeedToLegTimer()  {
+    fun convertsPaddleSpeedToLegTimer() {
         val slow = LegTimer(WeatherKayak(1.0))
         val normal = LegTimer(WeatherKayak(2.0))
         val fast = LegTimer(WeatherKayak(3.0))
