@@ -57,7 +57,7 @@ fun Route.planRoute(
             val latTo = call.parameters.getOrFail<Double>("latTo")
             val lonTo = call.parameters.getOrFail<Double>("lonTo")
             val duration = call.parameters.getOrFail<Double>("duration")
-            val startTime = getDateParameter(call.parameters, "startDateTime")
+            val startTime = getDateTimeParameter(call.parameters, "startDateTime")
             val paddleSpeed = parsePaddleSpeed(call.parameters["paddleSpeed"] ?: "normal")
             val difficulty = parseDifficultyRange(call.parameters["difficulty"] ?: "medium")
 
@@ -100,7 +100,7 @@ fun Route.planRoute(
     route("/planCircularRoute") {
         get {
             val duration = call.parameters.getOrFail<Double>("duration")
-            val date = getDateParameter(call.parameters, "startDateTime")
+            val date = getDateTimeParameter(call.parameters, "startDateTime")
             val paddleSpeed = parsePaddleSpeed(call.parameters["paddleSpeed"] ?: "normal")
             val difficulty = parseDifficultyRange(call.parameters["difficulty"] ?: "medium")
 
