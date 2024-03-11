@@ -1,3 +1,5 @@
+import { LocationModel } from './locationModel';
+
 export type TideInfo = {
   events: [TideEvent];
   source: TideStation;
@@ -6,11 +8,11 @@ export type TideInfo = {
 export type TideStation = {
   id: string;
   name: string;
-  location: Location;
+  location: LocationModel;
 };
 
 export type TideEvent = {
-  isHighTide: boolean;
+  source: TideStation;
   datetime: Date;
   height: number | null;
 };
