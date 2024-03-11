@@ -100,6 +100,7 @@ const RoutesList: React.FC<RoutesListProps> = ({
           navigation.navigate('RouteDetails', {
             route: routes[index],
             timeDisplayStr: timeDisplayStr,
+            startTime: routes[index].startTime,
           });
           setSelectedRouteIndex(index);
         }}
@@ -137,6 +138,7 @@ const RoutesList: React.FC<RoutesListProps> = ({
             <RouteInfoRow
               route={routes[selectedRouteIndex]}
               timeDisplayStr={timeDisplayStr}
+              startTime={routes[selectedRouteIndex].startTime}
             />
           </View>
         </View>

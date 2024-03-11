@@ -22,10 +22,12 @@ export function getDifficultyLabel(difficulty: number): string {
     return 'Hard';
   }
 }
-export const getDistance = (route: RouteModel): string => {
-  return (route.length / 1000).toFixed(2).toString();
-};
 
+export const isCircular = (route: RouteModel) => {
+  const start = route.locations[0];
+  const end = route.locations.slice(-1)[0];
+  return start.latitude === end.latitude && start.longitude === end.longitude;
+};
 export const getMapDisplayRegion = (route: RouteModel) => {
   const latitudes = route.locations.map((location) => location.latitude);
   const longitudes = route.locations.map((location) => location.longitude);

@@ -98,6 +98,7 @@ const RouteDetails: React.FC<RouteDetailsProps> = ({
       <RouteInfoRow
         route={mapRoute}
         timeDisplayStr={route.params.timeDisplayStr}
+        startTime={mapRoute.startTime}
       />
       <BottomSheetScrollView>
         <View style={styles.gradientContainer}>

@@ -94,7 +94,7 @@ export const RouteInformation: React.FC<RouteInformationProps> = ({
 
   return (
     <View>
-      <Text style={styles.label}>Difficulty: {route.difficulty} / 10</Text>
+      <Text style={styles.label}>Difficulty: {route.difficulty} / 12</Text>
       <View
         style={{
           alignItems: 'center',
