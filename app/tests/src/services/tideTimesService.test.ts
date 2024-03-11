@@ -1,5 +1,5 @@
 import { LocationModel } from '../../../src/models/locationModel';
-import { TideEvent, TideInfo } from '../../../src/models/tideModel';
+import { TideEvent } from '../../../src/models/tideModel';
 import { getTideTimes } from '../../../src/services/tideTimesService';
 import * as utils from '../../../src/services/utils';
 
