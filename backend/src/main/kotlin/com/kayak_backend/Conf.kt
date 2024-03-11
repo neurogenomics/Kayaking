@@ -16,6 +16,7 @@ import com.kayak_backend.services.route.kayak.WeatherKayak
 import com.kayak_backend.services.slipways.BeachesService
 import com.kayak_backend.services.slipways.SlipwayService
 import com.kayak_backend.services.tideTimes.AdmiraltyTideTimeService
+import com.kayak_backend.services.tideTimes.TideStationService
 import com.kayak_backend.services.tideTimes.TideTimeService
 import com.kayak_backend.services.tides.GribTideFetcher
 import com.kayak_backend.services.tides.TideService
@@ -137,6 +138,7 @@ fun getGribFetcher(conf: Conf): GribFetcher {
 fun getTideTimeService(
     conf: Conf,
     sysEnv: Map<String, String>,
+    tideStationService: TideStationService? = null,
 ): TideTimeService {
     return when (conf.tideTimeService) {
         "admiralty" -> {
@@ -144,7 +146,8 @@ fun getTideTimeService(
             if (apiKey.isNullOrEmpty()) {
                 throw IllegalStateException("Admiralty API key is missing or empty in .env")
             }
-            AdmiraltyTideTimeService(apiKey)
+            if (tideStationService == null) return AdmiraltyTideTimeService(apiKey)
+            return AdmiraltyTideTimeService(apiKey, tideStationService = tideStationService)
         }
 
         else -> throw UnsupportedOperationException("TideTime Conf required")
@@ -207,10 +210,7 @@ fun getRoutePlanner(): RoutePlanner {
     return RoutePlanner(setup.first, setup.second)
 }
 
-fun getCircularRoutePlanner(
-    tideService: TideService,
-    legTimer: LegTimer,
-): CircularRoutePlanner {
+fun getCircularRoutePlanner(tideService: TideService): CircularRoutePlanner {
     val setup = getRouteSetup()
-    return CircularRoutePlanner(setup.first, setup.second, legTimer, tideService)
+    return CircularRoutePlanner(setup.first, setup.second, tideService)
 }

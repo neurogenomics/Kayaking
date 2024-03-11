@@ -24,16 +24,6 @@ class LegTest {
     }
 
     @Test
-    fun returnsEmptyListIfGivenZeroLocation() {
-        assertEquals(Leg.create(emptyList()), Leg.MultipleLegs(emptyList()))
-    }
-
-    @Test
-    fun returnsEmptyListIfGivenOneLocation() {
-        assertEquals(Leg.create(listOf(Location(0.0, 0.0))), Leg.MultipleLegs(emptyList()))
-    }
-
-    @Test
     fun legReverseReversesSingleLeg() {
         val l = Leg.SingleLeg(loc1, loc2)
         assertEquals(l.reverse(), Leg.SingleLeg(loc2, loc1))

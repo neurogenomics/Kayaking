@@ -13,8 +13,10 @@ fun splitRouteIntoSections(
     for (location in route) {
         currentLegLocations.add(location)
         if (startPosOnRoute.contains(location)) {
-            val leg = Leg.create(currentLegLocations)
-            if (leg.locations.isNotEmpty()) sections.add(leg)
+            if (currentLegLocations.size > 1) {
+                val leg = Leg.create(currentLegLocations)
+                if (leg.locations.isNotEmpty()) sections.add(leg)
+            }
             currentLegLocations = mutableListOf(location)
         }
     }
