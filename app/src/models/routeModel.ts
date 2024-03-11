@@ -2,6 +2,7 @@ import {
   LocationModel,
   calculateDistanceBetweenLocations,
 } from './locationModel';
+import { RouteDifficulty } from './userInputModel';
 
 export type RouteModel = {
   name: string;
@@ -13,19 +14,13 @@ export type RouteModel = {
   checkpoints: number[];
 };
 
-export enum Difficulty {
-  Easy = 'Easy',
-  Medium = 'Medium',
-  Hard = 'Hard',
-}
-
-export function getDifficultyLabel(difficulty: number): Difficulty {
+export function getDifficultyLabel(difficulty: number): RouteDifficulty {
   if (difficulty <= 4) {
-    return Difficulty.Easy;
+    return RouteDifficulty.Easy;
   } else if (difficulty <= 7) {
-    return Difficulty.Medium;
+    return RouteDifficulty.Medium;
   } else {
-    return Difficulty.Hard;
+    return RouteDifficulty.Hard;
   }
 }
 export const getMapDisplayRegion = (route: RouteModel) => {

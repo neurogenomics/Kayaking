@@ -11,6 +11,7 @@ import {
 } from '../../models/userInputModel';
 import { generateOptions, SelectButtons } from './SelectionButtons';
 import { Button } from 'react-native-paper';
+import { colors } from '../../colors';
 
 type FiltersProps = {
   setUserInput: React.Dispatch<React.SetStateAction<UserInput>>;
@@ -29,7 +30,9 @@ export const Filters: React.FC<FiltersProps> = ({
   const [paddleSpeed, setPaddleSpeed] = useState<PaddleSpeed>(
     PaddleSpeed.Normal,
   );
-  const [routeType, setRouteType] = useState<RouteType>(RouteType.PointToPoint);
+  const [routeType, setRouteType] = useState<RouteType>(
+    RouteType['Point-to-point'],
+  );
   const [routeDifficulty, setRouteDifficulty] = useState<RouteDifficulty>(
     RouteDifficulty.Any,
   );
@@ -51,8 +54,12 @@ export const Filters: React.FC<FiltersProps> = ({
 
   return (
     <View style={styles.container}>
-      <Button mode="contained" onPress={onFindRoutesPressed}>
-        <Text>Find Routes</Text>
+      <Button
+        style={styles.findRoutesButton}
+        mode="contained"
+        onPress={onFindRoutesPressed}
+      >
+        <Text style={styles.title}>Find Routes</Text>
       </Button>
       <View style={styles.divider}></View>
       <View style={styles.rowContainer}>
@@ -169,5 +176,8 @@ const styles = StyleSheet.create({
     height: 1,
     backgroundColor: 'rgba(0, 0, 0, 0.1)',
     marginVertical: 10,
+  },
+  findRoutesButton: {
+    backgroundColor: colors.orange.medium,
   },
 });

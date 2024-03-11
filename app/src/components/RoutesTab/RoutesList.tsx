@@ -3,7 +3,7 @@ import { RouteModel, getMapDisplayRegion } from '../../models/routeModel';
 import React from 'react';
 import { RouteListNavigationProp } from './Routes';
 import MapView, { Polyline } from 'react-native-maps';
-import { routeVisualisationColors } from '../../colors';
+import { colors, routeVisualisationColors } from '../../colors';
 import { RouteInfoRow } from './RouteInfoRow';
 
 const styles = StyleSheet.create({

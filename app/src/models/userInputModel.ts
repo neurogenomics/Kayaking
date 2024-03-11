@@ -5,15 +5,15 @@ export enum PaddleSpeed {
 }
 
 export enum RouteType {
-  PointToPoint = 'pointtopoint',
+  'Point-to-point' = 'point to point',
   Circular = 'circular',
 }
 
 export enum RouteDifficulty {
-  Any = 'any',
-  Easy = 'easy',
-  Medium = 'medium',
-  Hard = 'hard',
+  Any = 'Any',
+  Easy = 'Easy',
+  Medium = 'Medium',
+  Hard = 'Hard',
 }
 
 export type UserInput = {

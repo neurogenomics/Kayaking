@@ -10,7 +10,7 @@ import {
   calculateDistanceBetweenLocations,
   toRadians,
 } from '../../models/locationModel';
-import { colors, getInterpolatedColor, speedMapColours } from '../../colors';
+import { fabColors, getInterpolatedColor, speedMapColours } from '../../colors';
 type RouteInformationProps = {
   route: RouteModel;
 };
@@ -184,7 +184,7 @@ export const RouteInformation: React.FC<RouteInformationProps> = ({
             propsForDots: {
               r: '0',
               strokeWidth: '2',
-              stroke: colors.fabSelected,
+              stroke: fabColors.fabSelected,
             },
           }}
           style={{

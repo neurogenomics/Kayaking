@@ -1,6 +1,7 @@
 import React from 'react';
 //import { PaddleSpeed } from '../models/userInputModel';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { colors } from '../../colors';
 
 // Define the Option interface
 interface Option<T> {
@@ -94,8 +95,8 @@ const styles = StyleSheet.create({
     borderColor: '#ccc',
   },
   selectedButton: {
-    backgroundColor: 'lightblue',
-    borderColor: 'blue',
+    backgroundColor: colors.green.highlight,
+    borderColor: colors.green.medium,
     color: 'white',
   },
   buttonText: {

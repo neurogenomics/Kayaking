@@ -55,7 +55,7 @@ export const getRoute = async (
   userInput: UserInput,
 ): Promise<RouteModel[]> => {
   let url =
-    userInput.routeType === RouteType.PointToPoint
+    userInput.routeType === RouteType['Point-to-point']
       ? 'planRoute'
       : 'planCircularRoute';
   url += `?startDateTime=${format(userInput.startTime, "yyyy-MM-dd'T'HH:mm:ss")}`;
@@ -63,7 +63,7 @@ export const getRoute = async (
   url += `&paddleSpeed=${paddleSpeedToString(userInput.paddleSpeed)}`;
   url += `&difficulty=${difficultyToString(userInput.routeDifficulty)}`;
 
-  if (userInput.routeType === RouteType.PointToPoint) {
+  if (userInput.routeType === RouteType['Point-to-point']) {
     const boundingBox = regionToBoundingBox(region);
     url += `&latFrom=${boundingBox.latFrom}&latTo=${boundingBox.latTo}&lonFrom=${boundingBox.lonFrom}&lonTo=${boundingBox.lonTo}`;
   }
