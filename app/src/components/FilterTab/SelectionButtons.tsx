@@ -1,5 +1,4 @@
 import React from 'react';
-//import { PaddleSpeed } from '../models/userInputModel';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { colors } from '../../colors';
 

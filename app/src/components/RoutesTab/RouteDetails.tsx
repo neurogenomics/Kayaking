@@ -19,6 +19,7 @@ const styles = StyleSheet.create({
     margin: 10,
   },
   titleContainer: {
+    width: '95%',
     flexDirection: 'row',
     alignItems: 'center',
   },
@@ -90,7 +91,7 @@ const RouteDetails: React.FC<RouteDetailsProps> = ({
     <View style={styles.container}>
       <View style={styles.titleContainer}>
         <TouchableOpacity onPress={() => navigation.navigate('RouteList')}>
-          <FontAwesomeIcon icon={faArrowLeft} size={25} color={'blue'} />
+          <FontAwesomeIcon icon={faArrowLeft} size={25} />
         </TouchableOpacity>
         <Text style={styles.routeName}>{mapRoute.name}</Text>
       </View>

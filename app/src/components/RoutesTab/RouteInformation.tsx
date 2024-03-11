@@ -10,7 +10,12 @@ import {
   calculateDistanceBetweenLocations,
   toRadians,
 } from '../../models/locationModel';
-import { fabColors, getInterpolatedColor, speedMapColours } from '../../colors';
+import {
+  colors,
+  fabColors,
+  getInterpolatedColor,
+  speedMapColours,
+} from '../../colors';
 type RouteInformationProps = {
   route: RouteModel;
 };
@@ -129,9 +134,9 @@ export const RouteInformation: React.FC<RouteInformationProps> = ({
           yAxisInterval={4}
           fromZero={true}
           chartConfig={{
-            backgroundColor: 'blue',
-            backgroundGradientFrom: 'blue',
-            backgroundGradientTo: 'blue',
+            backgroundColor: colors.orange.medium,
+            backgroundGradientFrom: colors.orange.medium,
+            backgroundGradientTo: colors.orange.medium,
             fillShadowGradientFromOpacity: 0,
             fillShadowGradientToOpacity: 0,
             decimalPlaces: 0,
@@ -170,9 +175,9 @@ export const RouteInformation: React.FC<RouteInformationProps> = ({
           yAxisSuffix="m/s"
           yAxisInterval={4}
           chartConfig={{
-            backgroundColor: 'blue',
-            backgroundGradientFrom: 'blue',
-            backgroundGradientTo: 'blue',
+            backgroundColor: colors.orange.medium,
+            backgroundGradientFrom: colors.orange.medium,
+            backgroundGradientTo: colors.orange.medium,
             fillShadowGradientFromOpacity: 0,
             fillShadowGradientToOpacity: 0,
             decimalPlaces: 0,
