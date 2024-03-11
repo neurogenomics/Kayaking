@@ -16,7 +16,6 @@ import kotlin.math.sin
 class CircularRoutePlanner(
     baseRoutePolygon: Polygon,
     inStartPositions: List<NamedLocation>,
-    private val legTimer: LegTimer,
     private val tideService: TideService,
     maxStartDistance: Int = 1000,
 ) {
@@ -42,7 +41,8 @@ class CircularRoutePlanner(
         val timeslice =
             resistances.getOrPut(Pair(leg, time.toLocalDate())) {
                 ConcurrentHashMap(
-                    tideService.getTideAllDay(leg.midpoint(), time.toLocalDate()).mapValues { leg.resistance(it.value) },
+                    tideService.getTideAllDay(leg.midpoint(), time.toLocalDate())
+                        .mapValues { leg.resistance(it.value) },
                 )
             }
         return timeslice[time.toLocalTime().truncatedTo(ChronoUnit.HOURS)]
@@ -52,6 +52,7 @@ class CircularRoutePlanner(
         switchLeg: Leg,
         time: LocalDateTime,
         minDuration: Duration,
+        legTimer: LegTimer,
     ): Pair<Leg, LocalDateTime>? {
         var currentStart = time
         var currentEnd = time
@@ -80,6 +81,7 @@ class CircularRoutePlanner(
         date: LocalDate,
         switchLeg: Leg,
         minDuration: Duration,
+        legTimer: LegTimer,
     ): List<Pair<Leg, LocalDateTime>> {
         val switchResistances =
             resistances.getOrPut(Pair(switchLeg, date)) {
@@ -105,32 +107,28 @@ class CircularRoutePlanner(
             }.filterValues { it }
 
         return switchpoints.map {
-            stepThrough(switchLeg, LocalDateTime.of(date, it.key), minDuration)
+            stepThrough(switchLeg, LocalDateTime.of(date, it.key), minDuration, legTimer)
         }.filterNotNull()
     }
 
     private fun routeGenerator(
-        condition: (Leg) -> Boolean,
         date: LocalDate,
         minDuration: Duration,
+        legTimer: LegTimer,
     ): Sequence<Triple<Leg, LocalDateTime, String>> {
-        return sectionsShuffled.asSequence().map { createRoute(date, it, minDuration) }.flatMap { it }
-            .filter { condition(it.first) }.map {
+        return sectionsShuffled.asSequence().map { createRoute(date, it, minDuration, legTimer) }.flatMap { it }
+            .map {
                 val connected = connectToStart(sectionedRoute, it.first)
                 Triple(connected.first, it.second, connected.second)
             }
     }
 
     fun generateRoutes(
-        condition: (Leg) -> Boolean = { true },
-        routeCondition: (Route) -> Boolean = { true },
+        legTimer: LegTimer,
         date: LocalDate = LocalDate.now(),
-        maxGenerated: Int = 10,
         minTime: Duration = Duration.ofHours(4),
     ): Sequence<Route> {
-        val generator = routeGenerator(condition, date, minTime)
-        return generator.map { Route(it.third, it.first.length, it.first, it.second) }.filter(routeCondition)
-            .take(maxGenerated)
-            .sortedByDescending { it.length }
+        val generator = routeGenerator(date, minTime, legTimer)
+        return generator.map { Route(it.third, it.first.length, it.first, it.second) }
     }
 }
