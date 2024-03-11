@@ -29,10 +29,11 @@ export function calculateDistanceBetweenLocations(
   return distance;
 }
 
-function toRadians(degrees: number): number {
+export function toRadians(degrees: number): number {
   return degrees * (Math.PI / 180);
 }
 
+//angle in degrees
 export function angleBetweenLocations(
   point1: LocationModel,
   point2: LocationModel,

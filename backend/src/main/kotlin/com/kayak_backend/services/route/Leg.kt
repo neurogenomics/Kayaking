@@ -47,7 +47,6 @@ sealed class Leg {
         override val length = legs.sumOf { it.length }
         override val start = legs.first().start
         override val end = legs.last().end
-
         override val locations by lazy {
             // Remove last location from each leg as its equal to first location of next leg
             // Except for final leg
