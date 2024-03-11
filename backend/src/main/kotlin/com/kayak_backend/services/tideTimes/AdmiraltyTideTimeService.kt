@@ -9,6 +9,7 @@ import okhttp3.OkHttpClient
 import okhttp3.Request
 import org.json.JSONArray
 import java.io.IOException
+import java.time.Duration
 import java.time.LocalDateTime
 import java.util.concurrent.ConcurrentHashMap
 
@@ -19,17 +20,24 @@ class AdmiraltyTideTimeService(
 ) : TideTimeService {
     private var stations: List<TideStation> = tideStationService.getTideStations()
 
-    private val stationTimes = ConcurrentHashMap<TideStation, TideTimes>()
+    private val stationTimes = ConcurrentHashMap<TideStation, Pair<TideTimes, LocalDateTime>>()
 
     override fun getTideTimes(location: Location): TideTimes {
         val station = getClosestTideStation(location)
-        return stationTimes.getOrPut(station) {
-            val request = buildRequest(station.id)
-            val response = client.newCall(request).execute()
-            val jsonStr = response.body?.string() ?: throw IOException("No response body from Admiralty API")
-            val events = parseTideEvents(jsonStr)
-            TideTimes(events, station)
-        }
+
+        val res = stationTimes.compute(station) { tideStation, value ->
+            if (value == null || (Duration.between(value.second, LocalDateTime.now()) >= Duration.ofDays(1))) {
+                val request = buildRequest(tideStation.id)
+                val response = client.newCall(request).execute()
+                val jsonStr = response.body?.string() ?: throw IOException("No response body from Admiralty API")
+                val events = parseTideEvents(jsonStr)
+                Pair(TideTimes(events, station), LocalDateTime.now())
+            } else {
+                value
+            }
+        }!!
+
+        return res.first
     }
 
     private fun parseTideEvents(jsonStr: String): List<TideEvent> {
