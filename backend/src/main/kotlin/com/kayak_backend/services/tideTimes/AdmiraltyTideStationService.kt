@@ -22,6 +22,11 @@ class AdmiraltyTideStationService(private val apiKey: String, private val client
         val stations: MutableList<TideStation> = mutableListOf()
         for (i in 0 until features.length()) {
             val feature = features.getJSONObject(i)
+
+            val continuousHeightsAvailable = feature.getJSONObject("properties").getBoolean("ContinuousHeightsAvailable")
+            if (!continuousHeightsAvailable) {
+                continue
+            }
             val coordinates = feature.getJSONObject("geometry").getJSONArray("coordinates")
             val location = Location(coordinates.getDouble(1), coordinates.getDouble(0))
             val properties = feature.getJSONObject("properties")
