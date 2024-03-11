@@ -20,10 +20,10 @@ import kotlin.math.max
 import kotlin.math.min
 
 @Serializable
-data class Data(
+data class RouteInformation(
     val locations: List<Location>,
     val checkpoints: List<Int>,
-    @Serializable(with = LocalDateTimeSerializer::class) val start: LocalDateTime,
+    @Serializable(with = LocalDateTimeSerializer::class) val date: LocalDateTime,
 )
 
 fun Route.wind(wind: WindService) {
@@ -61,11 +61,11 @@ fun Route.wind(wind: WindService) {
     route("/winds") {
         post {
             val requestBody = call.receiveText()
-            val data = Json.decodeFromString<Data>(requestBody)
+            val data = Json.decodeFromString<RouteInformation>(requestBody)
 
             try {
                 // Call your wind.getWindRoute() function with the extracted data
-                call.respond(wind.getWindRoute(data.locations, data.checkpoints, data.start))
+                call.respond(wind.getWindRoute(data.locations, data.checkpoints, data.date))
             } catch (e: Exception) {
                 // Handle errors
                 call.respond(HttpStatusCode.BadRequest, "Invalid request")
