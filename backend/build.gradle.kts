@@ -9,6 +9,7 @@ plugins {
     id("org.jetbrains.kotlin.plugin.serialization") version "1.9.22"
     id("com.adarshr.test-logger") version "4.0.0"
     id("org.jlleitschuh.gradle.ktlint") version "12.1.0"
+    id("org.jetbrains.kotlinx.kover") version "0.7.6"
 }
 
 group = "com.kayak_backend"

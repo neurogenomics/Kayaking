@@ -207,10 +207,7 @@ fun getRoutePlanner(): RoutePlanner {
     return RoutePlanner(setup.first, setup.second)
 }
 
-fun getCircularRoutePlanner(
-    tideService: TideService,
-    legTimer: LegTimer,
-): CircularRoutePlanner {
+fun getCircularRoutePlanner(tideService: TideService): CircularRoutePlanner {
     val setup = getRouteSetup()
-    return CircularRoutePlanner(setup.first, setup.second, legTimer, tideService)
+    return CircularRoutePlanner(setup.first, setup.second, tideService)
 }

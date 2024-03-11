@@ -20,7 +20,7 @@ fun Application.configureRouting(conf: Conf) {
         wave(getWaveService(conf))
         planRoute(
             getRoutePlanner(),
-            getCircularRoutePlanner(tideService, legTimers.normalLegTimer),
+            getCircularRoutePlanner(tideService),
             legTimers,
             getLegDifficulty(),
         )

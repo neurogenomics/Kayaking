@@ -52,11 +52,11 @@ class CircularRouteTest {
 
     @Test
     fun generatesRoutesWhichStartAndEndAtValidPoints() {
-        val routePlanner = CircularRoutePlanner(polygon, startPos, legTimerMock, tideServiceMock, 10000)
+        val routePlanner = CircularRoutePlanner(polygon, startPos, tideServiceMock, 10000)
 
         val result = (
             routePlanner.generateRoutes(
-                condition = { true },
+                legTimerMock,
                 date = LocalDate.of(2024, 7, 4),
                 minTime = Duration.ofHours(4),
             ).take(5).toList()
@@ -70,11 +70,11 @@ class CircularRouteTest {
 
     @Test
     fun routeIsCircular() {
-        val routePlanner = CircularRoutePlanner(polygon, startPos, legTimerMock, tideServiceMock, 10000)
+        val routePlanner = CircularRoutePlanner(polygon, startPos, tideServiceMock, 10000)
 
         val result = (
             routePlanner.generateRoutes(
-                condition = { true },
+                legTimerMock,
                 date = LocalDate.of(2024, 7, 4),
                 minTime = Duration.ofHours(4),
             ).take(5).toList()
@@ -87,11 +87,11 @@ class CircularRouteTest {
 
     @Test
     fun routeStartsBeforeSwitch() {
-        val routePlanner = CircularRoutePlanner(polygon, startPos, legTimerMock, tideServiceMock, 10000)
+        val routePlanner = CircularRoutePlanner(polygon, startPos, tideServiceMock, 10000)
 
         val result = (
             routePlanner.generateRoutes(
-                condition = { true },
+                legTimerMock,
                 date = LocalDate.of(2024, 7, 4),
                 minTime = Duration.ofHours(4),
             ).take(5).toList()
@@ -105,11 +105,11 @@ class CircularRouteTest {
 
     @Test
     fun routeIsRightLength() {
-        val routePlanner = CircularRoutePlanner(polygon, startPos, legTimerMock, tideServiceMock, 10000)
+        val routePlanner = CircularRoutePlanner(polygon, startPos, tideServiceMock, 10000)
 
         val result = (
             routePlanner.generateRoutes(
-                condition = { true },
+                legTimerMock,
                 date = LocalDate.of(2024, 7, 4),
                 minTime = Duration.ofHours(4),
             ).take(5).toList()
@@ -123,11 +123,11 @@ class CircularRouteTest {
 
     @Test
     fun routeIsSupportedByTide() {
-        val routePlanner = CircularRoutePlanner(polygon, startPos, legTimerMock, tideServiceMock, 10000)
+        val routePlanner = CircularRoutePlanner(polygon, startPos, tideServiceMock, 10000)
 
         val result = (
             routePlanner.generateRoutes(
-                condition = { true },
+                legTimerMock,
                 date = LocalDate.of(2024, 7, 4),
                 minTime = Duration.ofHours(4),
             ).take(5).toList()
