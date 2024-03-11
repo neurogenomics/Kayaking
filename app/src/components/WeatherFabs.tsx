@@ -1,7 +1,7 @@
 import { FAB } from 'react-native-paper';
 import React, { useState } from 'react';
 import { StyleSheet } from 'react-native';
-import { COLORS } from '../colors';
+import { colors } from '../colors';
 import { WeatherGridType } from '../models/weatherGridModel';
 
 const styles = StyleSheet.create({
@@ -10,7 +10,7 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   fab: {
-    backgroundColor: COLORS.fabUnselected,
+    backgroundColor: colors.fabUnselected,
   },
 });
 
@@ -77,7 +77,7 @@ const WeatherFabs: React.FC<WeatherFabsProps> = ({
       style={styles.fabGroup}
       fabStyle={styles.fab}
       icon="layers"
-      backdropColor={COLORS.backdrop}
+      backdropColor={colors.backdrop}
       actions={icons.map((icon, index) => ({
         icon: icon,
         label: names[index],
@@ -107,8 +107,8 @@ const WeatherFabs: React.FC<WeatherFabsProps> = ({
         },
         style: {
           backgroundColor: layers[index]
-            ? COLORS.fabSelected
-            : COLORS.fabUnselected,
+            ? colors.fabSelected
+            : colors.fabUnselected,
         },
       }))}
       onPress={() => setLayersOpen(!layersOpen)}

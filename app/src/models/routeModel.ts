@@ -13,21 +13,21 @@ export type RouteModel = {
   checkpoints: number[];
 };
 
-export function getDifficultyLabel(difficulty: number): string {
-  if (difficulty <= 4) {
-    return 'Easy';
-  } else if (difficulty <= 7) {
-    return 'Medium';
-  } else {
-    return 'Hard';
-  }
+export enum Difficulty {
+  Easy = 'Easy',
+  Medium = 'Medium',
+  Hard = 'Hard',
 }
 
-export const isCircular = (route: RouteModel) => {
-  const start = route.locations[0];
-  const end = route.locations.slice(-1)[0];
-  return start.latitude === end.latitude && start.longitude === end.longitude;
-};
+export function getDifficultyLabel(difficulty: number): Difficulty {
+  if (difficulty <= 4) {
+    return Difficulty.Easy;
+  } else if (difficulty <= 7) {
+    return Difficulty.Medium;
+  } else {
+    return Difficulty.Hard;
+  }
+}
 export const getMapDisplayRegion = (route: RouteModel) => {
   const latitudes = route.locations.map((location) => location.latitude);
   const longitudes = route.locations.map((location) => location.longitude);

@@ -1,12 +1,11 @@
 import { interpolateColor } from 'react-native-reanimated';
+import { Difficulty } from './models/routeModel';
 
-export const COLORS = {
+export const colors = {
   fabUnselected: '#fafafa',
   fabSelected: '#6ca0dc',
   backdrop: '#c8dfeaaa',
 };
-
-export const graphColour = '#8A2BE2';
 
 export const mapVisColours = {
   wind: ['#0000FF', '#FF0000'],
@@ -15,6 +14,12 @@ export const mapVisColours = {
     'rgba(0, 255, 0, 0.25)', // Green with 50% transparency
     'rgba(255, 0, 0, 0.25)', // Red with 50% transparency
   ],
+};
+
+export const difficultyColours = {
+  [Difficulty.Easy]: 'rgba(0, 128, 0, 0.3)',
+  [Difficulty.Medium]: 'rgba(255, 165, 0, 0.3)',
+  [Difficulty.Hard]: 'rgba(255, 0, 0, 0.3)',
 };
 
 export const speedMapColours = [

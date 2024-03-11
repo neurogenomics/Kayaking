@@ -1,16 +1,13 @@
-import {
-  getDifficultyLabel,
-  isCircular,
-  RouteModel,
-} from '../../models/routeModel';
+import { getDifficultyLabel, RouteModel } from '../../models/routeModel';
 import React from 'react';
 import { Text, View, StyleSheet } from 'react-native';
 import { Icon } from 'react-native-paper';
+import { difficultyColours } from '../../colors';
 
 type RouteInfoRowProps = {
   route: RouteModel;
   timeDisplayStr: string;
-  startTime: Date; // displayed for circular routes
+  showTime: boolean;
 };
 
 const styles = StyleSheet.create({
@@ -19,6 +16,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     width: '100%',
+    margin: 4,
   },
   textContainer: {
     justifyContent: 'center',
@@ -27,13 +25,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     textAlign: 'center',
   },
-  difficultyTextContainer: {
-    padding: 4,
-    borderRadius: 4,
-    backgroundColor: 'rgb(0, 200, 0, 0.3)',
-  },
   text: {
-    fontSize: 18,
+    fontSize: 16,
     marginHorizontal: 3,
   },
 });
@@ -41,15 +34,15 @@ const styles = StyleSheet.create({
 export const RouteInfoRow: React.FC<RouteInfoRowProps> = ({
   route,
   timeDisplayStr,
-  startTime,
+  showTime,
 }) => {
   return route !== undefined ? (
     <View style={styles.rowContainer}>
-      {isCircular(route) ? (
+      {showTime ? (
         <View style={styles.textContainer}>
           <Icon source="clock-outline" size={24} />
           <Text style={styles.text}>
-            {startTime.toLocaleTimeString([], {
+            {route.startTime.toLocaleTimeString([], {
               hour: '2-digit',
               minute: '2-digit',
             })}
@@ -65,9 +58,18 @@ export const RouteInfoRow: React.FC<RouteInfoRowProps> = ({
         <Text style={styles.text}>{timeDisplayStr}</Text>
       </View>
       <View style={styles.textContainer}>
-        <Text style={styles.difficultyText}>
-          {getDifficultyLabel(route.difficulty)}
-        </Text>
+        <View
+          style={{
+            padding: 4,
+            borderRadius: 4,
+            backgroundColor:
+              difficultyColours[getDifficultyLabel(route.difficulty)],
+          }}
+        >
+          <Text style={styles.text}>
+            {getDifficultyLabel(route.difficulty)}
+          </Text>
+        </View>
       </View>
     </View>
   ) : null;

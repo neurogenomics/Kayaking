@@ -10,12 +10,7 @@ import {
   calculateDistanceBetweenLocations,
   toRadians,
 } from '../../models/locationModel';
-import {
-  COLORS,
-  getInterpolatedColor,
-  graphColour,
-  speedMapColours,
-} from '../../colors';
+import { colors, getInterpolatedColor, speedMapColours } from '../../colors';
 type RouteInformationProps = {
   route: RouteModel;
 };
@@ -25,6 +20,11 @@ const styles = StyleSheet.create({
     fontSize: 18,
     marginBottom: 5,
     marginTop: 0,
+  },
+  speedometer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: -70,
   },
   graphContainer: {
     width: '100%',
@@ -76,7 +76,7 @@ export const RouteInformation: React.FC<RouteInformationProps> = ({
         //wind projected onto velocity
         const w_dot_v = vel.u * winds[index].u + winds[index].v * vel.v;
         const v_dot_v = vel.u * vel.u + vel.v * vel.v;
-        return (w_dot_v / v_dot_v).toFixed(2);
+        return parseFloat((w_dot_v / v_dot_v).toFixed(2));
       });
       if (windScalar.length !== 0) {
         setWindsInfo(windScalar);
@@ -95,13 +95,7 @@ export const RouteInformation: React.FC<RouteInformationProps> = ({
   return (
     <View>
       <Text style={styles.label}>Difficulty: {route.difficulty} / 12</Text>
-      <View
-        style={{
-          alignItems: 'center',
-          justifyContent: 'center',
-          marginBottom: -70,
-        }}
-      >
+      <View style={styles.speedometer}>
         <Speedometer
           value={route.difficulty}
           max={10}
@@ -135,9 +129,9 @@ export const RouteInformation: React.FC<RouteInformationProps> = ({
           yAxisInterval={4}
           fromZero={true}
           chartConfig={{
-            backgroundColor: graphColour,
-            backgroundGradientFrom: graphColour,
-            backgroundGradientTo: graphColour,
+            backgroundColor: 'blue',
+            backgroundGradientFrom: 'blue',
+            backgroundGradientTo: 'blue',
             fillShadowGradientFromOpacity: 0,
             fillShadowGradientToOpacity: 0,
             decimalPlaces: 0,
@@ -176,9 +170,9 @@ export const RouteInformation: React.FC<RouteInformationProps> = ({
           yAxisSuffix="m/s"
           yAxisInterval={4}
           chartConfig={{
-            backgroundColor: graphColour,
-            backgroundGradientFrom: graphColour,
-            backgroundGradientTo: graphColour,
+            backgroundColor: 'blue',
+            backgroundGradientFrom: 'blue',
+            backgroundGradientTo: 'blue',
             fillShadowGradientFromOpacity: 0,
             fillShadowGradientToOpacity: 0,
             decimalPlaces: 0,
@@ -190,7 +184,7 @@ export const RouteInformation: React.FC<RouteInformationProps> = ({
             propsForDots: {
               r: '0',
               strokeWidth: '2',
-              stroke: COLORS.fabSelected,
+              stroke: colors.fabSelected,
             },
           }}
           style={{

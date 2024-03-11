@@ -3,13 +3,12 @@ import { RouteModel, getMapDisplayRegion } from '../../models/routeModel';
 import React from 'react';
 import { RouteListNavigationProp } from './Routes';
 import MapView, { Polyline } from 'react-native-maps';
-import { RouteInfoRow } from './RouteInfoRow';
 import { routeVisualisationColors } from '../../colors';
+import { RouteInfoRow } from './RouteInfoRow';
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: 'red',
   },
   itemContainer: {
     padding: 10,
@@ -100,7 +99,6 @@ const RoutesList: React.FC<RoutesListProps> = ({
           navigation.navigate('RouteDetails', {
             route: routes[index],
             timeDisplayStr: timeDisplayStr,
-            startTime: routes[index].startTime,
           });
           setSelectedRouteIndex(index);
         }}
@@ -138,7 +136,7 @@ const RoutesList: React.FC<RoutesListProps> = ({
             <RouteInfoRow
               route={routes[selectedRouteIndex]}
               timeDisplayStr={timeDisplayStr}
-              startTime={routes[selectedRouteIndex].startTime}
+              showTime={false}
             />
           </View>
         </View>

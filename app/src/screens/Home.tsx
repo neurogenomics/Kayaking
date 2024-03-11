@@ -189,7 +189,7 @@ const HomeScreen: React.FC<HomeProps> = () => {
         <Tab.Navigator>
           <Tab.Screen name="Filter">
             {() => (
-              <BottomSheetScrollView>
+              <BottomSheetScrollView style={{ backgroundColor: 'white' }}>
                 <Filters
                   setUserInput={setUserInput}
                   onFindRoutesPressed={handleSearch}
