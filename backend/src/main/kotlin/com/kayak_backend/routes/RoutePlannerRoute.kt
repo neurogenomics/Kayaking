@@ -111,7 +111,7 @@ fun Route.planRoute(
                     legTimer,
                     date.toLocalDate(),
                     minTime = Duration.ofMinutes(duration.toLong()),
-                ).take(10).toList()
+                )
             val timedRoutes =
                 routes.map { Pair(it, difficultyLegTimers.normalLegTimer.getCheckpoints(it, it.startTime)) }
             call.respond(
@@ -124,7 +124,9 @@ fun Route.planRoute(
                         route.startTime,
                         legDifficulty.getDifficulty(route, route.startTime, checkpoints),
                     )
-                }.filter { it.difficulty in difficulty }.take(10).sortedBy { it.length }.toList(),
+                }.filter { it.difficulty in difficulty && it.startTime > date }.take(10)
+                    .sortedBy { Duration.between(it.startTime, date) }
+                    .toList(),
             )
         }
     }
