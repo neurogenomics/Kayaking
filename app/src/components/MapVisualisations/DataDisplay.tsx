@@ -1,10 +1,10 @@
 import { useEffect, useState } from 'react';
 import { LocationModel } from '../../models/locationModel';
 import { SunsetInfo } from '../../models/sunsetModel';
-import { TideEvent } from '../../models/tideModel';
+import { TideInfo } from '../../models/tideModel';
 import { View, Text, StyleSheet } from 'react-native';
 import { getSunset } from '../../services/sunsetService';
-import { getTideTimes } from '../../services/tideTimesService';
+import { format } from 'date-fns';
 
 export const styles = StyleSheet.create({
   container: {
@@ -26,45 +26,25 @@ export const styles = StyleSheet.create({
 type DataDisplayProps = {
   sunsetOn: boolean;
   tideTimesOn: boolean;
+  tideInfo?: TideInfo;
+  startTime: Date;
   location: LocationModel;
-  date: Date;
 };
 
 export const DataDisplay: React.FC<DataDisplayProps> = ({
   sunsetOn,
   tideTimesOn,
+  tideInfo,
+  startTime,
   location,
-  date,
 }: DataDisplayProps) => {
   const [sunsetInfo, setSunsetInfo] = useState<SunsetInfo>();
-  const [nextTideInfo, setNextTideInfo] = useState<TideEvent>();
   const getSunInfo = async (location: LocationModel, date: Date) => {
     try {
       const sunInfo: SunsetInfo = await getSunset(location, date);
       setSunsetInfo(sunInfo);
     } catch (error) {
       console.log('Error getting sunset info: ', error);
-    }
-  };
-
-  const getNextTideInfo = (events: [TideEvent]): TideEvent => {
-    const currentDate = new Date();
-    for (let i = 0; i < events.length; i++) {
-      // comparison between regular datetime and currentDate was not working as expected
-      if (new Date(events[i].datetime.toString()) > currentDate) {
-        return events[i];
-      }
-    }
-    return events[0];
-  };
-
-  const getTideInfo = async (location: LocationModel) => {
-    try {
-      await getTideTimes(location).then((tideinfo) =>
-        setNextTideInfo(getNextTideInfo(tideinfo.events)),
-      );
-    } catch (error) {
-      console.log('Error getting tide info: ', error);
     }
   };
 
@@ -75,20 +55,11 @@ export const DataDisplay: React.FC<DataDisplayProps> = ({
     }
   };
 
-  const getTideTimeString = (datetime: Date) => {
-    const timeRegex = /T(\d{2}:\d{2})/;
-    const extractedTime = datetime.toString().match(timeRegex);
-    return extractedTime ? extractedTime[1] : '';
-  };
-
   useEffect(() => {
     if (sunsetOn) {
-      void getSunInfo(location, date);
+      void getSunInfo(location, startTime);
     }
-    if (tideTimesOn) {
-      void getTideInfo(location);
-    }
-  }, [sunsetOn, tideTimesOn]);
+  }, [sunsetOn]);
 
   return (
     <View style={styles.container}>
@@ -108,19 +79,31 @@ export const DataDisplay: React.FC<DataDisplayProps> = ({
       ) : (
         <></>
       )}
-      {/*TODO: find out what information is required to be displayed*/}
-      {tideTimesOn && nextTideInfo !== undefined ? (
+      {tideTimesOn ? (
         <View style={styles.infoContainer}>
           <View style={styles.textContainer}>
-            <Text style={styles.text}>
-              {nextTideInfo.isHighTide ? 'High tide ' : 'Low tide '}
-              {nextTideInfo.height
-                ? `of ${nextTideInfo.height.toFixed(1)}m `
-                : ''}
-              {nextTideInfo.datetime
-                ? `at ${getTideTimeString(nextTideInfo.datetime)}`
-                : ''}
-            </Text>
+            {tideInfo &&
+              tideInfo.events
+                .map(
+                  (info, index) =>
+                    info.datetime.getTime() - startTime.getTime() > 0 && (
+                      <Text key={index} style={styles.text}>
+                        {info.isHighTide ? 'High Tide' : 'Low Tide'}
+                        {info.height ? ` of ${info.height.toFixed(1)}m` : ''}
+                        {info.datetime
+                          ? ` at ${format(info.datetime, 'HH:mm')}`
+                          : ''}
+                        {}
+                      </Text>
+                    ),
+                )
+                .filter((item) => item)
+                .slice(0, 5)}
+            {tideInfo && (
+              <Text style={styles.text}>
+                Source: {tideInfo.source.name} Tide Station
+              </Text>
+            )}
           </View>
         </View>
       ) : (

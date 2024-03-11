@@ -7,10 +7,9 @@ import com.kayak_backend.services.route.BaseRoute
 class SeaBearingService(
     coastlineService: CoastlineService,
     routeBuffer: Double,
+    private val seaBearingsGetter: SeaBearingsGetter = SeaBearingsGetter(coastlineService, BaseRoute(), routeBuffer),
 ) {
     private var seaBearings: Map<Location, Double> = emptyMap()
-
-    private val seaBearingsGetter = SeaBearingsGetter(coastlineService, BaseRoute(), routeBuffer)
 
     fun getSeaBearings(): Map<Location, Double> {
         if (seaBearings.isEmpty()) {

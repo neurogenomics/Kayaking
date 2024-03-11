@@ -1,12 +1,14 @@
+import { LocationModel } from './locationModel';
+
 export type TideInfo = {
-  events: [TideEvent];
+  events: TideEvent[];
   source: TideStation;
 };
 
 export type TideStation = {
   id: string;
   name: string;
-  location: Location;
+  location: LocationModel;
 };
 
 export type TideEvent = {

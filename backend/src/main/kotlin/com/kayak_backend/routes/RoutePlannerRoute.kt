@@ -1,7 +1,6 @@
 package com.kayak_backend.routes
 
 import com.kayak_backend.services.route.*
-import com.kayak_backend.services.route.CircularRoutePlanner
 import io.ktor.server.application.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
@@ -58,7 +57,7 @@ fun Route.planRoute(
             val latTo = call.parameters.getOrFail<Double>("latTo")
             val lonTo = call.parameters.getOrFail<Double>("lonTo")
             val duration = call.parameters.getOrFail<Double>("duration")
-            val startTime = getDateParameter(call.parameters, "startDateTime")
+            val startTime = getDateTimeParameter(call.parameters, "startDateTime")
             val paddleSpeed = parsePaddleSpeed(call.parameters["paddleSpeed"] ?: "normal")
             val difficulty = parseDifficultyRange(call.parameters["difficulty"] ?: "medium")
 
@@ -81,8 +80,7 @@ fun Route.planRoute(
                 }
 
             val rankedRoutes =
-                timedRoutes.map {
-                        (route, checkpoints) ->
+                timedRoutes.map { (route, checkpoints) ->
                     TimedRankedRoute(
                         route.name,
                         route.length,
@@ -102,18 +100,22 @@ fun Route.planRoute(
     route("/planCircularRoute") {
         get {
             val duration = call.parameters.getOrFail<Double>("duration")
-            val date = getDateParameter(call.parameters, "startDateTime")
+            val date = getDateTimeParameter(call.parameters, "startDateTime")
+            val paddleSpeed = parsePaddleSpeed(call.parameters["paddleSpeed"] ?: "normal")
+            val difficulty = parseDifficultyRange(call.parameters["difficulty"] ?: "medium")
+
+            val legTimer = paddleSpeedToLegTimer(paddleSpeed, difficultyLegTimers)
+
             val routes =
                 circularRoutePlanner.generateRoutes(
-                    { true },
-                    { it.startTime >= date },
+                    legTimer,
                     date.toLocalDate(),
                     minTime = Duration.ofMinutes(duration.toLong()),
-                ).take(10).toList()
-            val timedRoutes = routes.map { Pair(it, difficultyLegTimers.normalLegTimer.getCheckpoints(it, it.startTime)) }
+                )
+            val timedRoutes =
+                routes.map { Pair(it, difficultyLegTimers.normalLegTimer.getCheckpoints(it, it.startTime)) }
             call.respond(
-                timedRoutes.map {
-                        (route, checkpoints) ->
+                timedRoutes.map { (route, checkpoints) ->
                     TimedRankedRoute(
                         route.name,
                         route.length,
@@ -122,7 +124,9 @@ fun Route.planRoute(
                         route.startTime,
                         legDifficulty.getDifficulty(route, route.startTime, checkpoints),
                     )
-                },
+                }.filter { it.difficulty in difficulty && it.startTime > date }.take(10)
+                    .sortedBy { Duration.between(it.startTime, date) }
+                    .toList(),
             )
         }
     }

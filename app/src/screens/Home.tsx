@@ -26,6 +26,9 @@ import { getWeatherDates } from '../services/timeService';
 import SearchFab from '../components/SearchFab';
 import { getRoute } from '../services/routeService';
 import { WaveHeightVisualisation } from '../components/MapVisualisations/WaveHeightVisualisation';
+import { TideInfo } from '../models/tideModel';
+import { getTideTimes } from '../services/tideTimesService';
+import { LocationModel } from '../models/locationModel';
 
 const styles = StyleSheet.create({
   container: {
@@ -58,6 +61,20 @@ const HomeScreen: React.FC<HomeProps> = () => {
   const [selectedRouteIndex, setSelectedRouteIndex] = useState(0);
   const [weatherDates, setWeatherDates] = useState<Date[]>([]);
   const [region, setRegion] = useState<Region>(isleOfWight);
+
+  const [tideInfo, setTideInfo] = useState<TideInfo>();
+
+  useEffect(() => {
+    if (tideTimesOn) {
+      const center: LocationModel = {
+        latitude: region.latitude,
+        longitude: region.longitude,
+      };
+      void getTideTimes(center).then((tideTimes) => {
+        setTideInfo(tideTimes);
+      });
+    }
+  }, [tideTimesOn, region]);
 
   const [isSearching, setIsSearching] = useState(false);
 
@@ -158,8 +175,9 @@ const HomeScreen: React.FC<HomeProps> = () => {
       <DataDisplay
         sunsetOn={sunsetOn}
         tideTimesOn={tideTimesOn}
-        location={region}
-        date={mapDate}
+        tideInfo={tideInfo}
+        startTime={mapDate}
+        location={isleOfWight}
       />
       <View style={styles.searchFabContainer}>
         <SearchFab
@@ -167,7 +185,6 @@ const HomeScreen: React.FC<HomeProps> = () => {
           isSearching={isSearching}
         ></SearchFab>
       </View>
-      {/*<Text style={{ fontSize: 100 }}>put here</Text>*/}
       <Animated.View style={inverseBottomSheetStyle} pointerEvents="box-none">
         <WeatherFabs
           visible={fabsVisible}
@@ -193,6 +210,7 @@ const HomeScreen: React.FC<HomeProps> = () => {
                 <Filters
                   setUserInput={setUserInput}
                   onFindRoutesPressed={handleSearch}
+                  weatherDates={weatherDates}
                 />
               </BottomSheetScrollView>
             )}
