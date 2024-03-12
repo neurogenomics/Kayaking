@@ -125,7 +125,7 @@ fun Route.planRoute(
                         legDifficulty.getDifficulty(route, route.startTime, checkpoints),
                     )
                 }.filter { it.difficulty in difficulty && it.startTime > date }.take(10)
-                    .sortedBy { Duration.between(it.startTime, date) }
+                    .sortedBy { Duration.between(date, it.startTime) }
                     .toList(),
             )
         }
