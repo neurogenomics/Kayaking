@@ -72,7 +72,7 @@ export const DataDisplay: React.FC<DataDisplayProps> = ({
           </View>
           <View style={styles.textContainer}>
             <Text style={styles.text}>
-              Sunrise Time: {getSunTimeString(sunsetInfo.sunset)}
+              Sunset Time: {getSunTimeString(sunsetInfo.sunset)}
             </Text>
           </View>
         </View>
