@@ -15,7 +15,7 @@ export type RouteModel = {
 };
 
 export function getDifficultyLabel(difficulty: number): RouteDifficulty {
-  if (difficulty <= 4) {
+  if (difficulty <= 3) {
     return RouteDifficulty.Easy;
   } else if (difficulty <= 7) {
     return RouteDifficulty.Medium;
