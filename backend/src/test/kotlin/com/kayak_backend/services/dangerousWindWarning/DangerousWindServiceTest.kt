@@ -16,7 +16,7 @@ import kotlin.test.assertFalse
 
 class DangerousWindServiceTest {
     // Please make sure this matches BAD_WIND_MAGNITUDE_LIMIT in DangerousWindService so the tests don't break updating that value
-    private val badWindMagnitude = 4.0
+    private val badWindMagnitude = 2.0
 
     // Same with this and BAD_WIND_ANGLE
     private val badWindAngle = 90.0
