@@ -98,7 +98,7 @@ export const DataDisplay: React.FC<DataDisplayProps> = ({
                     ),
                 )
                 .filter((item) => item)
-                .slice(0, 5)}
+                .slice(0, 1)}
             {tideInfo && (
               <Text style={styles.text}>
                 Source: {tideInfo.source.name} Tide Station

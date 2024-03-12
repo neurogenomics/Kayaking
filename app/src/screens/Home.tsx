@@ -174,7 +174,7 @@ const HomeScreen: React.FC<HomeProps> = () => {
       </SafeAreaView>
       <DataDisplay
         sunsetOn={sunsetOn}
-        tideTimesOn={tideTimesOn}
+        tideTimesOn={weatherMap === WeatherGridType.TIDE}
         tideInfo={tideInfo}
         startTime={mapDate}
         location={isleOfWight}
