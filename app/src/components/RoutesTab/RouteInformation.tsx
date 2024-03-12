@@ -99,23 +99,6 @@ export const RouteInformation: React.FC<RouteInformationProps> = ({
 
   return (
     <View>
-      <Text style={styles.label}>Difficulty: {route.difficulty} / 12</Text>
-      <View style={styles.speedometer}>
-        <Speedometer
-          value={route.difficulty}
-          max={10}
-          angle={180}
-          lineCap="round"
-          accentColor={getInterpolatedColor(
-            route.difficulty,
-            [1, 12],
-            speedMapColours,
-          )}
-        >
-          <Arc arcWidth={40} />
-          <Progress arcWidth={40} />
-        </Speedometer>
-      </View>
       <Text style={styles.label}>Paddling speed</Text>
       <View style={styles.graphContainer}>
         <LineChart

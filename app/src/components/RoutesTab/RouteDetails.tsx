@@ -12,6 +12,7 @@ import { speedMapColours } from '../../colors';
 import RouteInformation from './RouteInformation';
 import { RouteInfoRow } from './RouteInfoRow';
 import { BottomSheetScrollView } from '@gorhom/bottom-sheet';
+import RouteSpeedometer from './RouteSpeedometer';
 
 const styles = StyleSheet.create({
   container: {
@@ -62,6 +63,11 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     overflow: 'hidden',
   },
+  label: {
+    fontSize: 18,
+    marginBottom: 5,
+    marginTop: 0,
+  },
 });
 
 type RouteDetailsProps = NativeStackScreenProps<
@@ -102,6 +108,8 @@ const RouteDetails: React.FC<RouteDetailsProps> = ({
         showTime={true}
       />
       <BottomSheetScrollView>
+        <RouteSpeedometer route={mapRoute}></RouteSpeedometer>
+        <Text style={styles.label}>Relative route speed</Text>
         <View style={styles.gradientContainer}>
           <Text style={styles.text}>Slow</Text>
           <LinearGradient
